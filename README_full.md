@@ -12,11 +12,10 @@ The **Fitness Challenge Tracker** is a cloud-native web application designed to 
 ---
 
 ## 👥 Team Members
-- Student A  
-- Student B  
-- Student C  
+- Alex Sanchez  
+-  Patrick Manswell
+-  Shane Ivey
 
-*(Names/emails to be filled in)*
 
 ---
 
