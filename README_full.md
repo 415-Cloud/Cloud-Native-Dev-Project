@@ -12,7 +12,7 @@ The **Fitness Challenge Tracker** is a cloud-native web application designed to 
 ---
 
 ## 👥 Team Members
-- Alex Sanchez  
+-  Alex Sanchez  
 -  Patrick Manswell
 -  Shane Ivey
 
@@ -37,8 +37,7 @@ The **Fitness Challenge Tracker** is a cloud-native web application designed to 
 - **Databases:** PostgreSQL (core), Redis (leaderboards, caching)  
 - **Messaging/Event Bus:** RabbitMQ or NATS  
 - **Containerization:** Docker  
-- **Orchestration:** Kubernetes (Helm)  
-- **Monitoring/Logging:** Prometheus, Grafana, Loki  
+- **Orchestration:** Kubernetes 
 
 ---
 
@@ -51,42 +50,6 @@ The user interface will provide:
 - **Leaderboard View** – see personal rank and top competitors  
 - **Training Plan View** – view AI-generated weekly training recommendations  
 - **Notifications Panel** – reminders and updates  
-
----
-
-## 🚀 Deployment Instructions
-
-1. Clone the repo  
-   ```bash
-   git clone https://github.com/<your-org>/fitness-challenge-tracker.git
-   cd fitness-challenge-tracker
-   ```
-
-2. Build Docker images  
-   ```bash
-   docker compose build
-   ```
-
-3. Run locally  
-   ```bash
-   docker compose up -d
-   ```
-
-4. Deploy to Kubernetes (using Helm)  
-   ```bash
-   helm install fitness ./deploy/helm
-   ```
-
----
-
-## 📅 9-Week Roadmap
-- **Week 1-2:** Requirements, repo setup, auth + user service  
-- **Week 3-4:** Workout + challenge services  
-- **Week 5:** Leaderboard (Redis), event bus integration  
-- **Week 6:** Coach service (basic AI logic)  
-- **Week 7:** Frontend React UI + API integration  
-- **Week 8:** Notifications + polish  
-- **Week 9:** Observability, testing, demo prep  
 
 ---
 
