@@ -61,9 +61,3 @@ The user interface will provide:
 5. Receive notifications about progress  
 
 ---
-
-## ⚠️ Notes
-This is an **initial design statement**.  
-All details — modules, frameworks, and UI — may change and evolve as the team iterates.  
-
----
