@@ -1,0 +1,14 @@
+// src/main/java/com/fitnesstracker/authservice/AuthServiceApplication.java
+
+package com.fitnesstracker.authservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AuthServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AuthServiceApplication.class, args);
+    }
+}
