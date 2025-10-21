@@ -27,9 +27,6 @@ public class UserServiceExternal {
         // RegistrationRequest)
         // For simplicity, we reuse the request object here.
 
-        // Note: For production, use a discovery client (e.g., Eureka) instead of a
-        // hardcoded URL
-
         // This is a synchronous call to the external User Service
         ResponseEntity<Void> response = restTemplate.postForEntity(
                 USER_SERVICE_BASE_URL + "/create", // POST to User Service
