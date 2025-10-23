@@ -144,6 +144,20 @@ The user interface will provide:
 | read_status | BOOLEAN | Read/unread flag |
 
 ---
+
+## 🔔 Event-Driven Workflow
+
+When a user logs a workout:
+
+1. **Workout Service** saves workout → publishes `workout_logged` event to RabbitMQ.  
+2. **Challenge Service** consumes event → updates user’s progress.  
+3. **Leaderboard Service** consumes event → updates rankings in Redis.  
+4. **Notification Service (future)** sends achievement or progress notifications.  
+5. **Analytics (future)** aggregates metrics for insights.  
+
+This asynchronous pattern allows scalability and eventual consistency.
+
+---
 ## 🤖 External API Integration
 
 The **Coach Service** integrates with the **OpenAI API** for personalized training plans.
