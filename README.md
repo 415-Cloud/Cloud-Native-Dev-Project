@@ -145,6 +145,45 @@ The user interface will provide:
 
 ---
 
+## 🧩 System Architecture Diagram
+**Frontend (React)** → **API Gateway** → **Microservices (Auth, Workout, Challenge, Leaderboard, Coach)**  
+↳ **RabbitMQ** (message broker)  
+↳ **PostgreSQL** (per service DB)  
+↳ **Redis** (leaderboard + caching)
+
+---
+
+## 🐳 Deployment Overview
+Each microservice will have:
+- Its own **Dockerfile** and container  
+- **Kubernetes manifests** for deployment  
+- **ConfigMaps** for environment variables  
+- **Secrets** for credentials and API keys  
+- **Ingress** for unified access routing  
+- **Health checks** and autoscaling rules  
+
+Redis and PostgreSQL will be deployed as managed pods or services within the cluster.
+
+---
+
+## ✅ Testing & CI/CD
+
+**Testing Strategy:**
+- **Unit Tests:** Jest (Node.js), pytest (Python)  
+- **Integration Tests:** Supertest for REST APIs  
+- **E2E Flow:** User registration → join challenge → log workout → leaderboard update  
+- **Mock external APIs:** to isolate logic
+
+**CI/CD Pipeline:**
+- **GitHub Actions**
+  - Run tests and lint on PRs  
+  - Enforce 80% code coverage  
+  - Build and push Docker images to registry  
+  - Auto-deploy to Kubernetes cluster  
+
+---
+
+
 ## 🎯 Demo Script
 1. Register/login  
 2. Join a “5k October Challenge”  
