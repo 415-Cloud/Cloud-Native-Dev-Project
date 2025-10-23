@@ -144,6 +144,24 @@ The user interface will provide:
 | read_status | BOOLEAN | Read/unread flag |
 
 ---
+## 🤖 External API Integration
+
+The **Coach Service** integrates with the **OpenAI API** for personalized training plans.
+
+**Inputs:**
+- User profile data (fitness level, goals)
+- Past workouts
+- Active challenges
+
+**Output:**
+- Structured weekly plan (JSON)
+- Caching in Redis for fast retrieval
+
+**Fallback:**
+- Static rule-based plan when API unavailable.
+
+---
+
 
 ## 🧩 System Architecture Diagram
 **Frontend (React)** → **API Gateway** → **Microservices (Auth, Workout, Challenge, Leaderboard, Coach)**  
