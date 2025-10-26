@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Workout Service
+  workout-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: fitness_tracker_workouts
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - workout_data:/var/lib/postgresql/data
+
+  # PostgreSQL Database for Challenge Service
+  challenge-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: fitness_tracker_challenges
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - challenge_data:/var/lib/postgresql/data
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  # Workout Service
+  workout-service:
+    build: ./workout-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - workout-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    volumes:
+      - ./workout-service:/app
+      - /app/node_modules
+
+  # Challenge Service
+  challenge-service:
+    build: ./challenge-service
+    ports:
+      - "3002:3002"
+    depends_on:
+      - challenge-db
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    volumes:
+      - ./challenge-service:/app
+      - /app/node_modules
+
+  # Data Consistency Service
+  data-consistency-service:
+    build: ./data-consistency-service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    volumes:
+      - ./data-consistency-service:/app
+      - /app/node_modules
+
+volumes:
+  workout_data:
+  challenge_data:
+  rabbitmq_data:
