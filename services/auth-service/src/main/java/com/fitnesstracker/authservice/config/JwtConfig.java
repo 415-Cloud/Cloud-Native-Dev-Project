@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/config/JwtConfig.java
-
 package com.fitnesstracker.authservice.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;

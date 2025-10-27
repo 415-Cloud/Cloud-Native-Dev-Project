@@ -1,33 +1,22 @@
-// src/main/java/com/fitnesstracker/authservice/dto/RegistrationRequest.java
-
 package com.fitnesstracker.authservice.dto;
 
 // This DTO carries the data from the UI to the service layer for registration
 public class RegistrationRequest {
 
     private String email;
-    private String username;
     private String password;
-    // Include initial profile data needed by the User Service for creation
-    private String fitnessGoal;
-    private String preferredActivity;
+    private String name;
+    private String profileInfo;
+    private String fitnessLevel;
+    private String goals;
 
-    // Getters and Setters (omitted for brevity)
-    // ...
+    // Getters and Setters
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -38,20 +27,35 @@ public class RegistrationRequest {
         this.password = password;
     }
 
-    public String getFitnessGoal() {
-        return fitnessGoal;
+    public String getName() {
+        return name;
     }
 
-    public void setFitnessGoal(String fitnessGoal) {
-        this.fitnessGoal = fitnessGoal;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getPreferredActivity() {
-        return preferredActivity;
+    public String getProfileInfo() {
+        return profileInfo;
     }
 
-    public void setPreferredActivity(String preferredActivity) {
-        this.preferredActivity = preferredActivity;
+    public void setProfileInfo(String profileInfo) {
+        this.profileInfo = profileInfo;
     }
-    // ...
+
+    public String getFitnessLevel() {
+        return fitnessLevel;
+    }
+
+    public void setFitnessLevel(String fitnessLevel) {
+        this.fitnessLevel = fitnessLevel;
+    }
+
+    public String getGoals() {
+        return goals;
+    }
+
+    public void setGoals(String goals) {
+        this.goals = goals;
+    }
 }

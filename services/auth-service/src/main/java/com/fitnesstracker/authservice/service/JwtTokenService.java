@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/service/JwtTokenService.java
-
 package com.fitnesstracker.authservice.service;
 
 import com.fitnesstracker.authservice.config.JwtConfig;
@@ -22,22 +20,21 @@ public class JwtTokenService {
 
     public JwtTokenService(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
-        // Key must be securely generated from the Base64 secret key
         this.key = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
     }
 
     @SuppressWarnings("deprecation")
-    public String generateToken(String userId, String username) {
+    public String generateToken(String userId, String email) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("username", username);
+        claims.put("email", email);
 
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtConfig.getExpiration());
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userId) // The user ID is the subject of the token
+                .setSubject(userId)
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
                 .signWith(key, SignatureAlgorithm.HS256)

@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/dto/TokenResponse.java
-
 package com.fitnesstracker.authservice.dto;
 
 // This DTO is the response body returned to the client on successful login

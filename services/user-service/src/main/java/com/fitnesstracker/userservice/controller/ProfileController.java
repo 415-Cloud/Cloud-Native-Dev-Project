@@ -1,6 +1,4 @@
-// src/main/java/com/fitnesstracker/userservice/controller/ProfileController.java
-
-package main.java.com.fitnesstracker.userservice.controller;
+package com.fitnesstracker.userservice.controller;
 
 import com.fitnesstracker.userservice.dto.ProfileUpdateRequest;
 import com.fitnesstracker.userservice.dto.UserProfileDTO;

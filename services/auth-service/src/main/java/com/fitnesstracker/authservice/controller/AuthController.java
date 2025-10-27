@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/controller/AuthController.java
-
 package com.fitnesstracker.authservice.controller;
 
 import com.fitnesstracker.authservice.dto.LoginRequest;
@@ -26,15 +24,12 @@ public class AuthController {
         try {
             Credential newCredential = authService.register(request);
 
-            // Return success with the user ID, but NOT the password hash
             return new ResponseEntity<>(
-                    "User " + newCredential.getUsername() + " registered successfully.",
+                    "User " + newCredential.getEmail() + " registered successfully.",
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // Handles 'Username or email already in use'
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // 409
         } catch (RuntimeException e) {
-            // Catches errors from UserServiceExternal
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
@@ -45,9 +40,7 @@ public class AuthController {
             TokenResponse tokenResponse = authService.login(request);
             return ResponseEntity.ok(tokenResponse); // 200 OK
         } catch (IllegalArgumentException e) {
-            // Handles 'Invalid username or password'
-            // Use 401 Unauthorized for login failures
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); // 401
         }
     }
 }

@@ -1,38 +1,42 @@
-// src/main/java/com/fitnesstracker/userservice/model/UserProfile.java
-
-package main.java.com.fitnesstracker.userservice.model;
+package com.fitnesstracker.userservice.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_profiles") // Dedicated table for profile data
+@Table(name = "users")
 public class UserProfile {
 
-    // IMPORTANT: userId is the canonical ID, managed by the Auth Service's
-    // Credential table
     @Id
+    @Column(name = "user_id")
     private String userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    // Core Profile Fields for the AI-lite Coach Service
-    @Column(nullable = false)
-    private String fitnessGoal; // e.g., 'Weight Loss', 'Endurance'
+    private String name;
 
-    @Column(nullable = false)
-    private String preferredActivity; // e.g., 'Running', 'Cycling'
+    @Column(name = "profile_info")
+    private String profileInfo;
 
-    // Profile metadata
-    private double totalDistance = 0.0;
-    private int totalWorkouts = 0;
+    @Column(name = "fitness_level")
+    private String fitnessLevel;
+
+    private String goals;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     // Getters and Setters
     public String getUserId() {
@@ -51,48 +55,44 @@ public class UserProfile {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getName() {
+        return name;
     }
 
-    public String getFitnessGoal() {
-        return fitnessGoal;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setFitnessGoal(String fitnessGoal) {
-        this.fitnessGoal = fitnessGoal;
+    public String getProfileInfo() {
+        return profileInfo;
     }
 
-    public String getPreferredActivity() {
-        return preferredActivity;
+    public void setProfileInfo(String profileInfo) {
+        this.profileInfo = profileInfo;
     }
 
-    public void setPreferredActivity(String preferredActivity) {
-        this.preferredActivity = preferredActivity;
+    public String getFitnessLevel() {
+        return fitnessLevel;
     }
 
-    public double getTotalDistance() {
-        return totalDistance;
+    public void setFitnessLevel(String fitnessLevel) {
+        this.fitnessLevel = fitnessLevel;
     }
 
-    public void setTotalDistance(double totalDistance) {
-        this.totalDistance = totalDistance;
+    public String getGoals() {
+        return goals;
     }
 
-    public int getTotalWorkouts() {
-        return totalWorkouts;
-    }
-
-    public void setTotalWorkouts(int totalWorkouts) {
-        this.totalWorkouts = totalWorkouts;
+    public void setGoals(String goals) {
+        this.goals = goals;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -101,5 +101,13 @@ public class UserProfile {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

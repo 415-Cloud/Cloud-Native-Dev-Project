@@ -1,6 +1,4 @@
-// src/main/java/com/fitnesstracker/userservice/config/WebSecurityConfig.java
-
-package main.java.com.fitnesstracker.userservice.config;
+package com.fitnesstracker.userservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/AuthServiceApplication.java
-
 package com.fitnesstracker.authservice;
 
 import org.springframework.boot.SpringApplication;

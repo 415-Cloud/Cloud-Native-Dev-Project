@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/config/SecurityConfig.java
-
 package com.fitnesstracker.authservice.config;
 
 import org.springframework.context.annotation.Bean;

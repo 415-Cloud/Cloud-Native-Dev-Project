@@ -1,6 +1,4 @@
-// src/main/java/com/fitnesstracker/userservice/service/ProfileService.java
-
-package main.java.com.fitnesstracker.userservice.service;
+package com.fitnesstracker.userservice.service;
 
 import com.fitnesstracker.userservice.dto.ProfileUpdateRequest;
 import com.fitnesstracker.userservice.dto.UserProfileDTO;
@@ -24,8 +22,8 @@ public class ProfileService {
      */
     public UserProfile createProfile(UserProfile newProfile) {
         // Simple data validation for required fields
-        if (newProfile.getUserId() == null || newProfile.getEmail() == null) {
-            throw new IllegalArgumentException("User ID and email are required for profile creation.");
+        if (newProfile.getUserId() == null || newProfile.getEmail() == null || newProfile.getPasswordHash() == null) {
+            throw new IllegalArgumentException("User ID, email, and password hash are required for profile creation.");
         }
         return profileRepository.save(newProfile);
     }
@@ -46,15 +44,19 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("User profile not found."));
 
         // Update fields only if they are provided in the request
-        if (request.getDisplayName() != null) {
-            profile.setDisplayName(request.getDisplayName());
+        if (request.getName() != null) {
+            profile.setName(request.getName());
         }
-        if (request.getFitnessGoal() != null) {
-            profile.setFitnessGoal(request.getFitnessGoal());
+        if (request.getProfileInfo() != null) {
+            profile.setProfileInfo(request.getProfileInfo());
         }
-        if (request.getPreferredActivity() != null) {
-            profile.setPreferredActivity(request.getPreferredActivity());
+        if (request.getFitnessLevel() != null) {
+            profile.setFitnessLevel(request.getFitnessLevel());
         }
+        if (request.getGoals() != null) {
+            profile.setGoals(request.getGoals());
+        }
+
         // Save and convert to DTO
         return convertToDto(profileRepository.save(profile));
     }
@@ -64,12 +66,12 @@ public class ProfileService {
         UserProfileDTO dto = new UserProfileDTO();
         dto.setUserId(profile.getUserId());
         dto.setEmail(profile.getEmail());
-        dto.setUsername(profile.getUsername());
-        dto.setDisplayName(profile.getDisplayName());
-        dto.setFitnessGoal(profile.getFitnessGoal());
-        dto.setPreferredActivity(profile.getPreferredActivity());
-        dto.setTotalDistance(profile.getTotalDistance());
-        dto.setTotalWorkouts(profile.getTotalWorkouts());
+        dto.setName(profile.getName());
+        dto.setProfileInfo(profile.getProfileInfo());
+        dto.setFitnessLevel(profile.getFitnessLevel());
+        dto.setGoals(profile.getGoals());
+        dto.setCreatedAt(profile.getCreatedAt());
+        dto.setUpdatedAt(profile.getUpdatedAt());
         return dto;
     }
 }

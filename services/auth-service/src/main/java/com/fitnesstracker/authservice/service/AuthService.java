@@ -1,5 +1,3 @@
-// src/main/java/com/fitnesstracker/authservice/service/AuthService.java
-
 package com.fitnesstracker.authservice.service;
 
 import com.fitnesstracker.authservice.dto.LoginRequest;
@@ -11,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -18,7 +17,7 @@ public class AuthService {
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
-    private final UserServiceExternal userServiceExternal; // The new external dependency
+    private final UserServiceExternal userServiceExternal;
 
     public AuthService(CredentialRepository credentialRepository, PasswordEncoder passwordEncoder,
             JwtTokenService jwtTokenService, UserServiceExternal userServiceExternal) {
@@ -33,24 +32,22 @@ public class AuthService {
     // =====================================
     public Credential register(RegistrationRequest request) {
         // 1. Check for existing user
-        if (credentialRepository.findByUsername(request.getUsername()).isPresent() ||
-                credentialRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Username or email already in use.");
+        if (credentialRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already in use.");
         }
 
-        // 2. Create and save the credential record
-        Credential credential = new Credential();
-        credential.setEmail(request.getEmail());
-        credential.setUsername(request.getUsername());
+        // 2. Generate unique user ID
+        String userId = UUID.randomUUID().toString();
 
-        // Hash the password securely
+        // 3. Create and save the credential record
         String hashedPassword = passwordEncoder.encode(request.getPassword());
-        credential.setPasswordHash(hashedPassword);
+        Credential credential = new Credential(userId, request.getEmail(), hashedPassword);
 
         Credential newCredential = credentialRepository.save(credential);
 
-        // 3. Call the external User Service to create the profile
-        userServiceExternal.createProfile(newCredential.getUserId(), request);
+        // 4. Call the external User Service to create the profile
+        userServiceExternal.createProfile(newCredential.getUserId(), newCredential.getEmail(),
+                newCredential.getPasswordHash(), request);
 
         return newCredential;
     }
@@ -59,11 +56,11 @@ public class AuthService {
     // LOGIN
     // =====================================
     public TokenResponse login(LoginRequest request) {
-        // 1. Fetch credentials by username
-        Optional<Credential> credentialOpt = credentialRepository.findByUsername(request.getUsername());
+        // 1. Fetch credentials by email
+        Optional<Credential> credentialOpt = credentialRepository.findByEmail(request.getEmail());
 
         if (credentialOpt.isEmpty()) {
-            throw new IllegalArgumentException("Invalid username or password.");
+            throw new IllegalArgumentException("Invalid email or password.");
         }
 
         Credential credential = credentialOpt.get();
@@ -74,11 +71,11 @@ public class AuthService {
                 credential.getPasswordHash());
 
         if (!passwordMatches) {
-            throw new IllegalArgumentException("Invalid username or password.");
+            throw new IllegalArgumentException("Invalid email or password.");
         }
 
         // 3. Generate JWT
-        String token = jwtTokenService.generateToken(credential.getUserId(), credential.getUsername());
+        String token = jwtTokenService.generateToken(credential.getUserId(), credential.getEmail());
 
         return new TokenResponse(token, credential.getUserId());
     }
