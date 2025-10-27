@@ -23,7 +23,7 @@ services:
 
   leaderboard-service:
     build:
-      context: ./leaderboard-service
+      context: ./services/leaderboard-service
       dockerfile: Dockerfile
     container_name: leaderboard-service
     depends_on:
