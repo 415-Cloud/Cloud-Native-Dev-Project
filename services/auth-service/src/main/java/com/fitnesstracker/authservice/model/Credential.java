@@ -11,7 +11,7 @@ public class Credential {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String userId; // The canonical ID for this user across ALL services
+    private String userId;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -29,8 +29,13 @@ public class Credential {
     public Credential() {
     }
 
-    // Getters and Setters (omitted for brevity)
-    // ...
+    public Credential(String email, String username, String passwordHash) {
+        this.email = email;
+        this.username = username;
+        this.passwordHash = passwordHash;
+    }
+
+    // Getters and Setters
     public String getUserId() {
         return userId;
     }
@@ -70,5 +75,5 @@ public class Credential {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-    // ...
+
 }

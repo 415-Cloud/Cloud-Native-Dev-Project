@@ -20,8 +20,6 @@ public class UserProfile {
     @Column(unique = true, nullable = false)
     private String username;
 
-    private String displayName;
-
     // Core Profile Fields for the AI-lite Coach Service
     @Column(nullable = false)
     private String fitnessGoal; // e.g., 'Weight Loss', 'Endurance'
@@ -63,10 +61,6 @@ public class UserProfile {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
     }
 
     public String getFitnessGoal() {
