@@ -1,4 +1,4 @@
-package com.fitnesstracker.userservice.service;
+package main.java.com.fitnesstracker.userservice.service;
 
 import com.fitnesstracker.userservice.dto.ProfileUpdateRequest;
 import com.fitnesstracker.userservice.dto.UserProfileDTO;
@@ -22,8 +22,8 @@ public class ProfileService {
      */
     public UserProfile createProfile(UserProfile newProfile) {
         // Simple data validation for required fields
-        if (newProfile.getUserId() == null || newProfile.getEmail() == null || newProfile.getPasswordHash() == null) {
-            throw new IllegalArgumentException("User ID, email, and password hash are required for profile creation.");
+        if (newProfile.getUserId() == null || newProfile.getEmail() == null) {
+            throw new IllegalArgumentException("User ID and email are required for profile creation.");
         }
         return profileRepository.save(newProfile);
     }

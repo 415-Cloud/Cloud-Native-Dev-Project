@@ -26,10 +26,10 @@ public class UserServiceExternal {
      */
     public void createProfile(String userId, String email, String passwordHash, RegistrationRequest request) {
         // Create a Map to represent the UserProfile object
+        // The passwordHash is intentionally NOT sent to the user-service.
         Map<String, Object> userProfile = new HashMap<>();
         userProfile.put("userId", userId);
         userProfile.put("email", email);
-        userProfile.put("passwordHash", passwordHash);
         userProfile.put("name", request.getName());
         userProfile.put("profileInfo", request.getProfileInfo());
         userProfile.put("fitnessLevel", request.getFitnessLevel());
