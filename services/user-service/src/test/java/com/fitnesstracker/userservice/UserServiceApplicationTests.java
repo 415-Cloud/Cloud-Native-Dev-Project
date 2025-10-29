@@ -1,10 +1,10 @@
-package com.fitnesstracker.demo;
+package com.fitnesstracker.userservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class UserServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

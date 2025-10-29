@@ -1,12 +1,19 @@
 package com.fitnesstracker.authservice.dto;
 
-// This DTO carries the data from the UI to the service layer for login
-public class LoginRequest {
+// This DTO carries the data from the UI to the service layer for login requests.
 
+public class LoginRequest {
     private String email;
     private String password;
 
-    // Getters and Setters
+    public LoginRequest() {
+    }
+
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
     public String getEmail() {
         return email;
     }

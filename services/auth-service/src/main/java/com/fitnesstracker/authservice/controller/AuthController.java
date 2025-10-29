@@ -20,13 +20,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<?> registerUser(@RequestBody RegistrationRequest registrationRequest) {
         try {
-            Credential newCredential = authService.register(request);
-
-            return new ResponseEntity<>(
-                    "User " + newCredential.getEmail() + " registered successfully.",
-                    HttpStatus.CREATED);
+            // Register the user
+            authService.register(registrationRequest);
+            // Immediately log them in to get a token
+            LoginRequest loginRequest = new LoginRequest(registrationRequest.getEmail(),
+                    registrationRequest.getPassword());
+            TokenResponse tokenResponse = authService.login(loginRequest);
+            return new ResponseEntity<>(tokenResponse, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // 409
         } catch (RuntimeException e) {

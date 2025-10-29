@@ -1,4 +1,4 @@
-package main.java.com.fitnesstracker.userservice.service;
+package com.fitnesstracker.userservice.service;
 
 import com.fitnesstracker.userservice.dto.ProfileUpdateRequest;
 import com.fitnesstracker.userservice.dto.UserProfileDTO;

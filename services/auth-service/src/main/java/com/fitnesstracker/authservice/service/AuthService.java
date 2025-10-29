@@ -5,78 +5,43 @@ import com.fitnesstracker.authservice.dto.RegistrationRequest;
 import com.fitnesstracker.authservice.dto.TokenResponse;
 import com.fitnesstracker.authservice.model.Credential;
 import com.fitnesstracker.authservice.repository.CredentialRepository;
+import com.fitnesstracker.authservice.config.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class AuthService {
 
     private final CredentialRepository credentialRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenService jwtTokenService;
-    private final UserServiceExternal userServiceExternal;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(CredentialRepository credentialRepository, PasswordEncoder passwordEncoder,
-            JwtTokenService jwtTokenService, UserServiceExternal userServiceExternal) {
+    public AuthService(CredentialRepository credentialRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.credentialRepository = credentialRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenService = jwtTokenService;
-        this.userServiceExternal = userServiceExternal;
+        this.jwtUtil = jwtUtil;
     }
 
-    // =====================================
-    // REGISTRATION
-    // =====================================
     public Credential register(RegistrationRequest request) {
-        // 1. Check for existing user
         if (credentialRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already in use.");
+            throw new IllegalArgumentException("Email is already in use.");
         }
-
-        // 2. Generate unique user ID
-        String userId = UUID.randomUUID().toString();
-
-        // 3. Create and save the credential record
-        String hashedPassword = passwordEncoder.encode(request.getPassword());
-        Credential credential = new Credential(userId, request.getEmail(), hashedPassword);
-
-        Credential newCredential = credentialRepository.save(credential);
-
-        // 4. Call the external User Service to create the profile
-        userServiceExternal.createProfile(newCredential.getUserId(), newCredential.getEmail(),
-                newCredential.getPasswordHash(), request);
-
-        return newCredential;
+        Credential credential = new Credential();
+        credential.setEmail(request.getEmail());
+        credential.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        // In a real app, you would also create a UserProfile in the user-service
+        return credentialRepository.save(credential);
     }
 
-    // =====================================
-    // LOGIN
-    // =====================================
     public TokenResponse login(LoginRequest request) {
-        // 1. Fetch credentials by email
-        Optional<Credential> credentialOpt = credentialRepository.findByEmail(request.getEmail());
+        Credential credential = credentialRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
-        if (credentialOpt.isEmpty()) {
+        if (!passwordEncoder.matches(request.getPassword(), credential.getPasswordHash())) {
             throw new IllegalArgumentException("Invalid email or password.");
         }
 
-        Credential credential = credentialOpt.get();
-
-        // 2. Compare the provided password with the stored hash
-        boolean passwordMatches = passwordEncoder.matches(
-                request.getPassword(),
-                credential.getPasswordHash());
-
-        if (!passwordMatches) {
-            throw new IllegalArgumentException("Invalid email or password.");
-        }
-
-        // 3. Generate JWT
-        String token = jwtTokenService.generateToken(credential.getUserId(), credential.getEmail());
-
-        return new TokenResponse(token, credential.getUserId());
+        String token = jwtUtil.generateToken(credential.getUserId().toString(), credential.getEmail());
+        return new TokenResponse(token, credential.getUserId().toString());
     }
 }
