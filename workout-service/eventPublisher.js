@@ -10,7 +10,8 @@ class EventPublisher {
   async connect() {
     try {
       // Connect to RabbitMQ
-      this.connection = await amqp.connect('amqp://localhost');
+      const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672';
+      this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
       
       // Create exchange for fitness events

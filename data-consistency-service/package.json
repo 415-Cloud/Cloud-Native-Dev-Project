@@ -1,0 +1,17 @@
+{
+  "name": "data-consistency-service",
+  "version": "1.0.0",
+  "description": "Data Consistency Service for Fitness Challenge Tracker",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.0",
+    "amqplib": "^0.10.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.0"
+  }
+}
+

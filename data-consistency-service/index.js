@@ -6,7 +6,7 @@ class DataConsistencyService {
     this.workoutPrisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.WORKOUT_DATABASE_URL || "postgresql://postgres:password@localhost:5432/fitness_tracker_workouts"
+          url: process.env.WORKOUT_DATABASE_URL || "postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts"
         }
       }
     });
@@ -14,7 +14,7 @@ class DataConsistencyService {
     this.challengePrisma = new PrismaClient({
       datasources: {
         db: {
-          url: process.env.CHALLENGE_DATABASE_URL || "postgresql://postgres:password@localhost:5432/fitness_tracker_challenges"
+          url: process.env.CHALLENGE_DATABASE_URL || "postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges"
         }
       }
     });
@@ -25,7 +25,8 @@ class DataConsistencyService {
 
   async connect() {
     try {
-      this.connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost');
+      const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672';
+      this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
       
       await this.channel.assertExchange('fitness_events', 'topic', { durable: true });
