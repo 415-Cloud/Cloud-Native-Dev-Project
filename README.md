@@ -156,30 +156,82 @@ cloud-app/
 
 ## 📊 Database Schema
 
-### Workout Service Database
+### Workout Service Database (`fitness_tracker_workouts`)
+
+**Table: `workouts`**
 ```sql
-workouts (
-  id, user_id, type, distance, duration, 
-  calories, notes, created_at
-)
+CREATE TABLE workouts (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    distance DECIMAL(10,2),
+    duration INTEGER NOT NULL,
+    calories INTEGER,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX idx_workouts_user_id ON workouts(user_id);
+CREATE INDEX idx_workouts_type ON workouts(type);
+CREATE INDEX idx_workouts_created_at ON workouts(created_at);
 ```
 
-### Challenge Service Database
+### Challenge Service Database (`fitness_tracker_challenges`)
+
+**Table: `challenges`**
 ```sql
-challenges (
-  id, name, description, type, start_date, 
-  end_date, target_value, target_unit, 
-  created_by, status, created_at
-)
+CREATE TABLE challenges (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    type VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    target_value DECIMAL(10,2),
+    target_unit VARCHAR(20),
+    created_by VARCHAR(255) NOT NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-challenge_participants (
-  id, challenge_id, user_id, joined_at, status
-)
+-- Indexes
+CREATE INDEX idx_challenges_status ON challenges(status);
+CREATE INDEX idx_challenges_dates ON challenges(start_date, end_date);
+```
 
-challenge_progress (
-  id, challenge_id, user_id, workout_id, 
-  progress_value, workout_type, created_at
-)
+**Table: `challenge_participants`**
+```sql
+CREATE TABLE challenge_participants (
+    id SERIAL PRIMARY KEY,
+    challenge_id INTEGER REFERENCES challenges(id) ON DELETE CASCADE,
+    user_id VARCHAR(255) NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'active',
+    UNIQUE(challenge_id, user_id)
+);
+
+-- Indexes
+CREATE INDEX idx_participants_user_id ON challenge_participants(user_id);
+CREATE INDEX idx_participants_challenge_id ON challenge_participants(challenge_id);
+```
+
+**Table: `challenge_progress`**
+```sql
+CREATE TABLE challenge_progress (
+    id SERIAL PRIMARY KEY,
+    challenge_id INTEGER REFERENCES challenges(id) ON DELETE CASCADE,
+    user_id VARCHAR(255) NOT NULL,
+    workout_id INTEGER NOT NULL,
+    progress_value DECIMAL(10,2) NOT NULL,
+    workout_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(challenge_id, user_id, workout_id)
+);
+
+-- Indexes
+CREATE INDEX idx_progress_user_id ON challenge_progress(user_id);
+CREATE INDEX idx_progress_challenge_id ON challenge_progress(challenge_id);
 ```
 
 ## 🎯 Current Branch
