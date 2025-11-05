@@ -1,22 +1,23 @@
-const { PrismaClient } = require('@prisma/client');
+const { Pool } = require('pg');
 const amqp = require('amqplib');
 
 class DataConsistencyService {
   constructor() {
-    this.workoutPrisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.WORKOUT_DATABASE_URL || "postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts"
-        }
-      }
+    // Use raw PostgreSQL connections instead of Prisma for multi-database access
+    this.workoutPool = new Pool({
+      host: process.env.WORKOUT_DB_HOST || 'workout-db',
+      port: 5432,
+      database: 'fitness_tracker_workouts',
+      user: 'postgres',
+      password: 'password'
     });
     
-    this.challengePrisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.CHALLENGE_DATABASE_URL || "postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges"
-        }
-      }
+    this.challengePool = new Pool({
+      host: process.env.CHALLENGE_DB_HOST || 'challenge-db',
+      port: 5432,
+      database: 'fitness_tracker_challenges',
+      user: 'postgres',
+      password: 'password'
     });
     
     this.connection = null;
@@ -101,11 +102,12 @@ class DataConsistencyService {
   async ensureWorkoutConsistency(workoutData) {
     try {
       // Verify workout exists in workout service
-      const workout = await this.workoutPrisma.workout.findUnique({
-        where: { id: workoutData.workoutId }
-      });
+      const workoutResult = await this.workoutPool.query(
+        'SELECT * FROM workouts WHERE id = $1',
+        [workoutData.workoutId]
+      );
 
-      if (!workout) {
+      if (workoutResult.rows.length === 0) {
         console.error('Data inconsistency: Workout not found in workout service');
         // Implement compensation logic here
         return;
@@ -123,24 +125,23 @@ class DataConsistencyService {
   async ensureChallengeConsistency(challengeData) {
     try {
       // Verify challenge exists in challenge service
-      const challenge = await this.challengePrisma.challenge.findUnique({
-        where: { id: challengeData.challengeId }
-      });
+      const challengeResult = await this.challengePool.query(
+        'SELECT * FROM challenges WHERE id = $1',
+        [challengeData.challengeId]
+      );
 
-      if (!challenge) {
+      if (challengeResult.rows.length === 0) {
         console.error('Data inconsistency: Challenge not found in challenge service');
         return;
       }
 
       // Verify participant exists
-      const participant = await this.challengePrisma.challengeParticipant.findFirst({
-        where: {
-          challengeId: challengeData.challengeId,
-          userId: challengeData.userId
-        }
-      });
+      const participantResult = await this.challengePool.query(
+        'SELECT * FROM challenge_participants WHERE challenge_id = $1 AND user_id = $2',
+        [challengeData.challengeId, challengeData.userId]
+      );
 
-      if (!participant) {
+      if (participantResult.rows.length === 0) {
         console.error('Data inconsistency: Participant not found');
         return;
       }
@@ -153,43 +154,30 @@ class DataConsistencyService {
 
   async recalculateChallengeProgress(userId) {
     try {
-      // Get all active challenges for user
-      const challenges = await this.challengePrisma.challenge.findMany({
-        where: {
-          participants: {
-            some: {
-              userId: userId,
-              status: 'active'
-            }
-          },
-          status: 'active'
-        },
-        include: {
-          progress: {
-            where: {
-              userId: userId
-            }
-          }
-        }
-      });
+      // Get all active challenges for user with their progress
+      const challengesResult = await this.challengePool.query(
+        `SELECT c.*, COALESCE(SUM(cp.progress_value), 0) as total_progress
+         FROM challenges c
+         JOIN challenge_participants p ON c.id = p.challenge_id
+         LEFT JOIN challenge_progress cp ON c.id = cp.challenge_id AND cp.user_id = p.user_id
+         WHERE p.user_id = $1 AND c.status = 'active' AND p.status = 'active'
+         GROUP BY c.id, c.name, c.target_value, c.target_unit`,
+        [userId]
+      );
 
-      for (const challenge of challenges) {
-        const totalProgress = challenge.progress.reduce((sum, p) => sum + p.progressValue, 0);
-        const progressPercentage = (totalProgress / challenge.targetValue) * 100;
+      for (const challenge of challengesResult.rows) {
+        const totalProgress = parseFloat(challenge.total_progress);
+        const targetValue = parseFloat(challenge.target_value);
+        const progressPercentage = (totalProgress / targetValue) * 100;
         
-        console.log(`Challenge ${challenge.name}: ${totalProgress}/${challenge.targetValue} (${progressPercentage.toFixed(1)}%)`);
+        console.log(`Challenge ${challenge.name}: ${totalProgress}/${targetValue} (${progressPercentage.toFixed(1)}%)`);
         
         // Check if challenge is completed
-        if (totalProgress >= challenge.targetValue) {
-          await this.challengePrisma.challengeParticipant.updateMany({
-            where: {
-              challengeId: challenge.id,
-              userId: userId
-            },
-            data: {
-              status: 'completed'
-            }
-          });
+        if (totalProgress >= targetValue) {
+          await this.challengePool.query(
+            'UPDATE challenge_participants SET status = $1 WHERE challenge_id = $2 AND user_id = $3',
+            ['completed', challenge.id, userId]
+          );
           
           console.log(`🎉 Challenge completed: ${challenge.name}`);
         }
@@ -207,8 +195,8 @@ class DataConsistencyService {
       if (this.connection) {
         await this.connection.close();
       }
-      await this.workoutPrisma.$disconnect();
-      await this.challengePrisma.$disconnect();
+      await this.workoutPool.end();
+      await this.challengePool.end();
       console.log('Data Consistency Service disconnected');
     } catch (error) {
       console.error('Error closing Data Consistency Service:', error);
