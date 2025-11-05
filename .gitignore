@@ -1,13 +1,20 @@
 # Dependencies
 node_modules/
+**/node_modules/
 package-lock.json
+**/package-lock.json
 
 # Build outputs
 target/
+**/target/
 build/
+**/build/
 dist/
+**/dist/
 *.class
 *.jar
+*.war
+*.ear
 
 # IDE
 .idea/
@@ -16,14 +23,22 @@ dist/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
 # Logs
 *.log
 logs/
+**/*.log
 *.log.*
 
 # Environment variables
@@ -37,16 +52,29 @@ logs/
 tmp/
 temp/
 *.tmp
+*.cache
+**/.cache/
 
 # Coverage
 coverage/
 .nyc_output/
+**/coverage/
 
 # Maven
 .mvn/
 mvnw
 mvnw.cmd
 
-# React
-.fitness-app-react-ui/node_modules/
+# Spring Boot
+application-*.properties
+!application.properties
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Application specific
+/tmp/
+/logs/
 
