@@ -18,10 +18,11 @@ public class Credential {
     private String passwordHash;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     // Default constructor
     public Credential() {
+        this.createdAt = LocalDateTime.now();
     }
 
     public Credential(String userId, String email, String passwordHash) {

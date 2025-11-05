@@ -4,6 +4,7 @@ import com.fitnesstracker.userservice.model.UserProfile;
 import com.fitnesstracker.userservice.service.UserProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.fitnesstracker.userservice.dto.CreateUserProfileRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +15,12 @@ public class UserProfileController {
 
     public UserProfileController(UserProfileService userProfileService) {
         this.userProfileService = userProfileService;
+    }
+
+    @PostMapping
+    public ResponseEntity<UserProfile> createUserProfile(@RequestBody CreateUserProfileRequest request) {
+        UserProfile newUserProfile = userProfileService.createUserProfile(request);
+        return new ResponseEntity<>(newUserProfile, HttpStatus.CREATED);
     }
 
     @GetMapping("/{userId}")

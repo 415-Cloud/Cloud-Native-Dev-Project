@@ -2,7 +2,6 @@ package com.fitnesstracker.authservice.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 // Maps properties starting with 'jwt.' from application.properties to this
 // object

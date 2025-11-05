@@ -3,7 +3,6 @@ package com.fitnesstracker.authservice.controller;
 import com.fitnesstracker.authservice.dto.LoginRequest;
 import com.fitnesstracker.authservice.dto.RegistrationRequest;
 import com.fitnesstracker.authservice.dto.TokenResponse;
-import com.fitnesstracker.authservice.model.Credential;
 import com.fitnesstracker.authservice.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
