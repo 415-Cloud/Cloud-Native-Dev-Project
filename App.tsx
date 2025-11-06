@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { HomeScreen } from './screens/HomeScreen';
 import { WorkoutDetailScreen } from './screens/WorkoutDetailScreen';
+import { CreateWorkoutScreen } from './screens/CreateWorkoutScreen';
 import { theme } from './theme';
 
 const Stack = createNativeStackNavigator();
@@ -37,6 +38,14 @@ export default function App() {
           component={WorkoutDetailScreen}
           options={{
             title: 'Workout Details',
+            headerBackTitleVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="CreateWorkout"
+          component={CreateWorkoutScreen}
+          options={{
+            title: 'Create Workout',
             headerBackTitleVisible: false,
           }}
         />
