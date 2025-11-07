@@ -4,18 +4,17 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { WorkoutCard } from '../components/WorkoutCard';
 import { Button } from '../components/Button';
 import { theme } from '../theme';
 import { workoutService, Workout as ApiWorkout } from '../services/workoutService';
-
-// Temporary user ID - in a real app, this would come from auth
-const TEMP_USER_ID = 'user-1';
+import { useAuth } from '../context/AuthContext';
 
 interface WorkoutCardData {
   id: string;
@@ -48,6 +47,17 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const { userId, clearAuth } = useAuth();
+  // Use default userId for now since auth is bypassed
+  const currentUserId = userId || 'user-1';
+
+  const handleLogout = async () => {
+    await clearAuth();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+  };
   const [workouts, setWorkouts] = useState<WorkoutCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +66,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const fetchWorkouts = async () => {
     try {
       setError(null);
-      const apiWorkouts = await workoutService.getWorkouts(TEMP_USER_ID);
+      const apiWorkouts = await workoutService.getWorkouts(currentUserId);
       const transformedWorkouts = apiWorkouts.map(transformWorkout);
       setWorkouts(transformedWorkouts);
     } catch (err) {
@@ -105,18 +115,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         }
       >
         <View style={styles.header}>
-          <View style={styles.headerRow}>
-            <View style={styles.headerText}>
-              <Text style={styles.greeting}>Welcome back</Text>
-              <Text style={styles.title}>Your Workouts</Text>
+            <View style={styles.headerRow}>
+              <View style={styles.headerText}>
+                <Text style={styles.greeting}>Welcome back</Text>
+                <Text style={styles.title}>Your Workouts</Text>
+              </View>
+              <View style={styles.headerActions}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('CreateWorkout')}
+                  style={styles.addButton}
+                >
+                  <Text style={styles.addButtonText}>+</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleLogout}
+                  style={styles.logoutButton}
+                >
+                  <Text style={styles.logoutButtonText}>Logout</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Button
-              title="+"
-              onPress={() => navigation.navigate('CreateWorkout')}
-              variant="primary"
-              style={styles.addButton}
-            />
-          </View>
         </View>
 
         {error && (
@@ -133,20 +151,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 Start logging your workouts to see them here
               </Text>
             </View>
-          ) : (
-            workouts.map((workout) => (
-              <WorkoutCard
-                key={workout.id}
-                title={workout.title}
-                duration={workout.duration}
-                difficulty={workout.difficulty}
-                exercises={workout.exercises}
-                onPress={() =>
-                  navigation.navigate('WorkoutDetail', { workoutId: workout.id })
-                }
-              />
-            ))
-          )}
+              ) : (
+                workouts.map((workout) => (
+                  <WorkoutCard
+                    key={workout.id}
+                    title={workout.title}
+                    duration={workout.duration}
+                    difficulty={workout.difficulty}
+                    exercises={workout.exercises}
+                    onPress={() =>
+                      navigation.navigate('WorkoutDetail', { workoutId: workout.id })
+                    }
+                    onEdit={() =>
+                      navigation.navigate('EditWorkout', { workoutId: parseInt(workout.id) })
+                    }
+                    onDelete={async () => {
+                      try {
+                        await workoutService.deleteWorkout(parseInt(workout.id));
+                        fetchWorkouts();
+                      } catch (err) {
+                        console.error('Error deleting workout:', err);
+                      }
+                    }}
+                  />
+                ))
+              )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -184,14 +213,34 @@ const styles = StyleSheet.create({
     ...theme.typography.h1,
     color: theme.colors.text.primary,
   },
-  addButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    padding: 0,
-    minHeight: 48,
-    marginLeft: theme.spacing.md,
-  },
+      headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.spacing.md,
+      },
+      addButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      addButtonText: {
+        fontSize: 32,
+        color: theme.colors.text.primary,
+        fontWeight: '300',
+        lineHeight: 32,
+      },
+      logoutButton: {
+        paddingHorizontal: theme.spacing.md,
+        paddingVertical: theme.spacing.sm,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      logoutButtonText: {
+        ...theme.typography.body,
+        color: theme.colors.text.secondary,
+        fontSize: 14,
+      },
   workoutList: {
     marginTop: theme.spacing.md,
   },

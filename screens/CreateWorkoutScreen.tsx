@@ -4,15 +4,16 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   TextInput,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../components/Button';
 import { theme } from '../theme';
 import { workoutService, CreateWorkoutRequest } from '../services/workoutService';
+import { useAuth } from '../context/AuthContext';
 
 interface CreateWorkoutScreenProps {
   navigation?: any;
@@ -27,10 +28,10 @@ export const CreateWorkoutScreen: React.FC<CreateWorkoutScreenProps> = ({
   navigation,
   route,
 }) => {
-  const userId = route?.params?.userId || 'user-1';
+  const { userId } = useAuth();
   
   const [formData, setFormData] = useState<CreateWorkoutRequest>({
-    userId,
+    userId: userId || '',
     type: '',
     duration: 30,
     calories: undefined,
@@ -43,6 +44,11 @@ export const CreateWorkoutScreen: React.FC<CreateWorkoutScreenProps> = ({
 
   const handleSubmit = async () => {
     // Validation
+    if (!userId) {
+      setError('User not authenticated');
+      return;
+    }
+
     if (!formData.type.trim()) {
       setError('Workout type is required');
       return;
@@ -59,6 +65,7 @@ export const CreateWorkoutScreen: React.FC<CreateWorkoutScreenProps> = ({
     try {
       await workoutService.createWorkout({
         ...formData,
+        userId: userId,
         type: formData.type.trim(),
         calories: formData.calories || undefined,
         distance: formData.distance || undefined,
