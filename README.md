@@ -14,30 +14,43 @@ This is a distributed fitness tracking system built with Node.js microservices a
 
 ```
 cloud-app/
-├── workout-service/          # Main workout logging service
-│   ├── config.env           # Service configuration
-│   ├── Dockerfile            # Containerization config
-│   ├── index.js              # Main Express server
-│   ├── eventPublisher.js     # RabbitMQ event publisher
-│   ├── package.json          # Dependencies
+├── k8s/                              # Kubernetes manifests (placeholders)
+│   ├── challenge-service-deployment.yaml
+│   ├── challenge-service-service.yaml
+│   ├── workout-service-deployment.yaml
+│   └── workout-service-service.yaml
+├── diagrams/                         # Generated architecture and ER visuals
+│   ├── architecture.png
+│   ├── challenge-service-sql-erd.png
+│   └── workout-service-sql-erd.png
+├── database/
+│   └── seed.sql                      # Shared seed data for both services
+├── workout-service/                  # Main workout logging service
+│   ├── config.env                    # Service configuration
+│   ├── Dockerfile                    # Containerization config
+│   ├── eventPublisher.js             # RabbitMQ event publisher
+│   ├── index.js                      # Main Express server
+│   ├── package.json                  # Dependencies
 │   ├── prisma/
-│   │   └── schema.prisma     # Database schema
-│   └── migrations/
-│       └── 001_initial_workouts.sql
-├── challenge-service/        # Challenge management service
-│   ├── config.env           # Service configuration
-│   ├── Dockerfile            # Containerization config
-│   ├── index.js              # Main Express server
-│   ├── eventConsumer.js      # RabbitMQ event consumer
-│   ├── package.json          # Dependencies
-│   └── migrations/
-│       └── 001_initial_challenges.sql
-├── data-consistency-service/ # Data consistency validator
-│   ├── index.js              # Consistency checks and validation
-│   └── package.json          # Dependencies
-├── docker-compose.yml        # Multi-container orchestration
-├── setup.sh                  # Setup automation script
-└── database-schema.puml      # Database ER diagram
+│   │   └── schema.prisma             # Prisma schema (generated client)
+│   └── schema/
+│       └── workouts.ddl.sql          # Relational DDL
+├── challenge-service/                # Challenge management service
+│   ├── config.env                    # Service configuration
+│   ├── Dockerfile                    # Containerization config
+│   ├── eventConsumer.js              # RabbitMQ event consumer
+│   ├── index.js                      # Main Express server
+│   ├── package.json                  # Dependencies
+│   ├── prisma/
+│   │   └── schema.prisma             # Prisma schema (generated client)
+│   └── schema/
+│       └── challenges.ddl.sql        # Relational DDL
+├── data-consistency-service/         # Data consistency validator
+│   ├── index.js                      # Consistency checks and validation
+│   └── package.json                  # Dependencies
+├── docker-compose.yml                # Multi-container orchestration
+├── setup.sh                          # Setup automation script
+└── database-schema.puml              # PlantUML database overview
 ```
 
 ## 🚀 Completed Features
