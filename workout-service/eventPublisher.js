@@ -6,7 +6,7 @@ class EventPublisher {
     this.channel = null;
     this.exchangeName = 'fitness_events';
   }
-
+// Producer → Exchange → Queue → Consumer
   async connect() {
     try {
       // Connect to RabbitMQ
@@ -30,6 +30,7 @@ class EventPublisher {
         await this.connect();
       }
 
+      // The producer creates a message and sends it to an exchange in RabbitMQ.
       const event = {
         type: 'WorkoutLogged',
         timestamp: new Date().toISOString(),
@@ -44,7 +45,10 @@ class EventPublisher {
         }
       };
 
+      // this is the exchange in rabbitmq
       // Publish to workout.logged topic
+
+
       await this.channel.publish(
         this.exchangeName,
         'workout.logged',
@@ -90,6 +94,7 @@ class EventPublisher {
     }
   }
 
+  // close connection
   async close() {
     try {
       if (this.channel) {
