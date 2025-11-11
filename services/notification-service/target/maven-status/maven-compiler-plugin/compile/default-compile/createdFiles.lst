@@ -1,0 +1,5 @@
+com/clouddev/notificationservice/service/NotificationDispatcher.class
+com/clouddev/notificationservice/messaging/NotificationListener.class
+com/clouddev/notificationservice/config/MessagingConfig.class
+com/clouddev/notificationservice/NotificationServiceApplication.class
+com/clouddev/notificationservice/model/NotificationEvent.class

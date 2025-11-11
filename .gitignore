@@ -1,0 +1,3 @@
+# Ignore incomplete microservice scaffolding until they are ready
+services/auth-service/
+services/user-service/
