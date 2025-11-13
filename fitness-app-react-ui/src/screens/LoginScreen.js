@@ -24,7 +24,7 @@ const LoginScreen = () => {
         try {
             const response = await authAPI.login({ email, password });
             storeAuthData(response.accessToken, response.userId);
-            navigate('/profile');
+            navigate('/dashboard');
         } catch (error) {
             if (error.response && error.response.status === 401) {
                 setError('Invalid email or password');

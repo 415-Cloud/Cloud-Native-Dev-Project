@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, getAuthData, clearAuthData } from '../services/api';
+import Navbar from '../components/Navbar';
 import './ProfileScreen.css';
 
 const ProfileScreen = () => {
@@ -58,11 +59,6 @@ const ProfileScreen = () => {
 
         fetchProfile();
     }, [navigate]);
-
-    const handleLogout = () => {
-        clearAuthData();
-        navigate('/login');
-    };
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -147,6 +143,8 @@ const ProfileScreen = () => {
 
     return (
         <div className="profile-container">
+            <Navbar />
+            <div className="profile-content-wrapper">
             <div className="profile-card">
                 <div className="profile-header">
                     <h2>User Profile</h2>
@@ -154,7 +152,6 @@ const ProfileScreen = () => {
                         {!isEditing && (
                             <button onClick={handleEdit} className="edit-button">Edit Profile</button>
                         )}
-                        <button onClick={handleLogout} className="logout-button">Logout</button>
                     </div>
                 </div>
                 {error && <div className="error-message">{error}</div>}
@@ -270,6 +267,7 @@ const ProfileScreen = () => {
                 ) : (
                     <p>No profile data available</p>
                 )}
+            </div>
             </div>
         </div>
     );

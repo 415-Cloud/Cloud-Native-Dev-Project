@@ -36,7 +36,7 @@ const SurveyScreen = () => {
                 goals,
             });
 
-            navigate('/profile');
+            navigate('/dashboard');
         } catch (error) {
             if (error.response) {
                 const errorData = error.response.data;
