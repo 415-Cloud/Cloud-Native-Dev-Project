@@ -6,6 +6,7 @@ import './RegisterScreen.css';
 const RegisterScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -15,16 +16,22 @@ const RegisterScreen = () => {
         setError('');
         setLoading(true);
 
-        if (!email || !password) {
+        if (!email || !password || !confirmPassword) {
             setError('Please fill in all fields');
+            setLoading(false);
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
             setLoading(false);
             return;
         }
 
         try {
             const response = await authAPI.register({ email, password });
-            storeAuthData(response.token, response.userId);
-            navigate('/profile');
+            storeAuthData(response.accessToken, response.userId);
+            navigate('/survey');
         } catch (error) {
             if (error.response) {
                 // Handle error response - could be string or object
@@ -66,6 +73,15 @@ const RegisterScreen = () => {
                             placeholder="Password" 
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input 
+                            type="password" 
+                            placeholder="Confirm Password" 
+                            value={confirmPassword} 
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             disabled={loading}
                         />
                     </div>

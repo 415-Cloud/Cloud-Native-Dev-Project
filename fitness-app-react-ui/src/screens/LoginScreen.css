@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   padding: 20px;
 }
 
@@ -39,7 +39,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #ff6600;
 }
 
 .form-group input:disabled {
@@ -60,18 +60,20 @@
 .submit-button {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #ff6600;
+  color: #000000;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: all 0.3s;
 }
 
 .submit-button:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
 }
 
 .submit-button:disabled {
@@ -87,7 +89,7 @@
 }
 
 .link-text a {
-  color: #667eea;
+  color: #ff6600;
   text-decoration: none;
   font-weight: 600;
 }

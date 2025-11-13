@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   padding: 20px;
 }
 
@@ -38,18 +38,20 @@
 
 .edit-button {
   padding: 10px 20px;
-  background: #667eea;
-  color: white;
+  background: #ff6600;
+  color: #000000;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .edit-button:hover {
-  background: #5568d3;
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
 }
 
 .logout-button {
@@ -82,7 +84,7 @@
 
 .profile-field label {
   font-weight: 600;
-  color: #667eea;
+  color: #ff6600;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -123,7 +125,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: #667eea;
+  color: #ff6600;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -142,7 +144,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #ff6600;
 }
 
 .form-group textarea {
@@ -175,18 +177,20 @@
 
 .save-button {
   padding: 12px 24px;
-  background: #28a745;
-  color: white;
+  background: #ff6600;
+  color: #000000;
   border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .save-button:hover:not(:disabled) {
-  background: #218838;
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
 }
 
 .cancel-button:disabled,

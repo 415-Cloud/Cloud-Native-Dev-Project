@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Base URLs for services
-const AUTH_SERVICE_URL = 'http://localhost:8080/api/auth';
-const USER_SERVICE_URL = 'http://localhost:8081/api/users';
+// Base URLs for services - use environment variables with fallback to localhost
+const AUTH_SERVICE_URL = process.env.REACT_APP_AUTH_SERVICE_URL || 'http://localhost:8080/api/auth';
+const USER_SERVICE_URL = process.env.REACT_APP_USER_SERVICE_URL || 'http://localhost:8081/api/users';
 
 // Create axios instance with default config
 const apiClient = axios.create({

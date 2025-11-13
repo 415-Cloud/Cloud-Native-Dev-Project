@@ -23,7 +23,7 @@ const LoginScreen = () => {
 
         try {
             const response = await authAPI.login({ email, password });
-            storeAuthData(response.token, response.userId);
+            storeAuthData(response.accessToken, response.userId);
             navigate('/profile');
         } catch (error) {
             if (error.response && error.response.status === 401) {
