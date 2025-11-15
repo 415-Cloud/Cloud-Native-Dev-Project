@@ -1,0 +1,141 @@
+.landing-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 30px;
+  z-index: 10;
+}
+
+.landing-nav-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-button {
+  padding: 10px 24px;
+  border: 2px solid #ff6600;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: #ff6600;
+}
+
+.login-nav-button {
+  background: transparent;
+  color: #ff6600;
+}
+
+.login-nav-button:hover {
+  background: #ff6600;
+  color: #000000;
+}
+
+.signup-nav-button {
+  background: #ff6600;
+  color: #000000;
+}
+
+.signup-nav-button:hover {
+  background: transparent;
+  color: #ff6600;
+}
+
+.landing-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 20px 40px;
+}
+
+.landing-title {
+  font-size: 72px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255, 102, 0, 0.3);
+  letter-spacing: 2px;
+}
+
+.landing-subtitle {
+  font-size: 24px;
+  margin: 0 0 40px 0;
+  color: #cccccc;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.landing-cta {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.cta-button {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-button.primary {
+  background: #ff6600;
+  color: #000000;
+}
+
+.cta-button.primary:hover {
+  background: #ff8533;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 102, 0, 0.4);
+}
+
+.cta-button.secondary {
+  background: transparent;
+  color: #ff6600;
+  border: 2px solid #ff6600;
+}
+
+.cta-button.secondary:hover {
+  background: #ff6600;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .landing-title {
+    font-size: 48px;
+  }
+  
+  .landing-subtitle {
+    font-size: 20px;
+  }
+  
+  .landing-cta {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .cta-button {
+    width: 100%;
+  }
+}
+

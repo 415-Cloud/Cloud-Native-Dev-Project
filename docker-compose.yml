@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - workout_data:/var/lib/postgresql/data
+    networks:
+      - fitness-network
 
   # PostgreSQL Database for Challenge Service
   challenge-db:
@@ -24,6 +26,30 @@ services:
       - "5433:5432"
     volumes:
       - challenge_data:/var/lib/postgresql/data
+    networks:
+      - fitness-network
+
+  # Shared PostgreSQL Database for Auth and User Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: fitness-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: postgres -c log_statement=all
+    networks:
+      - fitness-network
 
   # RabbitMQ Message Broker
   rabbitmq:
@@ -36,6 +62,8 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - fitness-network
 
   # Workout Service
   workout-service:
@@ -51,6 +79,8 @@ services:
     volumes:
       - ./workout-service:/app
       - /app/node_modules
+    networks:
+      - fitness-network
 
   # Challenge Service
   challenge-service:
@@ -66,6 +96,8 @@ services:
     volumes:
       - ./challenge-service:/app
       - /app/node_modules
+    networks:
+      - fitness-network
 
   # Data Consistency Service
   data-consistency-service:
@@ -79,8 +111,78 @@ services:
     volumes:
       - ./data-consistency-service:/app
       - /app/node_modules
+    networks:
+      - fitness-network
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: fitness-auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      USER_SERVICE_URL: http://user-service:8081/api/users/create
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fitness-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: fitness-user-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fitness-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./fitness-app-react-ui
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_AUTH_SERVICE_URL: http://localhost:8080/api/auth
+        REACT_APP_USER_SERVICE_URL: http://localhost:8081/api/users
+    container_name: fitness-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - user-service
+    networks:
+      - fitness-network
+
+networks:
+  fitness-network:
+    driver: bridge
 
 volumes:
   workout_data:
   challenge_data:
   rabbitmq_data:
+  postgres_data:
