@@ -16,10 +16,10 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
-# Install wget for healthchecks
-RUN apk add --no-cache wget
+# Install wget for healthchecks (using apt for Debian-based image)
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

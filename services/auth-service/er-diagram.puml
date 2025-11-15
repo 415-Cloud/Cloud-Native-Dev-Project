@@ -1,0 +1,50 @@
+@startuml Auth Service - ER Diagram
+
+!define TABLE entity
+!define PRIMARY_KEY <<PK>>
+!define FOREIGN_KEY <<FK>>
+!define NOT_NULL <<NN>>
+!define UNIQUE <<U>>
+
+title Auth Service - Entity Relationship Diagram
+
+entity "Credentials" as credentials {
+  * user_id : VARCHAR(255) <<PK>>
+  --
+  * email : VARCHAR(255) <<NN>> <<U>>
+  * password_hash : VARCHAR(255) <<NN>>
+  created_at : TIMESTAMP
+}
+
+note right of credentials
+  **Auth Service Database (auth_db)**
+  
+  **Purpose**: Manages user authentication credentials
+  **Isolation**: Completely separate from other services
+  **Security**: Stores BCrypt hashed passwords
+  
+  **Key Features**:
+  - User authentication
+  - Password management
+  - Email-based login
+  - JWT token generation
+  
+  **Service Responsibilities**:
+  - User registration
+  - Login validation
+  - Password hashing (BCrypt)
+  - Token generation
+end note
+
+note bottom of credentials
+  **Indexes for Performance**:
+  - idx_credentials_email (fast email lookups)
+  
+  **Constraints**:
+  - PRIMARY KEY: user_id
+  - UNIQUE: email
+  - NOT NULL: email, password_hash
+end note
+
+@enduml
+
