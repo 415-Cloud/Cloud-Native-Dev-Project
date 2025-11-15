@@ -21,7 +21,9 @@ cloud-app/
 │   └── workout-service-service.yaml
 ├── diagrams/                         # Generated architecture and ER visuals
 │   ├── architecture.png
+│   ├── auth-service-sql-erd.png
 │   ├── challenge-service-sql-erd.png
+│   ├── user-service-sql-erd.png
 │   └── workout-service-sql-erd.png
 ├── database/
 │   └── seed.sql                      # Shared seed data for both services
@@ -48,6 +50,22 @@ cloud-app/
 ├── data-consistency-service/         # Data consistency validator
 │   ├── index.js                      # Consistency checks and validation
 │   └── package.json                  # Dependencies
+├── services/                         # Java Spring Boot services
+│   ├── auth-service/                 # Authentication service
+│   │   ├── src/main/java/           # Java source code
+│   │   ├── src/main/resources/      # Configuration and SQL schemas
+│   │   │   ├── schema.sql           # Database schema
+│   │   │   └── data.sql             # Seed data
+│   │   ├── Dockerfile               # Containerization config
+│   │   └── pom.xml                  # Maven dependencies
+│   └── user-service/                 # User profile service
+│       ├── src/main/java/           # Java source code
+│       ├── src/main/resources/      # Configuration and SQL schemas
+│       │   ├── schema.sql           # Database schema
+│       │   └── data.sql             # Seed data
+│       ├── Dockerfile               # Containerization config
+│       └── pom.xml                  # Maven dependencies
+├── fitness-app-react-ui/             # React frontend application
 ├── docker-compose.yml                # Multi-container orchestration
 ├── setup.sh                          # Setup automation script
 └── database-schema.puml              # PlantUML database overview
@@ -120,7 +138,46 @@ cloud-app/
 - Challenge completion detection
 - Error logging and monitoring
 
-### 4. Event-Driven Architecture
+### 4. Auth Service (Port 8080)
+
+**Functionality:**
+- ✅ User registration with email and password
+- ✅ User login with JWT token generation
+- ✅ Password hashing using BCrypt
+- ✅ Email validation
+- ✅ Automatic user profile creation in user-service
+
+**Database:**
+- PostgreSQL database (`auth_db`)
+- Credentials table for authentication data
+- BCrypt password hashing for security
+
+**API Endpoints:**
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login and get JWT token
+- `GET /health` - Health check
+
+### 5. User Service (Port 8081)
+
+**Functionality:**
+- ✅ User profile management
+- ✅ Profile retrieval by user ID
+- ✅ Profile updates (name, fitness level, goals, etc.)
+- ✅ JWT authentication for protected endpoints
+- ✅ Internal API for auth-service integration
+
+**Database:**
+- PostgreSQL database (`user_db`)
+- Users table for profile information
+- Fitness level and goals tracking
+
+**API Endpoints:**
+- `GET /api/users/{userId}` - Get user profile (requires JWT)
+- `PUT /api/users/{userId}` - Update user profile (requires JWT)
+- `POST /api/users/create` - Internal endpoint for profile creation
+- `GET /health` - Health check
+
+### 6. Event-Driven Architecture
 
 **Messaging Infrastructure:**
 - RabbitMQ message broker for service communication
@@ -137,7 +194,7 @@ cloud-app/
 3. Challenge Service publishes `challenge.progress`
 4. Data Consistency Service validates consistency
 
-### 5. Infrastructure & DevOps
+### 7. Infrastructure & DevOps
 
 **Docker Setup:**
 - Docker Compose configuration for multi-container deployment
@@ -154,9 +211,11 @@ cloud-app/
 ## 🔧 Technology Stack
 
 **Backend:**
-- Node.js with Express.js
+- Node.js with Express.js (workout, challenge, data-consistency services)
+- Java Spring Boot (auth, user services)
 - PostgreSQL databases
-- Prisma ORM
+- Prisma ORM (Node.js services)
+- JPA/Hibernate (Java services)
 - RabbitMQ (AMQP)
 - Docker & Docker Compose
 
@@ -247,26 +306,43 @@ CREATE INDEX idx_progress_user_id ON challenge_progress(user_id);
 CREATE INDEX idx_progress_challenge_id ON challenge_progress(challenge_id);
 ```
 
-## 🎯 Current Branch
+### Auth Service Database (`auth_db`)
 
-**Branch:** `feature/alex-core-services`
+**Table: `credentials`**
+```sql
+CREATE TABLE credentials (
+    user_id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-**Status:** Core microservices implementation complete with:
-- ✅ Workout tracking service
-- ✅ Challenge management service
-- ✅ Event-driven integration
-- ✅ Data consistency validation
-- ⏳ Frontend pending
-- ⏳ Authentication service pending
-- ⏳ User management service pending
+-- Indexes
+CREATE INDEX idx_credentials_email ON credentials(email);
+```
 
-## 🚀 Getting Started
+### User Service Database (`user_db`)
 
-### Prerequisites
-- Node.js (v14+)
-- PostgreSQL
-- Docker and Docker Compose
-- RabbitMQ (can be started via Docker)
+**Table: `users`**
+```sql
+CREATE TABLE users (
+    user_id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    profile_info TEXT,
+    fitness_level VARCHAR(50),
+    goals TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_fitness_level ON users(fitness_level);
+```
+
+
 
 ### Setup Instructions
 
@@ -302,6 +378,9 @@ CREATE INDEX idx_progress_challenge_id ON challenge_progress(challenge_id);
 - **Workout Service:** http://localhost:3001
 - **Challenge Service:** http://localhost:3002
 - **Data Consistency Service:** http://localhost:3003
+- **Auth Service:** http://localhost:8080
+- **User Service:** http://localhost:8081
+- **Frontend (React):** http://localhost:3000
 - **RabbitMQ Management UI:** http://localhost:15672 (guest/guest)
 
 ## 📝 Example API Usage
@@ -342,7 +421,82 @@ curl -X POST http://localhost:3002/challenges/1/join \
   -d '{"userId": "user123"}'
 ```
 
-## 🔄 Event-Driven Workflow
+### Register a New User
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "name": "John Doe",
+    "fitnessLevel": "Intermediate",
+    "goals": "Complete a marathon",
+    "profileInfo": "Active runner"
+  }'
+```
+
+**Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "userId": "2671845f-b245-414a-9161-4570e5ecf46d",
+  "tokenType": "Bearer"
+}
+```
+
+### Login
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'
+```
+
+**Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "userId": "2671845f-b245-414a-9161-4570e5ecf46d",
+  "tokenType": "Bearer"
+}
+```
+
+### Get User Profile (Requires JWT)
+```bash
+curl -X GET http://localhost:8081/api/users/{userId} \
+  -H "Authorization: Bearer {accessToken}"
+```
+
+**Response:**
+```json
+{
+  "userId": "2671845f-b245-414a-9161-4570e5ecf46d",
+  "email": "user@example.com",
+  "name": "John Doe",
+  "profileInfo": "Active runner",
+  "fitnessLevel": "Intermediate",
+  "goals": "Complete a marathon",
+  "createdAt": "2025-11-15T06:01:54",
+  "updatedAt": "2025-11-15T06:01:54"
+}
+```
+
+### Update User Profile (Requires JWT)
+```bash
+curl -X PUT http://localhost:8081/api/users/{userId} \
+  -H "Authorization: Bearer {accessToken}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Smith",
+    "fitnessLevel": "Advanced",
+    "goals": "Complete an ultramarathon",
+    "profileInfo": "Experienced runner and cyclist"
+  }'
+```
+
+## Event-Driven Workflow
 
 1. **User logs workout** → Workout Service stores in database
 2. **Event published** → `workout.logged` to RabbitMQ
@@ -352,12 +506,6 @@ curl -X POST http://localhost:3002/challenges/1/join \
 6. **Consistency Service validates** → Ensures data integrity
 7. **Completion detected** → If goal achieved, marks challenge complete
 
-## 🎨 Architecture Diagrams
-
-The project includes PlantUML diagrams:
-- `database-schema.puml` - Overall database schema
-- `workout-service/er-diagram.puml` - Workout service schema
-- ER diagram images in service directories
 
 ## 🔐 Environment Variables
 
@@ -375,31 +523,22 @@ PORT=3002
 RABBITMQ_URL="amqp://localhost"
 ```
 
-## 🏗️ Next Steps / Roadmap
+### Auth Service (`services/auth-service/src/main/resources/application.properties`)
+```
+spring.datasource.url=jdbc:postgresql://postgres:5432/auth_db
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+user-service.url=http://user-service:8081/api/users/create
+server.port=8080
+```
 
-**TODO:**
-- [ ] Add authentication service
-- [ ] Implement user management service
-- [ ] Build frontend application
-- [ ] Add unit and integration tests
-- [ ] Implement API gateway
-- [ ] Add monitoring and logging (Prometheus, ELK stack)
-- [ ] Add rate limiting and security middleware
-- [ ] Implement caching layer (Redis)
-- [ ] Add CI/CD pipeline
-
-## 📚 Key Features Implemented
-
-✅ **Microservices Architecture** - Separate services for workouts and challenges  
-✅ **Event-Driven Communication** - RabbitMQ for asynchronous messaging  
-✅ **Database per Service** - Independent data stores  
-✅ **Prisma ORM** - Type-safe database access  
-✅ **Docker Support** - Containerized deployment  
-✅ **Event Sourcing Patterns** - Event-based state management  
-✅ **Data Consistency Service** - Cross-service validation  
-✅ **Automatic Challenge Tracking** - Real-time progress updates  
-✅ **Graceful Shutdown** - Clean service termination  
-✅ **Health Checks** - Service monitoring endpoints  
+### User Service (`services/user-service/src/main/resources/application.properties`)
+```
+spring.datasource.url=jdbc:postgresql://postgres:5432/user_db
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+server.port=8081
+```
 
 
 
