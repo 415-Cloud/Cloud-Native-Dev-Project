@@ -1,0 +1,91 @@
+@startuml RabbitMQ Event Flow
+
+!theme plain
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title RabbitMQ Event-Driven Architecture\nFitness Challenge Tracker
+
+package "RabbitMQ Message Broker" {
+  component [fitness_events\nTopic Exchange] as exchange
+}
+
+package "Publishers" {
+  component [Workout Service\n:3001] as workoutService
+  component [Challenge Service\n:3002] as challengeService
+}
+
+package "Consumers" {
+  component [Challenge Service\n:3002] as challengeConsumer
+  component [Data Consistency Service\n:3003] as dataConsistency
+}
+
+database "Workout DB" as workoutDB
+database "Challenge DB" as challengeDB
+
+' Event Flow
+workoutService --> workoutDB : "1. Store Workout"
+workoutService --> exchange : "2. Publish\nworkout.logged"
+
+exchange --> challengeConsumer : "3. Route to Queue\nchallenge-service-workouts"
+exchange --> dataConsistency : "4. Route to Queue\ndata-consistency-workouts"
+
+challengeConsumer --> challengeDB : "5. Update Progress"
+challengeConsumer --> exchange : "6. Publish\nchallenge.progress"
+challengeConsumer --> exchange : "7. Publish\nchallenge.completed"
+
+exchange --> dataConsistency : "8. Route to Queue\ndata-consistency-challenges\n(pattern: challenge.*)"
+
+dataConsistency --> workoutDB : "9. Validate Data"
+dataConsistency --> challengeDB : "10. Validate Data"
+
+note right of exchange
+  **Exchange Type**: Topic
+  **Exchange Name**: fitness_events
+  **Durable**: Yes
+  
+  **Routing Keys**:
+  - workout.logged
+  - challenge.progress
+  - challenge.completed
+end note
+
+note right of challengeConsumer
+  **Queue**: challenge-service-workouts
+  **Binding**: fitness_events → workout.logged
+  **Actions**:
+  - Update challenge progress
+  - Check completion
+  - Publish progress events
+end note
+
+note right of dataConsistency
+  **Queues**:
+  - data-consistency-workouts
+    (binds to: workout.logged)
+  - data-consistency-challenges
+    (binds to: challenge.*)
+  
+  **Actions**:
+  - Validate data consistency
+  - Recalculate progress
+  - Monitor integrity
+end note
+
+note bottom of workoutService
+  **Publishes**:
+  - workout.logged
+    (when workout created)
+end note
+
+note bottom of challengeService
+  **Publishes**:
+  - challenge.progress
+    (when progress updated)
+  - challenge.completed
+    (when goal achieved)
+end note
+
+@enduml
+
+
