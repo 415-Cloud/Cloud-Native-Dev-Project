@@ -1,42 +1,18 @@
-package com.fitnesstracker.userservice.model;
+package com.fitnesstracker.userservice.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
-public class UserProfile {
+// Data structure for profile responses (GET API)
+public class UserProfileDTO {
 
-    @Id
-    @Column(name = "user_id")
     private String userId;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
-
     private String name;
-
-    @Column(name = "profile_info")
     private String profileInfo;
-
-    @Column(name = "fitness_level")
     private String fitnessLevel;
-
     private String goals;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     // Getters and Setters
     public String getUserId() {
@@ -53,14 +29,6 @@ public class UserProfile {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 
     public String getName() {

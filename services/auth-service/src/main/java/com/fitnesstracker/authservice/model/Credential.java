@@ -1,37 +1,33 @@
-// src/main/java/com/fitnesstracker/authservice/model/Credential.java
-
 package com.fitnesstracker.authservice.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "credentials") // Renamed the table to 'credentials' for clarity
+@Table(name = "credentials")
 public class Credential {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id")
     private String userId;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(unique = true, nullable = false)
-    private String username;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    // Constructors (omitted for brevity)
+    // Default constructor
     public Credential() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public Credential(String email, String username, String passwordHash) {
+    public Credential(String userId, String email, String passwordHash) {
+        this.userId = userId;
         this.email = email;
-        this.username = username;
         this.passwordHash = passwordHash;
     }
 
@@ -52,14 +48,6 @@ public class Credential {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -75,5 +63,4 @@ public class Credential {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-
 }

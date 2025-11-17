@@ -1,0 +1,14 @@
+{
+  "name": "data-consistency-service",
+  "version": "1.0.0",
+  "description": "Data Consistency Service for Fitness Challenge Tracker",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "amqplib": "^0.10.3"
+  }
+}
+
