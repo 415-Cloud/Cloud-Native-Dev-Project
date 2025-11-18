@@ -14,7 +14,8 @@ const ProfileScreen = () => {
         name: '',
         profileInfo: '',
         fitnessLevel: '',
-        goals: ''
+        goals: '',
+        measuringSystem: 'metric'
     });
     const navigate = useNavigate();
 
@@ -34,12 +35,42 @@ const ProfileScreen = () => {
                     name: profileData.name || '',
                     profileInfo: profileData.profileInfo || '',
                     fitnessLevel: profileData.fitnessLevel || '',
-                    goals: profileData.goals || ''
+                    goals: profileData.goals || '',
+                    measuringSystem: profileData.measuringSystem || 'metric'
                 });
             } catch (error) {
                 if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                     clearAuthData();
                     navigate('/login');
+                } else if (error.response && error.response.status === 404) {
+                    // Profile doesn't exist - create it
+                    const { token } = getAuthData();
+                    if (token) {
+                        try {
+                            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                            const email = decodedToken.sub || decodedToken.email;
+                            if (email) {
+                                await userAPI.createProfile(userId, email);
+                                // Retry fetching profile
+                                const profileData = await userAPI.getProfile(userId);
+                                setProfile(profileData);
+                                setEditForm({
+                                    name: profileData.name || '',
+                                    profileInfo: profileData.profileInfo || '',
+                                    fitnessLevel: profileData.fitnessLevel || '',
+                                    goals: profileData.goals || '',
+                                    measuringSystem: profileData.measuringSystem || 'metric'
+                                });
+                            } else {
+                                setError('Profile not found and unable to create. Please try logging in again.');
+                            }
+                        } catch (createError) {
+                            console.error('Failed to create profile', createError);
+                            setError('Profile not found. Please complete your profile setup.');
+                        }
+                    } else {
+                        setError('Profile not found. Please complete your profile setup.');
+                    }
                 } else {
                     // Handle error response - could be string or object
                     const errorData = error.response?.data;
@@ -66,13 +97,14 @@ const ProfileScreen = () => {
 
     const handleCancel = () => {
         setIsEditing(false);
-        // Reset form to original profile values
+            // Reset form to original profile values
         if (profile) {
             setEditForm({
                 name: profile.name || '',
                 profileInfo: profile.profileInfo || '',
                 fitnessLevel: profile.fitnessLevel || '',
-                goals: profile.goals || ''
+                goals: profile.goals || '',
+                measuringSystem: profile.measuringSystem || 'metric'
             });
         }
     };
@@ -176,6 +208,10 @@ const ProfileScreen = () => {
                                     <p>{profile.fitnessLevel || 'Not set'}</p>
                                 </div>
                                 <div className="profile-field">
+                                    <label>Measuring System</label>
+                                    <p>{profile.measuringSystem === 'imperial' ? 'Imperial' : 'Metric'}</p>
+                                </div>
+                                <div className="profile-field">
                                     <label>Goals</label>
                                     <p>{profile.goals || 'Not set'}</p>
                                 </div>
@@ -213,14 +249,30 @@ const ProfileScreen = () => {
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="fitnessLevel">Fitness Level</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         id="fitnessLevel"
                                         name="fitnessLevel"
                                         value={editForm.fitnessLevel}
                                         onChange={handleInputChange}
-                                        placeholder="e.g., Beginner, Intermediate, Advanced"
-                                    />
+                                    >
+                                        <option value="">Select fitness level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label htmlFor="measuringSystem">Measuring System</label>
+                                    <select
+                                        id="measuringSystem"
+                                        name="measuringSystem"
+                                        value={editForm.measuringSystem}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="metric">Metric (kg, km)</option>
+                                        <option value="imperial">Imperial (lbs, miles)</option>
+                                    </select>
                                 </div>
                                 <div className="form-group">
                                     <label htmlFor="goals">Goals</label>

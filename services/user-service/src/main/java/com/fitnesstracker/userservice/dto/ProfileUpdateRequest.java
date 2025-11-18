@@ -7,6 +7,7 @@ public class ProfileUpdateRequest {
     private String profileInfo;
     private String fitnessLevel;
     private String goals;
+    private String measuringSystem;
 
     // Getters and Setters
     public String getName() {
@@ -39,5 +40,13 @@ public class ProfileUpdateRequest {
 
     public void setGoals(String goals) {
         this.goals = goals;
+    }
+
+    public String getMeasuringSystem() {
+        return measuringSystem;
+    }
+
+    public void setMeasuringSystem(String measuringSystem) {
+        this.measuringSystem = measuringSystem;
     }
 }

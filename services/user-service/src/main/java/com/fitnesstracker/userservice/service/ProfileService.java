@@ -56,6 +56,9 @@ public class ProfileService {
         if (request.getGoals() != null) {
             profile.setGoals(request.getGoals());
         }
+        if (request.getMeasuringSystem() != null) {
+            profile.setMeasuringSystem(request.getMeasuringSystem());
+        }
 
         // Save and convert to DTO
         return convertToDto(profileRepository.save(profile));
@@ -70,6 +73,7 @@ public class ProfileService {
         dto.setProfileInfo(profile.getProfileInfo());
         dto.setFitnessLevel(profile.getFitnessLevel());
         dto.setGoals(profile.getGoals());
+        dto.setMeasuringSystem(profile.getMeasuringSystem());
         dto.setCreatedAt(profile.getCreatedAt());
         dto.setUpdatedAt(profile.getUpdatedAt());
         return dto;

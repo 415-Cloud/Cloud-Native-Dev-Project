@@ -27,6 +27,9 @@ public class UserProfile {
 
     private String goals;
 
+    @Column(name = "measuring_system")
+    private String measuringSystem;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -93,6 +96,14 @@ public class UserProfile {
 
     public void setGoals(String goals) {
         this.goals = goals;
+    }
+
+    public String getMeasuringSystem() {
+        return measuringSystem;
+    }
+
+    public void setMeasuringSystem(String measuringSystem) {
+        this.measuringSystem = measuringSystem;
     }
 
     public LocalDateTime getCreatedAt() {

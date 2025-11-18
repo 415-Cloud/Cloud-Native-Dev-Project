@@ -59,28 +59,28 @@ const RegisterScreen = () => {
                 <h2>Create Account</h2>
                 <form onSubmit={handleRegister}>
                     <div className="form-group">
-                        <input 
-                            type="email" 
-                            placeholder="Email" 
-                            value={email} 
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             disabled={loading}
                         />
                     </div>
                     <div className="form-group">
-                        <input 
-                            type="password" 
-                            placeholder="Password" 
-                            value={password} 
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                         />
                     </div>
                     <div className="form-group">
-                        <input 
-                            type="password" 
-                            placeholder="Confirm Password" 
-                            value={confirmPassword} 
+                        <input
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             disabled={loading}
                         />

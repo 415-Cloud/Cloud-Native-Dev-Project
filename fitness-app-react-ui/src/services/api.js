@@ -62,6 +62,21 @@ export const authAPI = {
   },
 };
 
+// Helper function to decode JWT token
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Failed to decode JWT', e);
+    return null;
+  }
+};
+
 // User Service API calls
 export const userAPI = {
   /**
@@ -75,9 +90,31 @@ export const userAPI = {
   },
 
   /**
+   * Create user profile (internal endpoint, doesn't require auth)
+   * @param {string} userId - The user ID
+   * @param {string} email - The user's email
+   * @param {Object} profileData - { name?, profileInfo?, fitnessLevel?, goals?, measuringSystem? }
+   * @returns {Promise} - Created profile
+   */
+  createProfile: async (userId, email, profileData = {}) => {
+    // Use axios directly (not apiClient) since this endpoint doesn't require auth
+    const response = await axios.post(`${USER_SERVICE_URL}/create`, {
+      userId,
+      email,
+      passwordHash: 'temp', // Required by backend but not used
+      name: profileData.name || null,
+      profileInfo: profileData.profileInfo || null,
+      fitnessLevel: profileData.fitnessLevel || null,
+      goals: profileData.goals || null,
+      measuringSystem: profileData.measuringSystem || null,
+    });
+    return response.data;
+  },
+
+  /**
    * Update user profile
    * @param {string} userId - The user ID
-   * @param {Object} updateData - { name?, profileInfo?, fitnessLevel?, goals? }
+   * @param {Object} updateData - { name?, profileInfo?, fitnessLevel?, goals?, measuringSystem? }
    * @returns {Promise} - Updated user profile data
    */
   updateProfile: async (userId, updateData) => {

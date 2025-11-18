@@ -11,6 +11,7 @@ public class UserProfileDTO {
     private String profileInfo;
     private String fitnessLevel;
     private String goals;
+    private String measuringSystem;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -61,6 +62,14 @@ public class UserProfileDTO {
 
     public void setGoals(String goals) {
         this.goals = goals;
+    }
+
+    public String getMeasuringSystem() {
+        return measuringSystem;
+    }
+
+    public void setMeasuringSystem(String measuringSystem) {
+        this.measuringSystem = measuringSystem;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -23,23 +23,62 @@ const SurveyScreen = () => {
         }
 
         try {
-            const { userId } = getAuthData();
-            if (!userId) {
+            const { userId, token } = getAuthData();
+            if (!userId || !token) {
                 setError('Session expired. Please register again.');
                 navigate('/register');
                 return;
             }
 
+            // First, check if profile exists
+            let profileExists = false;
+            try {
+                await userAPI.getProfile(userId);
+                profileExists = true;
+            } catch (getError) {
+                // Profile doesn't exist - we'll create it
+                profileExists = false;
+            }
+
+            if (!profileExists) {
+                // Decode JWT to get email
+                const decodedToken = JSON.parse(atob(token.split('.')[1]));
+                const email = decodedToken.sub || decodedToken.email;
+                
+                if (!email) {
+                    setError('Unable to retrieve email from token. Please try logging in again.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Create the profile first
+                try {
+                    await userAPI.createProfile(userId, email, {
+                        name,
+                        fitnessLevel,
+                        goals,
+                    });
+                } catch (createError) {
+                    console.error('Failed to create profile', createError);
+                    // Try to update anyway in case it was created between check and create
+                }
+            }
+
+            // Update the profile (this will work whether it was just created or already existed)
             await userAPI.updateProfile(userId, {
                 name,
                 fitnessLevel,
                 goals,
             });
 
+            // Success - navigate to dashboard
             navigate('/dashboard');
         } catch (error) {
             if (error.response) {
+                const status = error.response.status;
                 const errorData = error.response.data;
+                
+                // Handle errors
                 if (typeof errorData === 'string') {
                     setError(errorData);
                 } else if (errorData && typeof errorData === 'object') {

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     profile_info TEXT,
     fitness_level VARCHAR(50),
     goals TEXT,
+    measuring_system VARCHAR(20) DEFAULT 'metric',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
