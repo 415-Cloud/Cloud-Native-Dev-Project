@@ -1,0 +1,12 @@
+spring:
+  rabbitmq:
+    host: localhost
+    admin:
+      auto-startup: false
+    listener:
+      simple:
+        auto-startup: false
+        missing-queues-fatal: false
+      direct:
+        auto-startup: false
+        missing-queues-fatal: false
