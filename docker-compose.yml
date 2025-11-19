@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database for Workout Service
   workout-db:
@@ -201,7 +199,7 @@ services:
     ports:
       - '8082:8080'
     networks:
-      - microservices-net
+      - fitness-network
 
 networks:
   fitness-network:

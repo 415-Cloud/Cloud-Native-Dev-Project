@@ -67,7 +67,7 @@ cloud-app/
 │       └── pom.xml                  # Maven dependencies
 ├── fitness-app-react-ui/             # React frontend application
 ├── docker-compose.yml                # Multi-container orchestration
-├── setup.sh                          # Setup automation script
+├── init-db.sh                        # Database initialization script for Docker
 └── database-schema.puml              # PlantUML database overview
 ```
 
@@ -203,10 +203,11 @@ cloud-app/
 - Hot-reload development environment
 
 **Setup Automation:**
-- Automated setup script (`setup.sh`)
-- Prisma client generation
+- Docker Compose for automated service orchestration
+- Automatic database initialization via `init-db.sh`
+- Prisma client generation in Dockerfiles
 - Database migration deployment
-- Dependency installation
+- Dependency installation in containers
 
 ## 🔧 Technology Stack
 
@@ -346,18 +347,22 @@ CREATE INDEX idx_users_fitness_level ON users(fitness_level);
 
 ### Setup Instructions
 
-1. **Clone and setup:**
+1. **Clone the repository:**
    ```bash
    git clone <repository-url>
    cd cloud-app
-   chmod +x setup.sh
-   ./setup.sh
    ```
 
-2. **Start with Docker:**
+2. **Start all services with Docker Compose:**
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
+   
+   This will automatically:
+   - Create all required databases
+   - Build and start all services
+   - Initialize database schemas
+   - Set up networking between services
 
 3. **Or run services individually:**
    ```bash
