@@ -67,7 +67,9 @@ services:
 
   # Workout Service
   workout-service:
-    build: ./workout-service
+    build:
+      context: ./services/workout-service
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     depends_on:
@@ -77,14 +79,16 @@ services:
       DATABASE_URL: postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     volumes:
-      - ./workout-service:/app
+      - ./services/workout-service:/app
       - /app/node_modules
     networks:
       - fitness-network
 
   # Challenge Service
   challenge-service:
-    build: ./challenge-service
+    build:
+      context: ./services/challenge-service
+      dockerfile: Dockerfile
     ports:
       - "3002:3002"
     depends_on:
@@ -94,7 +98,7 @@ services:
       DATABASE_URL: postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     volumes:
-      - ./challenge-service:/app
+      - ./services/challenge-service:/app
       - /app/node_modules
     networks:
       - fitness-network

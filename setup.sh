@@ -50,7 +50,7 @@ print_status "Databases created"
 # Install dependencies
 echo "📦 Installing dependencies..."
 
-cd workout-service
+cd services/workout-service
 npm install
 print_status "Workout service dependencies installed"
 
@@ -67,7 +67,7 @@ cd ..
 # Generate Prisma clients
 echo "🔧 Generating Prisma clients..."
 
-cd workout-service
+cd services/workout-service
 npx prisma generate
 print_status "Workout service Prisma client generated"
 
@@ -80,7 +80,7 @@ cd ..
 # Run migrations
 echo "🗄️  Running database migrations..."
 
-cd workout-service
+cd services/workout-service
 npx prisma migrate deploy
 print_status "Workout service migrations completed"
 
@@ -95,8 +95,8 @@ echo ""
 echo "🎯 Next steps:"
 echo "1. Make sure RabbitMQ is running: brew services start rabbitmq"
 echo "2. Start the services:"
-echo "   - Workout Service: cd workout-service && npm start"
-echo "   - Challenge Service: cd challenge-service && npm start"
+echo "   - Workout Service: cd services/workout-service && npm start"
+echo "   - Challenge Service: cd services/challenge-service && npm start"
 echo "   - Data Consistency Service: cd data-consistency-service && node index.js"
 echo ""
 echo "🌐 Access points:"

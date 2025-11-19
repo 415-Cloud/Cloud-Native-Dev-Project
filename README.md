@@ -27,30 +27,30 @@ cloud-app/
 │   └── workout-service-sql-erd.png
 ├── database/
 │   └── seed.sql                      # Shared seed data for both services
-├── workout-service/                  # Main workout logging service
-│   ├── config.env                    # Service configuration
-│   ├── Dockerfile                    # Containerization config
-│   ├── eventPublisher.js             # RabbitMQ event publisher
-│   ├── index.js                      # Main Express server
-│   ├── package.json                  # Dependencies
-│   ├── prisma/
-│   │   └── schema.prisma             # Prisma schema (generated client)
-│   └── schema/
-│       └── workouts.ddl.sql          # Relational DDL
-├── challenge-service/                # Challenge management service
-│   ├── config.env                    # Service configuration
-│   ├── Dockerfile                    # Containerization config
-│   ├── eventConsumer.js              # RabbitMQ event consumer
-│   ├── index.js                      # Main Express server
-│   ├── package.json                  # Dependencies
-│   ├── prisma/
-│   │   └── schema.prisma             # Prisma schema (generated client)
-│   └── schema/
-│       └── challenges.ddl.sql        # Relational DDL
 ├── data-consistency-service/         # Data consistency validator
 │   ├── index.js                      # Consistency checks and validation
 │   └── package.json                  # Dependencies
-├── services/                         # Java Spring Boot services
+├── services/                         # All microservices
+│   ├── workout-service/              # Main workout logging service
+│   │   ├── config.env                # Service configuration
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── eventPublisher.js         # RabbitMQ event publisher
+│   │   ├── index.js                  # Main Express server
+│   │   ├── package.json              # Dependencies
+│   │   ├── prisma/
+│   │   │   └── schema.prisma         # Prisma schema (generated client)
+│   │   └── schema/
+│   │       └── workouts.ddl.sql      # Relational DDL
+│   ├── challenge-service/            # Challenge management service
+│   │   ├── config.env                # Service configuration
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── eventConsumer.js          # RabbitMQ event consumer
+│   │   ├── index.js                  # Main Express server
+│   │   ├── package.json              # Dependencies
+│   │   ├── prisma/
+│   │   │   └── schema.prisma         # Prisma schema (generated client)
+│   │   └── schema/
+│   │       └── challenges.ddl.sql    # Relational DDL
 │   ├── auth-service/                 # Authentication service
 │   │   ├── src/main/java/           # Java source code
 │   │   ├── src/main/resources/      # Configuration and SQL schemas
@@ -365,10 +365,10 @@ CREATE INDEX idx_users_fitness_level ON users(fitness_level);
    docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
    
    # Terminal 2 - Workout Service
-   cd workout-service && npm start
+   cd services/workout-service && npm start
    
    # Terminal 3 - Challenge Service
-   cd challenge-service && npm start
+   cd services/challenge-service && npm start
    
    # Terminal 4 - Data Consistency Service
    cd data-consistency-service && node index.js
@@ -509,14 +509,14 @@ curl -X PUT http://localhost:8081/api/users/{userId} \
 
 ## 🔐 Environment Variables
 
-### Workout Service (`workout-service/config.env`)
+### Workout Service (`services/workout-service/config.env`)
 ```
 DATABASE_URL="postgresql://postgres:password@localhost:5432/fitness_tracker_workouts"
 PORT=3001
 RABBITMQ_URL="amqp://localhost"
 ```
 
-### Challenge Service (`challenge-service/config.env`)
+### Challenge Service (`services/challenge-service/config.env`)
 ```
 DATABASE_URL="postgresql://postgres:password@localhost:5432/fitness_tracker_challenges"
 PORT=3002
