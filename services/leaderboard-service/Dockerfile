@@ -1,8 +1,30 @@
-FROM eclipse-temurin:17-jre-alpine
+# Multi-stage build for Spring Boot leaderboard-service
+FROM maven:3.9-eclipse-temurin-17 AS build
+
 WORKDIR /app
 
-ARG JAR_FILE=target/leaderboard-service.jar
-COPY ${JAR_FILE} app.jar
+# Copy pom.xml first for better layer caching
+COPY pom.xml .
+
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+
+# Install netcat for healthcheck
+RUN apk add --no-cache netcat-openbsd
+
+WORKDIR /app
+
+# Copy the built JAR from build stage
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]

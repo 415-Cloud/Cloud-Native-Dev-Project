@@ -180,12 +180,18 @@ services:
       args:
         REACT_APP_AUTH_SERVICE_URL: http://localhost:8080/api/auth
         REACT_APP_USER_SERVICE_URL: http://localhost:8081/api/users
+        REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001/api
+        REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002/api
+        REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083/api
     container_name: fitness-frontend
     ports:
       - "3000:80"
     depends_on:
       - auth-service
       - user-service
+      - workout-service
+      - challenge-service
+      - leaderboard-service
     networks:
       - fitness-network
 
@@ -211,6 +217,52 @@ services:
     networks:
       - fitness-network
 
+  # Redis for Leaderboard Service
+  redis:
+    image: redis:7-alpine
+    container_name: fitness-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - fitness-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Leaderboard Service
+  leaderboard-service:
+    build:
+      context: ./services/leaderboard-service
+      dockerfile: Dockerfile
+    container_name: leaderboard-service
+    ports:
+      - "8083:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8080
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+    networks:
+      - fitness-network
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 networks:
   fitness-network:
     driver: bridge
@@ -220,3 +272,4 @@ volumes:
   challenge_data:
   rabbitmq_data:
   postgres_data:
+  redis_data:
