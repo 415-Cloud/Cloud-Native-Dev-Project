@@ -10,6 +10,10 @@ This is a distributed fitness tracking system built with Node.js microservices a
 - Automatically track progress toward challenge goals
 - Ensure data consistency across services through event-driven patterns
 
+### System Architecture
+
+![System Architecture](diagrams/architecture.png)
+
 ## 📁 Project Structure
 
 ```
