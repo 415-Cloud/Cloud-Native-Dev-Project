@@ -62,6 +62,12 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - fitness-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Workout Service
   workout-service:
@@ -71,8 +77,10 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - workout-db
-      - rabbitmq
+      workout-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
@@ -90,8 +98,10 @@ services:
     ports:
       - "3002:3002"
     depends_on:
-      - challenge-db
-      - rabbitmq
+      challenge-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
@@ -103,7 +113,7 @@ services:
 
   # Data Consistency Service
   data-consistency-service:
-    build: ./data-consistency-service
+    build: ./services/data-consistency-service
     ports:
       - "3003:3003"
     depends_on:
@@ -111,7 +121,7 @@ services:
     environment:
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     volumes:
-      - ./data-consistency-service:/app
+      - ./services/data-consistency-service:/app
       - /app/node_modules
     networks:
       - fitness-network
