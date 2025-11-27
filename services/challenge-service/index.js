@@ -1,22 +1,24 @@
+require('dotenv').config({ path: './config.env' });
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const EventConsumer = require('./eventConsumer');
 
 const app = express();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
+
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/fitness_tracker_challenges';
+const DB_CONFIG = {
+  connectionString: DATABASE_URL,
+};
 
 // Database connection
-const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'fitness_tracker',
-  user: 'postgres',
-  password: 'password'
-});
+const pool = new Pool(DB_CONFIG);
 
 // Event consumer
-const eventConsumer = new EventConsumer();
+const eventConsumer = new EventConsumer({
+  connectionString: DATABASE_URL,
+});
 
 // Middleware
 app.use(cors());
@@ -245,10 +247,23 @@ process.on('SIGTERM', async () => {
 app.listen(PORT, async () => {
   console.log(`Challenge Service running on port ${PORT}`);
   
-  // Start listening to events
-  try {
-    await eventConsumer.subscribeToWorkoutEvents();
-  } catch (error) {
-    console.error('Failed to start event consumer:', error);
+  // Start listening to events with retry logic
+  const maxRetries = 10;
+  const retryDelay = 3000; // 3 seconds
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await eventConsumer.subscribeToWorkoutEvents();
+      console.log('Successfully connected to RabbitMQ and subscribed to events');
+      break;
+    } catch (error) {
+      console.error(`Failed to connect to RabbitMQ (attempt ${attempt}/${maxRetries}):`, error.message);
+      if (attempt < maxRetries) {
+        console.log(`Retrying in ${retryDelay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      } else {
+        console.error('Max retries reached. Event consumer not started.');
+      }
+    }
   }
 });

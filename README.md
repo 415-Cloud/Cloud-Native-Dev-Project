@@ -14,65 +14,150 @@ This is a distributed fitness tracking system built with Node.js microservices a
 
 ![System Architecture](diagrams/architecture.png)
 
+### Database Schema - ER Diagram
+
+![ER Diagram - All Services](diagrams/er-diagram-all-services.png)
+
 ## 📁 Project Structure
 
 ```
 cloud-app/
-├── k8s/                              # Kubernetes manifests (placeholders)
+├── k8s/                              # Kubernetes manifests
 │   ├── challenge-service-deployment.yaml
 │   ├── challenge-service-service.yaml
+│   ├── leaderboard-service-configmap.yaml
 │   ├── workout-service-deployment.yaml
 │   └── workout-service-service.yaml
 ├── diagrams/                         # Generated architecture and ER visuals
 │   ├── architecture.png
-│   ├── auth-service-sql-erd.png
-│   ├── challenge-service-sql-erd.png
-│   ├── user-service-sql-erd.png
-│   └── workout-service-sql-erd.png
+│   ├── architecture.puml
+│   ├── database-erd.puml
+│   └── er-diagram-all-services.png
 ├── database/
-│   └── seed.sql                      # Shared seed data for both services
-├── data-consistency-service/         # Data consistency validator
-│   ├── index.js                      # Consistency checks and validation
-│   └── package.json                  # Dependencies
+│   └── seed.sql                      # Shared seed data
 ├── services/                         # All microservices
-│   ├── workout-service/              # Main workout logging service
+│   ├── workout-service/              # Main workout logging service (Node.js)
 │   │   ├── config.env                # Service configuration
 │   │   ├── Dockerfile                # Containerization config
 │   │   ├── eventPublisher.js         # RabbitMQ event publisher
 │   │   ├── index.js                  # Main Express server
 │   │   ├── package.json              # Dependencies
 │   │   ├── prisma/
-│   │   │   └── schema.prisma         # Prisma schema (generated client)
+│   │   │   └── schema.prisma         # Prisma schema
 │   │   └── schema/
 │   │       └── workouts.ddl.sql      # Relational DDL
-│   ├── challenge-service/            # Challenge management service
+│   ├── challenge-service/            # Challenge management service (Node.js)
 │   │   ├── config.env                # Service configuration
 │   │   ├── Dockerfile                # Containerization config
 │   │   ├── eventConsumer.js          # RabbitMQ event consumer
 │   │   ├── index.js                  # Main Express server
 │   │   ├── package.json              # Dependencies
 │   │   ├── prisma/
-│   │   │   └── schema.prisma         # Prisma schema (generated client)
+│   │   │   └── schema.prisma         # Prisma schema
 │   │   └── schema/
 │   │       └── challenges.ddl.sql    # Relational DDL
-│   ├── auth-service/                 # Authentication service
-│   │   ├── src/main/java/           # Java source code
-│   │   ├── src/main/resources/      # Configuration and SQL schemas
-│   │   │   ├── schema.sql           # Database schema
-│   │   │   └── data.sql             # Seed data
-│   │   ├── Dockerfile               # Containerization config
-│   │   └── pom.xml                  # Maven dependencies
-│   └── user-service/                 # User profile service
-│       ├── src/main/java/           # Java source code
-│       ├── src/main/resources/      # Configuration and SQL schemas
-│       │   ├── schema.sql           # Database schema
-│       │   └── data.sql             # Seed data
-│       ├── Dockerfile               # Containerization config
-│       └── pom.xml                  # Maven dependencies
+│   ├── data-consistency-service/     # Data consistency validator (Node.js)
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── index.js                  # Consistency checks and validation
+│   │   ├── package.json              # Dependencies
+│   │   └── prisma/                   # Prisma configuration
+│   ├── auth-service/                 # Authentication service (Java Spring Boot)
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── pom.xml                   # Maven dependencies
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/.../authservice/
+│   │       │   │   ├── config/       # Configuration classes
+│   │       │   │   ├── controller/   # REST controllers
+│   │       │   │   ├── dto/          # Data transfer objects
+│   │       │   │   ├── model/        # Entity models
+│   │       │   │   ├── repository/   # Data repositories
+│   │       │   │   └── service/      # Business logic
+│   │       │   └── resources/
+│   │       │       ├── application.properties
+│   │       │       ├── schema.sql    # Database schema
+│   │       │       └── data.sql      # Seed data
+│   │       └── test/                 # Test files
+│   ├── user-service/                 # User profile service (Java Spring Boot)
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── pom.xml                   # Maven dependencies
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/.../userservice/
+│   │       │   │   ├── config/       # Configuration classes
+│   │       │   │   ├── controller/   # REST controllers
+│   │       │   │   ├── dto/          # Data transfer objects
+│   │       │   │   ├── model/        # Entity models
+│   │       │   │   ├── repository/   # Data repositories
+│   │       │   │   ├── security/     # Security configuration
+│   │       │   │   └── service/      # Business logic
+│   │       │   └── resources/
+│   │       │       ├── application.properties
+│   │       │       ├── schema.sql    # Database schema
+│   │       │       └── data.sql      # Seed data
+│   │       └── test/                 # Test files
+│   ├── leaderboard-service/          # Leaderboard service (Java Spring Boot)
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── pom.xml                   # Maven dependencies
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/.../leaderboardservice/
+│   │       │   │   ├── config/       # Configuration classes
+│   │       │   │   ├── controller/   # REST controllers
+│   │       │   │   ├── model/        # Entity models
+│   │       │   │   └── service/      # Business logic
+│   │       │   └── resources/
+│   │       │       └── application.yml
+│   │       └── test/                 # Test files
+│   ├── notification-service/         # Notification service (Java Spring Boot)
+│   │   ├── Dockerfile                # Containerization config
+│   │   ├── pom.xml                   # Maven dependencies
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── java/.../notificationservice/
+│   │       │   │   ├── config/       # Configuration classes
+│   │       │   │   ├── messaging/    # Message listeners
+│   │       │   │   ├── model/        # Entity models
+│   │       │   │   └── service/      # Business logic
+│   │       │   └── resources/
+│   │       │       └── application.yml
+│   │       └── test/                 # Test files
+│   └── ai-coach-service/             # AI coach service (Node.js)
+│       ├── Dockerfile                # Containerization config
+│       ├── app.js                    # Main Express server
+│       ├── package.json              # Dependencies
+│       ├── routes/
+│       │   └── coach.js              # Coach routes
+│       └── services/
+│           └── llm.js                # LLM integration
 ├── fitness-app-react-ui/             # React frontend application
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── public/
+│   │   └── index.html
+│   └── src/
+│       ├── components/               # Reusable components
+│       │   ├── Navbar.js
+│       │   └── Navbar.css
+│       ├── screens/                  # Screen components
+│       │   ├── ChallengesScreen.js
+│       │   ├── DashboardScreen.js
+│       │   ├── LandingPage.js
+│       │   ├── LeaderboardScreen.js
+│       │   ├── LoginScreen.js
+│       │   ├── ProfileScreen.js
+│       │   ├── RegisterScreen.js
+│       │   ├── SurveyScreen.js
+│       │   ├── TrainingPlanScreen.js
+│       │   └── WorkoutLogScreen.js
+│       ├── services/
+│       │   └── api.js                # API service layer
+│       ├── App.js
+│       ├── index.js
+│       └── index.css
 ├── docker-compose.yml                # Multi-container orchestration
-├── init-db.sh                        # Database initialization script for Docker
-└── database-schema.puml              # PlantUML database overview
+├── init-db.sh                        # Database initialization script
+└── README.md                         # Project documentation
 ```
 
 ## 🚀 Completed Features

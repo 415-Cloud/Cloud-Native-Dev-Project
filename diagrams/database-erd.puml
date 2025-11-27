@@ -1,0 +1,101 @@
+@startuml Combined ER Diagram - All Services
+
+!define TABLE entity
+!define PRIMARY_KEY <<PK>>
+!define FOREIGN_KEY <<FK>>
+!define NOT_NULL <<NN>>
+!define UNIQUE <<U>>
+
+title Entity Relationship Diagram - All Services
+
+' ==========================================
+' AUTH SERVICE
+' ==========================================
+entity "Credentials" as credentials {
+  * user_id : VARCHAR(255) <<PK>>
+  --
+  * email : VARCHAR(255) <<NN>> <<U>>
+  * password_hash : VARCHAR(255) <<NN>>
+  created_at : TIMESTAMP
+}
+
+' ==========================================
+' USER SERVICE
+' ==========================================
+entity "Users" as users {
+  * user_id : VARCHAR(255) <<PK>>
+  --
+  * email : VARCHAR(255) <<NN>> <<U>>
+  * password_hash : VARCHAR(255) <<NN>>
+  name : VARCHAR(255)
+  profile_info : TEXT
+  fitness_level : VARCHAR(50)
+  goals : TEXT
+  measuring_system : VARCHAR(20)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ==========================================
+' WORKOUT SERVICE
+' ==========================================
+entity "Workout" as workout {
+  * id : SERIAL <<PK>>
+  --
+  * user_id : VARCHAR(255) <<NN>>
+  * type : VARCHAR(50) <<NN>>
+  distance : DECIMAL(10,2)
+  * duration : INTEGER <<NN>>
+  calories : INTEGER
+  notes : TEXT
+  created_at : TIMESTAMP
+}
+
+' ==========================================
+' CHALLENGE SERVICE
+' ==========================================
+entity "Challenge" as challenge {
+  * id : SERIAL <<PK>>
+  --
+  * name : VARCHAR(255) <<NN>>
+  description : TEXT
+  * type : VARCHAR(50) <<NN>>
+  * start_date : DATE <<NN>>
+  * end_date : DATE <<NN>>
+  target_value : DECIMAL(10,2)
+  target_unit : VARCHAR(20)
+  * created_by : VARCHAR(255) <<NN>>
+  status : VARCHAR(20)
+  created_at : TIMESTAMP
+}
+
+entity "ChallengeParticipant" as participant {
+  * id : SERIAL <<PK>>
+  --
+  * challenge_id : INTEGER <<FK>>
+  * user_id : VARCHAR(255) <<NN>>
+  joined_at : TIMESTAMP
+  status : VARCHAR(20)
+}
+
+entity "ChallengeProgress" as progress {
+  * id : SERIAL <<PK>>
+  --
+  * challenge_id : INTEGER <<FK>>
+  * user_id : VARCHAR(255) <<NN>>
+  * workout_id : INTEGER <<NN>>
+  * progress_value : DECIMAL(10,2) <<NN>>
+  * workout_type : VARCHAR(50) <<NN>>
+  created_at : TIMESTAMP
+}
+
+' ==========================================
+' RELATIONSHIPS
+' ==========================================
+
+' Relationships within Challenge Service
+challenge ||--o{ participant : "has many participants"
+challenge ||--o{ progress : "tracks progress"
+
+@enduml
+

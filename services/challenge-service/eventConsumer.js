@@ -1,10 +1,12 @@
 const amqp = require('amqplib');
+const { Pool } = require('pg');
 
 class EventConsumer {
-  constructor() {
+  constructor(dbConfig = {}) {
     this.connection = null;
     this.channel = null;
     this.exchangeName = 'fitness_events';
+    this.dbConfig = dbConfig;
   }
 
   async connect() {
@@ -68,14 +70,7 @@ class EventConsumer {
       }
 
       // 1. Check if the user is participating in any challenges
-      const { Pool } = require('pg');
-      const pool = new Pool({
-        host: 'localhost',
-        port: 5432,
-        database: 'fitness_tracker',
-        user: 'postgres',
-        password: 'password'
-      });
+      const pool = new Pool(this.dbConfig);
 
       const userChallenges = await pool.query(
         `SELECT COUNT(*) as challenge_count 
@@ -107,14 +102,7 @@ class EventConsumer {
 
   async updateChallengeProgress(workoutData) {
     try {
-      const { Pool } = require('pg');
-      const pool = new Pool({
-        host: 'localhost',
-        port: 5432,
-        database: 'fitness_tracker',
-        user: 'postgres',
-        password: 'password'
-      });
+      const pool = new Pool(this.dbConfig);
 
       // 1. Query database for user's active challenges
       const userChallenges = await pool.query(
