@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Script to open multiple Terminal windows for monitoring Docker services
+# This script automates the process of opening separate Terminal windows for each Docker service
+# in the cloud-native application, allowing developers to monitor logs and container status in real-time.
 # Usage: ./monitor-services.sh
 
-PROJECT_DIR="/Users/alexsanch3zx/Desktop/cloud-native/cloud-app"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Function to open a new Terminal window with a command
 open_terminal_window() {
