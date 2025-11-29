@@ -16,6 +16,24 @@ const WorkoutLogScreen = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const [workouts, setWorkouts] = useState([]);
+
+  const fetchWorkouts = async () => {
+    const { userId } = getAuthData();
+    if (userId) {
+      try {
+        const data = await workoutAPI.getUserWorkouts(userId);
+        setWorkouts(data.workouts || []);
+      } catch (err) {
+        console.error('Failed to fetch workouts', err);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -50,6 +68,7 @@ const WorkoutLogScreen = () => {
         duration: parseInt(formData.duration),
         distance: parseFloat(formData.distance) || 0,
         notes: formData.notes,
+        calories: 0, // Backend might calculate or we can add field
         date: new Date().toISOString()
       });
 
@@ -61,12 +80,27 @@ const WorkoutLogScreen = () => {
         notes: ''
       });
 
+      // Refresh list
+      fetchWorkouts();
+
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       setError('Failed to log workout. Please try again.');
       console.error('Workout log failed', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this workout?')) {
+      try {
+        await workoutAPI.delete(id);
+        fetchWorkouts();
+      } catch (err) {
+        console.error('Failed to delete workout', err);
+        setError('Failed to delete workout');
+      }
     }
   };
 
@@ -153,6 +187,47 @@ const WorkoutLogScreen = () => {
               {loading ? 'Logging...' : 'Log Workout'}
             </button>
           </form>
+        </div>
+
+        <div className="workout-history-section" style={{ marginTop: '40px' }}>
+          <h2 style={{ color: 'var(--text-primary)', marginBottom: '20px' }}>Recent Workouts</h2>
+          {workouts.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No workouts logged yet.</p>
+          ) : (
+            <div className="workout-list" style={{ display: 'grid', gap: '15px' }}>
+              {workouts.map(workout => (
+                <div key={workout.id} className="workout-item" style={{
+                  background: 'var(--surface-color)',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 5px 0', color: 'var(--primary-color)' }}>{workout.type}</h3>
+                    <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+                      {workout.duration} mins • {workout.distance} miles • {new Date(workout.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(workout.id)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--error-color)',
+                      color: 'var(--error-color)',
+                      padding: '5px 10px',
+                      borderRadius: 'var(--radius-md)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

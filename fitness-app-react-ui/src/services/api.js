@@ -171,10 +171,11 @@ export default apiClient;
 export const workoutAPI = {
   /**
    * Get all workouts for the current user
+   * @param {string} userId - User ID
    * @returns {Promise} - List of workouts
    */
-  getAll: async () => {
-    const response = await apiClient.get(`${WORKOUT_SERVICE_URL}/workouts`);
+  getUserWorkouts: async (userId) => {
+    const response = await apiClient.get(`${WORKOUT_SERVICE_URL}/users/${userId}/workouts`);
     return response.data;
   },
 
@@ -242,12 +243,38 @@ export const challengeAPI = {
   },
 
   /**
+   * Create a new challenge
+   * @param {Object} challengeData - Challenge data
+   * @returns {Promise} - Created challenge
+   */
+  create: async (challengeData) => {
+    const response = await apiClient.post(`${CHALLENGE_SERVICE_URL}/challenges`, challengeData);
+    return response.data;
+  },
+
+  /**
    * Join a challenge
    * @param {string} id - Challenge ID
    * @returns {Promise} - Join status
    */
   join: async (id) => {
-    const response = await apiClient.post(`${CHALLENGE_SERVICE_URL}/challenges/${id}/join`);
+    const { userId } = getAuthData();
+    const response = await apiClient.post(`${CHALLENGE_SERVICE_URL}/challenges/${id}/join`, { userId });
+    return response.data;
+  },
+
+  /**
+   * Leave a challenge
+   * @param {string} id - Challenge ID
+   * @returns {Promise} - Leave status
+   */
+  leave: async (id) => {
+    const { userId } = getAuthData();
+    // Note: The backend expects DELETE method with body, but standard axios/fetch DELETE doesn't support body well in all browsers/proxies.
+    // However, axios does support 'data' config in delete.
+    const response = await apiClient.delete(`${CHALLENGE_SERVICE_URL}/challenges/${id}/leave`, {
+      data: { userId }
+    });
     return response.data;
   },
 
@@ -256,7 +283,9 @@ export const challengeAPI = {
    * @returns {Promise} - List of user's challenges
    */
   getUserChallenges: async () => {
-    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/challenges/my-challenges`);
+    const { userId } = getAuthData();
+    if (!userId) return { challenges: [] };
+    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/users/${userId}/challenges`);
     return response.data;
   },
 };
@@ -269,16 +298,7 @@ export const leaderboardAPI = {
    * @returns {Promise} - Leaderboard entries
    */
   getGlobal: async (limit = 10) => {
-    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/global?limit=${limit}`);
-    return response.data;
-  },
-
-  /**
-   * Get friends leaderboard
-   * @returns {Promise} - Leaderboard entries for friends
-   */
-  getFriends: async () => {
-    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/friends`);
+    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/top/${limit}`);
     return response.data;
   },
 
@@ -287,7 +307,16 @@ export const leaderboardAPI = {
    * @returns {Promise} - User's rank details
    */
   getUserRank: async () => {
-    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/my-rank`);
-    return response.data;
+    const { userId } = getAuthData();
+    if (!userId) return null;
+    try {
+      const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/rank/${userId}`);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        return null; // User not ranked yet
+      }
+      throw error;
+    }
   },
 };
