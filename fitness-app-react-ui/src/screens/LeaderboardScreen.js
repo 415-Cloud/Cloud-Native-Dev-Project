@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthData } from '../services/api';
+import { getAuthData, leaderboardAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import './LeaderboardScreen.css';
 
@@ -17,29 +17,37 @@ const LeaderboardScreen = () => {
       return;
     }
 
-    // TODO: Fetch real data from backend
-    // Mock data for now
-    const mockLeaderboard = [
-      { id: 1, name: 'Alex Johnson', score: 1250, rank: 1, avatar: '👤' },
-      { id: 2, name: 'Sarah Williams', score: 1180, rank: 2, avatar: '👤' },
-      { id: 3, name: 'Mike Chen', score: 1120, rank: 3, avatar: '👤' },
-      { id: 4, name: 'Emma Davis', score: 1080, rank: 4, avatar: '👤' },
-      { id: 5, name: 'David Brown', score: 1050, rank: 5, avatar: '👤' },
-      { id: 6, name: 'You', score: 980, rank: 6, avatar: '👤', isCurrentUser: true },
-      { id: 7, name: 'Lisa Anderson', score: 950, rank: 7, avatar: '👤' },
-      { id: 8, name: 'Tom Wilson', score: 920, rank: 8, avatar: '👤' },
-      { id: 9, name: 'Rachel Green', score: 890, rank: 9, avatar: '👤' },
-      { id: 10, name: 'Chris Taylor', score: 860, rank: 10, avatar: '👤' }
-    ];
+    const fetchData = async () => {
+      try {
+        const [globalLeaderboard, userRankData] = await Promise.all([
+          leaderboardAPI.getGlobal(10),
+          leaderboardAPI.getUserRank()
+        ]);
 
-    setLeaderboard(mockLeaderboard);
-    setUserRank(6);
+        setLeaderboard(globalLeaderboard.map((entry, index) => ({
+          id: entry.userId,
+          name: entry.username || 'Unknown User',
+          score: entry.score,
+          rank: index + 1,
+          avatar: '👤',
+          isCurrentUser: entry.userId === userId
+        })));
+
+        if (userRankData) {
+          setUserRank(userRankData.rank);
+        }
+      } catch (error) {
+        console.error('Failed to fetch leaderboard', error);
+      }
+    };
+
+    fetchData();
   }, [navigate]);
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return '🥇';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
+    if (rank === 1) return '1st';
+    if (rank === 2) return '2nd';
+    if (rank === 3) return '3rd';
     return `#${rank}`;
   };
 
@@ -49,7 +57,7 @@ const LeaderboardScreen = () => {
       <div className="leaderboard-content">
         <h1 className="leaderboard-title">Leaderboard</h1>
         <p className="leaderboard-subtitle">See how you rank against other challengers</p>
-        
+
         {userRank && (
           <div className="user-rank-card">
             <h2>Your Rank</h2>
@@ -64,19 +72,19 @@ const LeaderboardScreen = () => {
         )}
 
         <div className="leaderboard-filters">
-          <button 
+          <button
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
             All Time
           </button>
-          <button 
+          <button
             className={`filter-btn ${filter === 'month' ? 'active' : ''}`}
             onClick={() => setFilter('month')}
           >
             This Month
           </button>
-          <button 
+          <button
             className={`filter-btn ${filter === 'week' ? 'active' : ''}`}
             onClick={() => setFilter('week')}
           >
@@ -90,10 +98,10 @@ const LeaderboardScreen = () => {
             <div className="header-user">User</div>
             <div className="header-score">Score</div>
           </div>
-          
+
           {leaderboard.map((user) => (
-            <div 
-              key={user.id} 
+            <div
+              key={user.id}
               className={`leaderboard-row ${user.isCurrentUser ? 'current-user' : ''}`}
             >
               <div className="row-rank">
@@ -104,7 +112,6 @@ const LeaderboardScreen = () => {
                 )}
               </div>
               <div className="row-user">
-                <span className="user-avatar">{user.avatar}</span>
                 <span className="user-name">{user.name}</span>
                 {user.isCurrentUser && <span className="you-badge">You</span>}
               </div>

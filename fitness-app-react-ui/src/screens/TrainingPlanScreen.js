@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthData } from '../services/api';
+import { getAuthData, aiCoachAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import './TrainingPlanScreen.css';
 
@@ -16,36 +16,26 @@ const TrainingPlanScreen = () => {
       return;
     }
 
-    // TODO: Fetch real AI-generated training plan from backend
-    // Mock data for now
-    const mockPlan = [
-      {
-        week: 1,
-        days: [
-          { day: 'Monday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Moderate' },
-          { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Full Body', intensity: 'High' },
-          { day: 'Wednesday', activity: 'Rest Day', duration: '-', notes: 'Active recovery or rest' },
-          { day: 'Thursday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
-          { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
-          { day: 'Saturday', activity: 'Long Run', duration: '50 min', distance: '8 km', intensity: 'Moderate' },
-          { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
-        ]
-      },
-      {
-        week: 2,
-        days: [
-          { day: 'Monday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
-          { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Upper Body', intensity: 'High' },
-          { day: 'Wednesday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Easy' },
-          { day: 'Thursday', activity: 'Interval Training', duration: '40 min', distance: '6 km', intensity: 'High' },
-          { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
-          { day: 'Saturday', activity: 'Long Run', duration: '55 min', distance: '9 km', intensity: 'Moderate' },
-          { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
-        ]
-      }
-    ];
+    const fetchTrainingPlan = async () => {
+      try {
+        // Context for AI (could be expanded with real user data)
+        const context = {
+          fitnessLevel: 'Intermediate',
+          goals: ['Improve endurance', 'Build muscle'],
+          preferences: ['Running', 'Strength Training']
+        };
 
-    setTrainingPlan(mockPlan);
+        const response = await aiCoachAPI.getAdvice(context);
+        if (response && response.advice) {
+          setTrainingPlan(response.advice);
+        }
+      } catch (error) {
+        console.error('Failed to fetch training plan:', error);
+        // Fallback to empty or error state if needed
+      }
+    };
+
+    fetchTrainingPlan();
   }, [navigate]);
 
   const currentWeek = trainingPlan.find(w => w.week === selectedWeek);
@@ -61,8 +51,8 @@ const TrainingPlanScreen = () => {
           </div>
           <div className="week-selector">
             <label>Week:</label>
-            <select 
-              value={selectedWeek} 
+            <select
+              value={selectedWeek}
               onChange={(e) => setSelectedWeek(Number(e.target.value))}
             >
               {trainingPlan.map(week => (
@@ -91,13 +81,13 @@ const TrainingPlanScreen = () => {
                   </div>
                   <div className="day-details">
                     {day.duration && day.duration !== '-' && (
-                      <p>⏱️ {day.duration}</p>
+                      <p>Duration: {day.duration}</p>
                     )}
                     {day.distance && (
-                      <p>📏 {day.distance}</p>
+                      <p>Distance: {day.distance}</p>
                     )}
                     {day.exercises && (
-                      <p>💪 {day.exercises}</p>
+                      <p>Exercises: {day.exercises}</p>
                     )}
                     {day.notes && (
                       <p className="notes">{day.notes}</p>
@@ -110,7 +100,7 @@ const TrainingPlanScreen = () => {
         )}
 
         <div className="ai-note">
-          <p>💡 This training plan is AI-generated based on your fitness level and goals. Adjust as needed!</p>
+          <p>This training plan is AI-generated based on your fitness level and goals. Adjust as needed!</p>
         </div>
       </div>
     </div>

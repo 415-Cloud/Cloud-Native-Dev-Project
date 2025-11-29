@@ -84,9 +84,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-    volumes:
-      - ./services/workout-service:/app
-      - /app/node_modules
+
     networks:
       - fitness-network
 
@@ -105,9 +103,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-    volumes:
-      - ./services/challenge-service:/app
-      - /app/node_modules
+
     networks:
       - fitness-network
 
@@ -120,9 +116,7 @@ services:
       - rabbitmq
     environment:
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-    volumes:
-      - ./services/data-consistency-service:/app
-      - /app/node_modules
+
     networks:
       - fitness-network
 
@@ -183,6 +177,7 @@ services:
         REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001/api
         REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002/api
         REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083/api
+        REACT_APP_AI_COACH_SERVICE_URL: http://localhost:3004/api
     container_name: fitness-frontend
     ports:
       - "3000:80"
@@ -262,6 +257,19 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  # AI Coach Service
+  ai-coach-service:
+    build:
+      context: ./services/ai-coach-service
+      dockerfile: Dockerfile
+    container_name: ai-coach-service
+    ports:
+      - "3004:3000"
+    environment:
+      PORT: 3000
+    networks:
+      - fitness-network
 
 networks:
   fitness-network:

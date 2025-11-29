@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthData } from '../services/api';
+import { getAuthData, workoutAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import './WorkoutLogScreen.css';
 
@@ -43,12 +43,16 @@ const WorkoutLogScreen = () => {
     }
 
     try {
-      // TODO: Call backend API to save workout log
-      // await workoutAPI.logWorkout(userId, formData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Call backend API to save workout log
+      await workoutAPI.create({
+        userId,
+        type: formData.activityType,
+        duration: parseInt(formData.duration),
+        distance: parseFloat(formData.distance) || 0,
+        notes: formData.notes,
+        date: new Date().toISOString()
+      });
+
       setSuccess(true);
       setFormData({
         activityType: '',
@@ -56,7 +60,7 @@ const WorkoutLogScreen = () => {
         duration: '',
         notes: ''
       });
-      
+
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       setError('Failed to log workout. Please try again.');
@@ -72,7 +76,7 @@ const WorkoutLogScreen = () => {
       <div className="workout-log-content">
         <h1 className="workout-log-title">Log Workout</h1>
         <p className="workout-log-subtitle">Record your activity to track your progress</p>
-        
+
         <div className="workout-log-card">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -98,7 +102,7 @@ const WorkoutLogScreen = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="distance">Distance (km)</label>
+                <label htmlFor="distance">Distance (miles)</label>
                 <input
                   type="number"
                   id="distance"

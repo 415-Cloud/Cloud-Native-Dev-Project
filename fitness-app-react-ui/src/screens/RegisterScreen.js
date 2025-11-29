@@ -11,6 +11,9 @@ const RegisterScreen = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const handleRegister = async (e) => {
         e.preventDefault();
         setError('');
@@ -67,23 +70,37 @@ const RegisterScreen = () => {
                             disabled={loading}
                         />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group password-group">
                         <input
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                         />
+                        <button
+                            type="button"
+                            className="password-toggle"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? "👁️" : "👁️‍🗨️"}
+                        </button>
                     </div>
-                    <div className="form-group">
+                    <div className="form-group password-group">
                         <input
-                            type="password"
+                            type={showConfirmPassword ? "text" : "password"}
                             placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             disabled={loading}
                         />
+                        <button
+                            type="button"
+                            className="password-toggle"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                            {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                        </button>
                     </div>
                     {error && <div className="error-message">{error}</div>}
                     <button type="submit" disabled={loading} className="submit-button">

@@ -1,13 +1,14 @@
 .navbar {
-  background: #1e293b;
+  background: var(--surface-color);
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .navbar-brand {
@@ -16,7 +17,7 @@
 
 .navbar-brand h1 {
   margin: 0;
-  color: #ff6600;
+  color: var(--primary-color);
   font-size: 24px;
   font-weight: 700;
 }
@@ -30,47 +31,48 @@
 .nav-link {
   background: transparent;
   border: none;
-  color: #ffffff;
+  color: var(--text-secondary);
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .nav-link:hover {
-  background: rgba(255, 102, 0, 0.1);
-  color: #ff6600;
+  background: var(--background-color);
+  color: var(--primary-color);
 }
 
 .nav-link.active {
-  background: #ff6600;
-  color: #000000;
+  background: var(--primary-color);
+  color: white;
 }
 
 .nav-link.logout-btn {
   background: transparent;
-  border: 1px solid #ff6600;
-  color: #ff6600;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
 .nav-link.logout-btn:hover {
-  background: #ff6600;
-  color: #000000;
+  background: var(--primary-color);
+  color: white;
 }
 
 .notifications-dropdown {
   position: absolute;
   top: 100%;
   right: 30px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   width: 350px;
   max-height: 400px;
   overflow-y: auto;
   z-index: 1001;
+  border: 1px solid var(--border-color);
 }
 
 .notifications-header {
@@ -78,12 +80,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .notifications-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 18px;
 }
 
@@ -92,7 +94,7 @@
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .notifications-list {
@@ -101,23 +103,23 @@
 
 .notification-item {
   padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .notification-item:hover {
-  background: #f8f9fa;
+  background: var(--background-color);
 }
 
 .notification-item p {
   margin: 5px 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
 .notification-time {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 12px !important;
 }
 
@@ -137,4 +139,3 @@
     width: calc(100vw - 20px);
   }
 }
-

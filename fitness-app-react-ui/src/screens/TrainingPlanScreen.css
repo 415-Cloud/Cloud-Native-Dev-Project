@@ -1,7 +1,7 @@
 .training-plan-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color: #ffffff;
+  background-color: var(--background-color);
+  color: var(--text-primary);
 }
 
 .training-plan-content {
@@ -20,11 +20,11 @@
 .training-plan-title {
   font-size: 36px;
   margin: 0 0 10px 0;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .training-plan-subtitle {
-  color: #cccccc;
+  color: var(--text-secondary);
   margin: 0;
   font-size: 16px;
 }
@@ -36,36 +36,37 @@
 }
 
 .week-selector label {
-  color: #ffffff;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .week-selector select {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   padding: 8px 15px;
   font-size: 16px;
   cursor: pointer;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .week-selector select:focus {
   outline: none;
-  border-color: #ff6600;
+  border-color: var(--primary-color);
 }
 
 .week-plan {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
   padding: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   margin-bottom: 20px;
+  border: 1px solid var(--border-color);
 }
 
 .week-plan h2 {
   margin: 0 0 25px 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 24px;
 }
 
@@ -76,22 +77,22 @@
 }
 
 .day-card {
-  background: #f8f9fa;
-  border-radius: 8px;
+  background: var(--background-color);
+  border-radius: var(--radius-md);
   padding: 20px;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
 }
 
 .day-card:hover {
-  border-color: #ff6600;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.2);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .day-name {
   margin: 0 0 15px 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 18px;
   font-weight: 600;
 }
@@ -104,7 +105,7 @@
 }
 
 .activity-type {
-  color: #ff6600;
+  color: var(--primary-color);
   font-weight: 600;
   font-size: 16px;
 }
@@ -120,18 +121,18 @@
 }
 
 .intensity-badge.easy {
-  background: #d4edda;
-  color: #155724;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .intensity-badge.moderate {
-  background: #fff3cd;
-  color: #856404;
+  background: #fef9c3;
+  color: #854d0e;
 }
 
 .intensity-badge.high {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .day-details {
@@ -142,22 +143,23 @@
 
 .day-details p {
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .day-details .notes {
   font-style: italic;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 12px;
+  opacity: 0.8;
 }
 
 .ai-note {
-  background: rgba(255, 102, 0, 0.1);
-  border: 1px solid rgba(255, 102, 0, 0.3);
-  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius-md);
   padding: 15px 20px;
-  color: #ffffff;
+  color: var(--primary-dark);
 }
 
 .ai-note p {
@@ -179,4 +181,3 @@
     grid-template-columns: 1fr;
   }
 }
-

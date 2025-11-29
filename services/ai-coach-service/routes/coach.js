@@ -3,7 +3,7 @@ import { generateAdvice } from "../services/llm.js";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/advice", async (req, res) => {
     try {
         const advice = await generateAdvice(req.body);
         res.json({ advice });

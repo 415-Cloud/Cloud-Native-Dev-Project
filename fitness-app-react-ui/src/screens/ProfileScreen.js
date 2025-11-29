@@ -97,7 +97,7 @@ const ProfileScreen = () => {
 
     const handleCancel = () => {
         setIsEditing(false);
-            // Reset form to original profile values
+        // Reset form to original profile values
         if (profile) {
             setEditForm({
                 name: profile.name || '',
@@ -177,149 +177,141 @@ const ProfileScreen = () => {
         <div className="profile-container">
             <Navbar />
             <div className="profile-content-wrapper">
-            <div className="profile-card">
-                <div className="profile-header">
-                    <h2>User Profile</h2>
-                    <div className="profile-actions">
-                        {!isEditing && (
-                            <button onClick={handleEdit} className="edit-button">Edit Profile</button>
-                        )}
+                <div className="profile-card">
+                    <div className="profile-header">
+                        <h2>User Profile</h2>
+                        <div className="profile-actions">
+                            {!isEditing && (
+                                <button onClick={handleEdit} className="edit-button">Edit Profile</button>
+                            )}
+                        </div>
                     </div>
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                {profile ? (
-                    <div className="profile-content">
-                        {!isEditing ? (
-                            <>
-                                <div className="profile-field">
-                                    <label>User ID</label>
-                                    <p>{profile.userId}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Email</label>
-                                    <p>{profile.email}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Name</label>
-                                    <p>{profile.name || 'Not set'}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Fitness Level</label>
-                                    <p>{profile.fitnessLevel || 'Not set'}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Measuring System</label>
-                                    <p>{profile.measuringSystem === 'imperial' ? 'Imperial' : 'Metric'}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Goals</label>
-                                    <p>{profile.goals || 'Not set'}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Profile Info</label>
-                                    <p>{profile.profileInfo || 'Not set'}</p>
-                                </div>
-                                {profile.createdAt && (
+                    {error && <div className="error-message">{error}</div>}
+                    {profile ? (
+                        <div className="profile-content">
+                            {!isEditing ? (
+                                <>
                                     <div className="profile-field">
-                                        <label>Member Since</label>
-                                        <p>{new Date(profile.createdAt).toLocaleDateString()}</p>
+                                        <label>Email</label>
+                                        <p>{profile.email}</p>
                                     </div>
-                                )}
-                            </>
-                        ) : (
-                            <form onSubmit={handleUpdate} className="profile-edit-form">
-                                <div className="profile-field">
-                                    <label>User ID</label>
-                                    <p>{profile.userId}</p>
-                                </div>
-                                <div className="profile-field">
-                                    <label>Email</label>
-                                    <p>{profile.email}</p>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="name">Name</label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        value={editForm.name}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter your name"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="fitnessLevel">Fitness Level</label>
-                                    <select
-                                        id="fitnessLevel"
-                                        name="fitnessLevel"
-                                        value={editForm.fitnessLevel}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="">Select fitness level</option>
-                                        <option value="Beginner">Beginner</option>
-                                        <option value="Intermediate">Intermediate</option>
-                                        <option value="Advanced">Advanced</option>
-                                        <option value="Expert">Expert</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="measuringSystem">Measuring System</label>
-                                    <select
-                                        id="measuringSystem"
-                                        name="measuringSystem"
-                                        value={editForm.measuringSystem}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="metric">Metric (kg, km)</option>
-                                        <option value="imperial">Imperial (lbs, miles)</option>
-                                    </select>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="goals">Goals</label>
-                                    <textarea
-                                        id="goals"
-                                        name="goals"
-                                        value={editForm.goals}
-                                        onChange={handleInputChange}
-                                        placeholder="Enter your fitness goals"
-                                        rows="3"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="profileInfo">Profile Info</label>
-                                    <textarea
-                                        id="profileInfo"
-                                        name="profileInfo"
-                                        value={editForm.profileInfo}
-                                        onChange={handleInputChange}
-                                        placeholder="Tell us about yourself"
-                                        rows="3"
-                                    />
-                                </div>
-                                <div className="form-actions">
-                                    <button
-                                        type="button"
-                                        onClick={handleCancel}
-                                        className="cancel-button"
-                                        disabled={updateLoading}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="save-button"
-                                        disabled={updateLoading}
-                                    >
-                                        {updateLoading ? 'Saving...' : 'Save Changes'}
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-                    </div>
-                ) : (
-                    <p>No profile data available</p>
-                )}
-            </div>
+                                    <div className="profile-field">
+                                        <label>Name</label>
+                                        <p>{profile.name || 'Not set'}</p>
+                                    </div>
+                                    <div className="profile-field">
+                                        <label>Fitness Level</label>
+                                        <p>{profile.fitnessLevel || 'Not set'}</p>
+                                    </div>
+                                    <div className="profile-field">
+                                        <label>Measuring System</label>
+                                        <p>{profile.measuringSystem === 'imperial' ? 'Imperial' : 'Metric'}</p>
+                                    </div>
+                                    <div className="profile-field">
+                                        <label>Goals</label>
+                                        <p>{profile.goals || 'Not set'}</p>
+                                    </div>
+                                    <div className="profile-field">
+                                        <label>Profile Info</label>
+                                        <p>{profile.profileInfo || 'Not set'}</p>
+                                    </div>
+                                    {profile.createdAt && (
+                                        <div className="profile-field">
+                                            <label>Member Since</label>
+                                            <p>{new Date(profile.createdAt).toLocaleDateString()}</p>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <form onSubmit={handleUpdate} className="profile-edit-form">
+                                    <div className="profile-field">
+                                        <label>Email</label>
+                                        <p>{profile.email}</p>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="name">Name</label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            value={editForm.name}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter your name"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="fitnessLevel">Fitness Level</label>
+                                        <select
+                                            id="fitnessLevel"
+                                            name="fitnessLevel"
+                                            value={editForm.fitnessLevel}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Select fitness level</option>
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                            <option value="Expert">Expert</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="measuringSystem">Measuring System</label>
+                                        <select
+                                            id="measuringSystem"
+                                            name="measuringSystem"
+                                            value={editForm.measuringSystem}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="metric">Metric (kg, km)</option>
+                                            <option value="imperial">Imperial (lbs, miles)</option>
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="goals">Goals</label>
+                                        <textarea
+                                            id="goals"
+                                            name="goals"
+                                            value={editForm.goals}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter your fitness goals"
+                                            rows="3"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="profileInfo">Profile Info</label>
+                                        <textarea
+                                            id="profileInfo"
+                                            name="profileInfo"
+                                            value={editForm.profileInfo}
+                                            onChange={handleInputChange}
+                                            placeholder="Tell us about yourself"
+                                            rows="3"
+                                        />
+                                    </div>
+                                    <div className="form-actions">
+                                        <button
+                                            type="button"
+                                            onClick={handleCancel}
+                                            className="cancel-button"
+                                            disabled={updateLoading}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="save-button"
+                                            disabled={updateLoading}
+                                        >
+                                            {updateLoading ? 'Saving...' : 'Save Changes'}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    ) : (
+                        <p>No profile data available</p>
+                    )}
+                </div>
             </div>
         </div>
     );

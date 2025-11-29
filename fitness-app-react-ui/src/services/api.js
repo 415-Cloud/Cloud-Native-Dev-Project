@@ -6,6 +6,7 @@ const USER_SERVICE_URL = process.env.REACT_APP_USER_SERVICE_URL || 'http://local
 const WORKOUT_SERVICE_URL = process.env.REACT_APP_WORKOUT_SERVICE_URL || 'http://localhost:3001/api';
 const CHALLENGE_SERVICE_URL = process.env.REACT_APP_CHALLENGE_SERVICE_URL || 'http://localhost:3002/api';
 const LEADERBOARD_SERVICE_URL = process.env.REACT_APP_LEADERBOARD_SERVICE_URL || 'http://localhost:8083/api';
+const AI_COACH_SERVICE_URL = process.env.REACT_APP_AI_COACH_SERVICE_URL || 'http://localhost:3004/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -70,7 +71,7 @@ const decodeJWT = (token) => {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     return JSON.parse(jsonPayload);
@@ -151,4 +152,142 @@ export const getAuthData = () => {
   };
 };
 
+// AI Coach Service API calls
+export const aiCoachAPI = {
+  /**
+   * Get coaching advice
+   * @param {Object} context - User context (workouts, goals, etc.)
+   * @returns {Promise} - AI advice
+   */
+  getAdvice: async (context) => {
+    const response = await apiClient.post(`${AI_COACH_SERVICE_URL}/coach/advice`, context);
+    return response.data;
+  },
+};
+
 export default apiClient;
+
+// Workout Service API calls
+export const workoutAPI = {
+  /**
+   * Get all workouts for the current user
+   * @returns {Promise} - List of workouts
+   */
+  getAll: async () => {
+    const response = await apiClient.get(`${WORKOUT_SERVICE_URL}/workouts`);
+    return response.data;
+  },
+
+  /**
+   * Get a specific workout by ID
+   * @param {string} id - Workout ID
+   * @returns {Promise} - Workout details
+   */
+  getById: async (id) => {
+    const response = await apiClient.get(`${WORKOUT_SERVICE_URL}/workouts/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Create a new workout
+   * @param {Object} workoutData - Workout data
+   * @returns {Promise} - Created workout
+   */
+  create: async (workoutData) => {
+    const response = await apiClient.post(`${WORKOUT_SERVICE_URL}/workouts`, workoutData);
+    return response.data;
+  },
+
+  /**
+   * Update an existing workout
+   * @param {string} id - Workout ID
+   * @param {Object} workoutData - Updated workout data
+   * @returns {Promise} - Updated workout
+   */
+  update: async (id, workoutData) => {
+    const response = await apiClient.put(`${WORKOUT_SERVICE_URL}/workouts/${id}`, workoutData);
+    return response.data;
+  },
+
+  /**
+   * Delete a workout
+   * @param {string} id - Workout ID
+   * @returns {Promise} - Success message
+   */
+  delete: async (id) => {
+    const response = await apiClient.delete(`${WORKOUT_SERVICE_URL}/workouts/${id}`);
+    return response.data;
+  },
+};
+
+// Challenge Service API calls
+export const challengeAPI = {
+  /**
+   * Get all available challenges
+   * @returns {Promise} - List of challenges
+   */
+  getAll: async () => {
+    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/challenges`);
+    return response.data;
+  },
+
+  /**
+   * Get a specific challenge by ID
+   * @param {string} id - Challenge ID
+   * @returns {Promise} - Challenge details
+   */
+  getById: async (id) => {
+    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/challenges/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Join a challenge
+   * @param {string} id - Challenge ID
+   * @returns {Promise} - Join status
+   */
+  join: async (id) => {
+    const response = await apiClient.post(`${CHALLENGE_SERVICE_URL}/challenges/${id}/join`);
+    return response.data;
+  },
+
+  /**
+   * Get challenges the user has joined
+   * @returns {Promise} - List of user's challenges
+   */
+  getUserChallenges: async () => {
+    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/challenges/my-challenges`);
+    return response.data;
+  },
+};
+
+// Leaderboard Service API calls
+export const leaderboardAPI = {
+  /**
+   * Get global leaderboard
+   * @param {number} limit - Number of entries to return
+   * @returns {Promise} - Leaderboard entries
+   */
+  getGlobal: async (limit = 10) => {
+    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/global?limit=${limit}`);
+    return response.data;
+  },
+
+  /**
+   * Get friends leaderboard
+   * @returns {Promise} - Leaderboard entries for friends
+   */
+  getFriends: async () => {
+    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/friends`);
+    return response.data;
+  },
+
+  /**
+   * Get user's rank
+   * @returns {Promise} - User's rank details
+   */
+  getUserRank: async () => {
+    const response = await apiClient.get(`${LEADERBOARD_SERVICE_URL}/leaderboard/my-rank`);
+    return response.data;
+  },
+};
