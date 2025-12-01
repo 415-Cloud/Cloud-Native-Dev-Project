@@ -3,8 +3,8 @@ import axios from 'axios';
 // Base URLs for services - use environment variables with fallback to localhost
 const AUTH_SERVICE_URL = process.env.REACT_APP_AUTH_SERVICE_URL || 'http://localhost:8080/api/auth';
 const USER_SERVICE_URL = process.env.REACT_APP_USER_SERVICE_URL || 'http://localhost:8081/api/users';
-const WORKOUT_SERVICE_URL = process.env.REACT_APP_WORKOUT_SERVICE_URL || 'http://localhost:3001/api';
-const CHALLENGE_SERVICE_URL = process.env.REACT_APP_CHALLENGE_SERVICE_URL || 'http://localhost:3002/api';
+const WORKOUT_SERVICE_URL = process.env.REACT_APP_WORKOUT_SERVICE_URL || 'http://localhost:3001';
+const CHALLENGE_SERVICE_URL = process.env.REACT_APP_CHALLENGE_SERVICE_URL || 'http://localhost:3002';
 const LEADERBOARD_SERVICE_URL = process.env.REACT_APP_LEADERBOARD_SERVICE_URL || 'http://localhost:8083/api';
 const AI_COACH_SERVICE_URL = process.env.REACT_APP_AI_COACH_SERVICE_URL || 'http://localhost:3004/api';
 
