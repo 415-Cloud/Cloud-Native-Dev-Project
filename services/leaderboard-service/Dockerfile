@@ -16,10 +16,10 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
-# Install netcat for healthcheck
-RUN apk add --no-cache netcat-openbsd
+# Install netcat for healthcheck (using apt for Debian-based image)
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
