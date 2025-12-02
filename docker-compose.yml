@@ -191,20 +191,26 @@ services:
     networks:
       - fitness-network
 
-  # Redis for Leaderboard Service
-  redis:
-    image: redis:7-alpine
-    container_name: fitness-redis
+  # PostgreSQL Database for Leaderboard Service
+  leaderboard-db:
+    image: postgres:15
+    container_name: leaderboard-postgres
+    environment:
+      POSTGRES_DB: leaderboard_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "6379:6379"
+      - "5435:5432"
     volumes:
-      - redis_data:/data
+      - leaderboard_data:/var/lib/postgresql/data
+      - ./services/leaderboard-service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./services/leaderboard-service/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     networks:
       - fitness-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d leaderboard_db"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 5
 
   # Leaderboard Service
@@ -216,14 +222,15 @@ services:
     ports:
       - "8083:8080"
     depends_on:
-      redis:
+      leaderboard-db:
         condition: service_healthy
       rabbitmq:
         condition: service_started
     environment:
       SERVER_PORT: 8080
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      SPRING_DATASOURCE_URL: jdbc:postgresql://leaderboard-db:5432/leaderboard_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
@@ -245,9 +252,10 @@ services:
     container_name: ai-coach-service
     ports:
       - "3004:3000"
+    env_file:
+      - ./services/ai-coach-service/.env
     environment:
       PORT: 3000
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
     networks:
       - fitness-network
 
@@ -260,4 +268,4 @@ volumes:
   challenge_data:
   rabbitmq_data:
   postgres_data:
-  redis_data:
+  leaderboard_data:

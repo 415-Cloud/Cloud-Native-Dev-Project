@@ -1,40 +1,41 @@
 package com.clouddev.leaderboardservice.service;
 
+import com.clouddev.leaderboardservice.entity.LeaderboardEntryEntity;
 import com.clouddev.leaderboardservice.model.LeaderboardEntry;
+import com.clouddev.leaderboardservice.repository.LeaderboardRepository;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LeaderboardService {
 
-    private static final String LEADERBOARD_KEY = "global:leaderboard";
-    private static final String STREAK_KEY_PATTERN = "user:streak:%s";
-    private static final String STREAK_COUNT_FIELD = "count";
-    private static final String STREAK_LAST_DATE_FIELD = "lastDate";
+    private final LeaderboardRepository leaderboardRepository;
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ZSetOperations<String, String> zSetOperations;
-    private final HashOperations<String, String, String> hashOperations;
-
-    public LeaderboardService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-        this.zSetOperations = redisTemplate.opsForZSet();
-        this.hashOperations = redisTemplate.opsForHash();
+    public LeaderboardService(LeaderboardRepository leaderboardRepository) {
+        this.leaderboardRepository = leaderboardRepository;
     }
 
+    @Transactional
     public void updateScore(String userId, double delta) {
-        zSetOperations.incrementScore(LEADERBOARD_KEY, userId, delta);
-        updateStreak(userId);
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        
+        Optional<LeaderboardEntryEntity> existingEntry = leaderboardRepository.findByUserId(userId);
+        
+        if (existingEntry.isPresent()) {
+            LeaderboardEntryEntity entry = existingEntry.get();
+            entry.setScore(entry.getScore() + delta);
+            updateStreak(entry, today);
+            leaderboardRepository.save(entry);
+        } else {
+            LeaderboardEntryEntity newEntry = new LeaderboardEntryEntity(userId, delta, 1L, today);
+            leaderboardRepository.save(newEntry);
+        }
     }
 
     public List<LeaderboardEntry> getTopN(int n) {
@@ -42,91 +43,67 @@ public class LeaderboardService {
             return Collections.emptyList();
         }
 
-        Set<TypedTuple<String>> tuples = zSetOperations.reverseRangeWithScores(LEADERBOARD_KEY, 0, n - 1);
-        if (tuples == null || tuples.isEmpty()) {
+        List<LeaderboardEntryEntity> entities = leaderboardRepository.findTopN(n);
+        if (entities == null || entities.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<LeaderboardEntry> entries = new ArrayList<>(tuples.size());
-        int index = 0;
-        for (TypedTuple<String> tuple : tuples) {
-            if (tuple.getValue() == null || tuple.getScore() == null) {
-                continue;
-            }
-            long rank = index + 1L;
-            long streak = getStreak(tuple.getValue());
-            entries.add(new LeaderboardEntry(tuple.getValue(), tuple.getScore(), rank, streak));
-            index++;
+        List<LeaderboardEntry> entries = new ArrayList<>(entities.size());
+        for (int i = 0; i < entities.size(); i++) {
+            LeaderboardEntryEntity entity = entities.get(i);
+            long rank = i + 1L;
+            entries.add(new LeaderboardEntry(
+                entity.getUserId(),
+                entity.getScore(),
+                rank,
+                entity.getStreakCount()
+            ));
         }
         return entries;
     }
 
     public Optional<LeaderboardEntry> getRank(String userId) {
-        Long reverseRank = zSetOperations.reverseRank(LEADERBOARD_KEY, userId);
-        Double score = zSetOperations.score(LEADERBOARD_KEY, userId);
-        if (reverseRank == null || score == null) {
+        Optional<LeaderboardEntryEntity> entityOpt = leaderboardRepository.findByUserId(userId);
+        if (entityOpt.isEmpty()) {
             return Optional.empty();
         }
-        long streak = getStreak(userId);
-        return Optional.of(new LeaderboardEntry(userId, score, reverseRank + 1L, streak));
+        
+        LeaderboardEntryEntity entity = entityOpt.get();
+        Long rank = leaderboardRepository.getUserRank(userId);
+        
+        return Optional.of(new LeaderboardEntry(
+            entity.getUserId(),
+            entity.getScore(),
+            rank != null ? rank : 0L,
+            entity.getStreakCount()
+        ));
     }
 
     public long getStreak(String userId) {
-        String streakKey = streakKey(userId);
-        String count = hashOperations.get(streakKey, STREAK_COUNT_FIELD);
-        if (count == null) {
-            return 0L;
-        }
-        try {
-            return Long.parseLong(count);
-        } catch (NumberFormatException ex) {
-            return 0L;
-        }
+        return leaderboardRepository.findByUserId(userId)
+            .map(LeaderboardEntryEntity::getStreakCount)
+            .orElse(0L);
     }
 
-    private void updateStreak(String userId) {
-        String streakKey = streakKey(userId);
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
-        String lastRecordedDate = hashOperations.get(streakKey, STREAK_LAST_DATE_FIELD);
-        String currentCountRaw = hashOperations.get(streakKey, STREAK_COUNT_FIELD);
-        long currentCount = parseCount(currentCountRaw);
+    private void updateStreak(LeaderboardEntryEntity entry, LocalDate today) {
+        LocalDate lastDate = entry.getLastActivityDate();
+        long currentCount = entry.getStreakCount();
 
-        long updatedCount = 1L;
-        if (lastRecordedDate != null) {
-            LocalDate lastDate = parseIsoDate(lastRecordedDate);
-            if (lastDate != null) {
-                if (lastDate.isEqual(today)) {
-                    updatedCount = currentCount == 0 ? 1L : currentCount;
-                } else if (lastDate.plusDays(1).isEqual(today)) {
-                    updatedCount = currentCount + 1L;
-                }
+        if (lastDate == null) {
+            entry.setStreakCount(1L);
+        } else if (lastDate.isEqual(today)) {
+            // Same day, no change to streak
+            if (currentCount == 0) {
+                entry.setStreakCount(1L);
             }
+        } else if (lastDate.plusDays(1).isEqual(today)) {
+            // Consecutive day, increment streak
+            entry.setStreakCount(currentCount + 1L);
+        } else {
+            // Streak broken, reset to 1
+            entry.setStreakCount(1L);
         }
-
-        hashOperations.put(streakKey, STREAK_COUNT_FIELD, Long.toString(updatedCount));
-        hashOperations.put(streakKey, STREAK_LAST_DATE_FIELD, today.toString());
-    }
-
-    private String streakKey(String userId) {
-        return STREAK_KEY_PATTERN.formatted(userId);
-    }
-
-    private long parseCount(String value) {
-        if (value == null) {
-            return 0L;
-        }
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException ex) {
-            return 0L;
-        }
-    }
-
-    private LocalDate parseIsoDate(String value) {
-        try {
-            return LocalDate.parse(value);
-        } catch (Exception ex) {
-            return null;
-        }
+        
+        entry.setLastActivityDate(today);
     }
 }
