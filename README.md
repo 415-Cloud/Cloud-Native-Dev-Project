@@ -268,7 +268,61 @@ cloud-app/
 - `POST /api/users/create` - Internal endpoint for profile creation
 - `GET /health` - Health check
 
-### 6. Event-Driven Architecture
+### 6. Leaderboard Service (Port 8082)
+
+**Functionality:**
+- ✅ Real-time leaderboard rankings using Redis Sorted Sets
+- ✅ Score updates based on workout activities
+- ✅ Daily streak tracking for users
+- ✅ Top N leaderboard queries
+- ✅ Individual user rank retrieval
+
+**Data Storage:**
+- Redis in-memory database for high-performance leaderboard operations
+- Uses Redis Sorted Sets (ZSet) for efficient ranking queries
+- Uses Redis Hashes for streak tracking
+
+**Redis Key-Value Structure:**
+
+**1. Global Leaderboard (Sorted Set)**
+- **Key:** `global:leaderboard`
+- **Type:** Sorted Set (ZSet)
+- **Member:** `userId` (String)
+- **Score:** User's total score (Double)
+- **Purpose:** Stores all user rankings sorted by score for efficient top-N queries
+
+**Example:**
+```
+Key: "global:leaderboard"
+Member: "user123" → Score: 150.5
+Member: "user456" → Score: 200.0
+```
+
+**2. User Streak Tracking (Hash)**
+- **Key Pattern:** `user:streak:{userId}` (e.g., `user:streak:user123`)
+- **Type:** Hash
+- **Fields:**
+  - `count`: Current streak count (Long as String)
+  - `lastDate`: Last recorded workout date in ISO format (String, e.g., "2024-01-15")
+- **Purpose:** Tracks daily workout streaks per user
+
+**Example:**
+```
+Key: "user:streak:user123"
+Field: "count" → Value: "5"
+Field: "lastDate" → Value: "2024-01-15"
+```
+
+**API Endpoints:**
+- `GET /api/leaderboard/top?n={number}` - Get top N users
+- `GET /api/leaderboard/rank/{userId}` - Get user's rank and score
+- `GET /health` - Health check
+
+**Configuration:**
+- Redis host and port configurable via environment variables
+- Default: `localhost:6379`
+
+### 7. Event-Driven Architecture
 
 **Messaging Infrastructure:**
 - RabbitMQ message broker for service communication
@@ -285,28 +339,25 @@ cloud-app/
 3. Challenge Service publishes `challenge.progress`
 4. Data Consistency Service validates consistency
 
-### 7. Infrastructure & DevOps
+**Event Flow Diagram:**
+```
+Workout Service → publishes "workout.logged" → RabbitMQ
+                                           ↓
+                    ┌──────────────────────┴──────────────────────┐
+                    ↓                                              ↓
+         Challenge Service (consumes)              Data Consistency Service (consumes)
+                    ↓                                              ↓
+         Updates challenge progress                    Verifies data integrity
+         Publishes "challenge.progress"                Recalculates progress
+                    ↓                                              ↓
+                    └──────────────────────┬──────────────────────┘
+                                           ↓
+                              Data Consistency Service (consumes)
+                                           ↓
+                              Verifies challenge consistency
+```
 
-**Docker Setup:**
-- Docker Compose configuration for multi-container deployment
-- Separate PostgreSQL databases for each service
-- RabbitMQ container with management UI
-- Hot-reload development environment
 
-**Setup Automation:**
-- Docker Compose for automated service orchestration
-- Automatic database initialization via `init-db.sh`
-- Prisma client generation in Dockerfiles
-- Database migration deployment
-- Dependency installation in containers
-
-
-**Architecture Patterns:**
-- Microservices architecture
-- Event-driven communication
-- Service decomposition
-- Database per service pattern
-- Eventual consistency
 
 ### Access Points
 - **Workout Service:** http://localhost:3001
@@ -314,6 +365,7 @@ cloud-app/
 - **Data Consistency Service:** http://localhost:3003
 - **Auth Service:** http://localhost:8080
 - **User Service:** http://localhost:8081
+- **Leaderboard Service:** http://localhost:8082
 - **Frontend (React):** http://localhost:3000
 - **RabbitMQ Management UI:** http://localhost:15672 (guest/guest)
 
@@ -472,6 +524,22 @@ spring.datasource.url=jdbc:postgresql://postgres:5432/user_db
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 server.port=8081
+```
+
+### Leaderboard Service (`services/leaderboard-service/src/main/resources/application.yml`)
+```yaml
+server:
+  port: ${SERVER_PORT:8082}
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 ```
 
 
