@@ -190,28 +190,6 @@ services:
     networks:
       - fitness-network
 
-  notification-service:
-    build:
-      context: ./services/notification-service
-      dockerfile: Dockerfile
-    container_name: notification-service
-    depends_on:
-      - rabbitmq
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SERVER_PORT: 8080
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: guest
-      RABBITMQ_PASSWORD: guest
-      NOTIFICATIONS_EXCHANGE: events.exchange
-      NOTIFICATIONS_QUEUE: notifications.queue
-      NOTIFICATIONS_ROUTING_KEY: notifications.#
-    ports:
-      - '8082:8080'
-    networks:
-      - fitness-network
-
   # Redis for Leaderboard Service
   redis:
     image: redis:7-alpine

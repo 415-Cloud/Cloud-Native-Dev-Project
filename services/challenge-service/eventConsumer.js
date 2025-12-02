@@ -214,14 +214,7 @@ class EventConsumer {
 
   async checkChallengeCompletion(userId) {
     try {
-      const { Pool } = require('pg');
-      const pool = new Pool({
-        host: 'localhost',
-        port: 5432,
-        database: 'fitness_tracker',
-        user: 'postgres',
-        password: 'password'
-      });
+      const pool = new Pool(this.dbConfig);
 
       // Get user's active challenges with their progress
       const challengesWithProgress = await pool.query(

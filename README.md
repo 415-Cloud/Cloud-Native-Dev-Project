@@ -111,19 +111,6 @@ cloud-app/
 │   │       │   └── resources/
 │   │       │       └── application.yml
 │   │       └── test/                 # Test files
-│   ├── notification-service/         # Notification service (Java Spring Boot)
-│   │   ├── Dockerfile                # Containerization config
-│   │   ├── pom.xml                   # Maven dependencies
-│   │   └── src/
-│   │       ├── main/
-│   │       │   ├── java/.../notificationservice/
-│   │       │   │   ├── config/       # Configuration classes
-│   │       │   │   ├── messaging/    # Message listeners
-│   │       │   │   ├── model/        # Entity models
-│   │       │   │   └── service/      # Business logic
-│   │       │   └── resources/
-│   │       │       └── application.yml
-│   │       └── test/                 # Test files
 │   └── ai-coach-service/             # AI coach service (Node.js)
 │       ├── Dockerfile                # Containerization config
 │       ├── app.js                    # Main Express server
