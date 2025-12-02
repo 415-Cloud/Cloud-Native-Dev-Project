@@ -177,7 +177,7 @@ services:
         REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001/api
         REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002/api
         REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083/api
-        REACT_APP_AI_COACH_SERVICE_URL: http://localhost:3004/api
+        REACT_APP_AI_COACH_SERVICE_URL: http://localhost:3004/api/coach
     container_name: fitness-frontend
     ports:
       - "3000:80"
@@ -187,6 +187,7 @@ services:
       - workout-service
       - challenge-service
       - leaderboard-service
+      - ai-coach-service
     networks:
       - fitness-network
 
@@ -236,7 +237,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # AI Coach Service
+  # AI Coach Service - OpenAI-powered fitness coaching
   ai-coach-service:
     build:
       context: ./services/ai-coach-service
@@ -246,6 +247,7 @@ services:
       - "3004:3000"
     environment:
       PORT: 3000
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     networks:
       - fitness-network
 

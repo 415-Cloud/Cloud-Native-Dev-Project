@@ -6,7 +6,7 @@ const USER_SERVICE_URL = process.env.REACT_APP_USER_SERVICE_URL || 'http://local
 const WORKOUT_SERVICE_URL = process.env.REACT_APP_WORKOUT_SERVICE_URL || 'http://localhost:3001';
 const CHALLENGE_SERVICE_URL = process.env.REACT_APP_CHALLENGE_SERVICE_URL || 'http://localhost:3002';
 const LEADERBOARD_SERVICE_URL = process.env.REACT_APP_LEADERBOARD_SERVICE_URL || 'http://localhost:8083/api';
-const AI_COACH_SERVICE_URL = process.env.REACT_APP_AI_COACH_SERVICE_URL || 'http://localhost:3004/api';
+const AI_COACH_SERVICE_URL = process.env.REACT_APP_AI_COACH_SERVICE_URL || 'http://localhost:3004/api/coach';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -127,6 +127,34 @@ export const userAPI = {
   },
 };
 
+// AI Coach Service API calls
+export const aiCoachAPI = {
+  /**
+   * Get AI-generated fitness advice based on user data
+   * @param {Object} userData - User profile and fitness data for context
+   * @returns {Promise} - { advice: string } AI-generated coaching advice
+   */
+  getAdvice: async (userData) => {
+    const response = await apiClient.post(AI_COACH_SERVICE_URL, userData);
+    return response.data;
+  },
+
+  /**
+   * Generate a personalized training plan
+   * @param {Object} userData - { fitnessLevel, goals, preferences, etc. }
+   * @returns {Promise} - { advice: string } AI-generated training plan
+   */
+  generateTrainingPlan: async (userData) => {
+    const planRequest = {
+      ...userData,
+      requestType: 'training_plan',
+      prompt: `Generate a detailed weekly training plan for someone with fitness level: ${userData.fitnessLevel || 'intermediate'}, goals: ${userData.goals || 'general fitness'}. Include specific exercises, durations, and rest days.`
+    };
+    const response = await apiClient.post(AI_COACH_SERVICE_URL, planRequest);
+    return response.data;
+  },
+};
+
 // Helper function to store auth data
 export const storeAuthData = (token, userId) => {
   localStorage.setItem('token', token);
@@ -150,19 +178,6 @@ export const getAuthData = () => {
     token: localStorage.getItem('token'),
     userId: localStorage.getItem('userId'),
   };
-};
-
-// AI Coach Service API calls
-export const aiCoachAPI = {
-  /**
-   * Get coaching advice
-   * @param {Object} context - User context (workouts, goals, etc.)
-   * @returns {Promise} - AI advice
-   */
-  getAdvice: async (context) => {
-    const response = await apiClient.post(`${AI_COACH_SERVICE_URL}/coach/advice`, context);
-    return response.data;
-  },
 };
 
 export default apiClient;
