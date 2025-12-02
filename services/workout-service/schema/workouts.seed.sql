@@ -5,6 +5,7 @@ BEGIN;
 -- Clear existing data so the seed loads cleanly
 TRUNCATE TABLE workouts RESTART IDENTITY CASCADE;
 
+
 -- Seed workouts
 INSERT INTO workouts (user_id, type, distance, duration, calories, notes, created_at) VALUES
   ('user-200', 'strength', NULL, 60, 505, 'Push Day: heavy bench ladder + burnout push-up dropset', NOW() - INTERVAL '2 day'),
