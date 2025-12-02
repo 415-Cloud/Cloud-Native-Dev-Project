@@ -15,14 +15,6 @@ spec:
       labels:
         app: challenge-service
     spec:
-      # Optional: Run database migrations before starting the service
-      initContainers:
-      - name: migrate-db
-        image: challenge-service:latest
-        command: ['npx', 'prisma', 'migrate', 'deploy']
-        envFrom:
-        - configMapRef:
-            name: challenge-service-config
       containers:
       - name: challenge-service
         image: challenge-service:latest  # Update with your registry: registry.example.com/challenge-service:tag
