@@ -12,6 +12,11 @@ services:
       - workout_data:/var/lib/postgresql/data
     networks:
       - fitness-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # PostgreSQL Database for Challenge Service
   challenge-db:
@@ -26,6 +31,11 @@ services:
       - challenge_data:/var/lib/postgresql/data
     networks:
       - fitness-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # Shared PostgreSQL Database for Auth and User Services
   postgres:
@@ -76,9 +86,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
+    command: sh -c "npx prisma migrate deploy && npm start"
     depends_on:
       workout-db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
@@ -95,9 +106,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3002:3002"
+    command: sh -c "npx prisma migrate deploy && npm start"
     depends_on:
       challenge-db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
@@ -174,8 +186,8 @@ services:
       args:
         REACT_APP_AUTH_SERVICE_URL: http://localhost:8080/api/auth
         REACT_APP_USER_SERVICE_URL: http://localhost:8081/api/users
-        REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001/api
-        REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002/api
+        REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001
+        REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002
         REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083/api
         REACT_APP_AI_COACH_SERVICE_URL: http://localhost:3004/api/coach
     container_name: fitness-frontend
