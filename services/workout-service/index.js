@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+const { Pool } = require('pg');
 const EventPublisher = require('./eventPublisher');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Database connection with Prisma ORM
-const prisma = new PrismaClient();
+// Database connection with PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 // Event publisher
 const eventPublisher = new EventPublisher();
@@ -31,17 +33,12 @@ app.post('/workouts', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Insert into database using Prisma ORM
-    const workout = await prisma.workout.create({
-      data: {
-        userId,
-        type,
-        distance,
-        duration,
-        calories,
-        notes
-      }
-    });
+    // Insert into database
+    const result = await pool.query(
+      'INSERT INTO workouts (user_id, type, distance, duration, calories, notes) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [userId, type, distance || null, duration, calories || null, notes || null]
+    );
+    const workout = result.rows[0];
 
     // Publish event to other services
     try {
@@ -66,14 +63,11 @@ app.post('/workouts', async (req, res) => {
 app.get('/users/:userId/workouts', async (req, res) => {
   try {
     const { userId } = req.params;
-    const workouts = await prisma.workout.findMany({
-      where: {
-        userId: userId
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    const result = await pool.query(
+      'SELECT * FROM workouts WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+    const workouts = result.rows;
     res.json({ workouts: workouts });
   } catch (error) {
     console.error('Error getting workouts:', error);
@@ -85,11 +79,11 @@ app.get('/users/:userId/workouts', async (req, res) => {
 app.get('/workouts/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const workout = await prisma.workout.findUnique({
-      where: {
-        id: parseInt(id)
-      }
-    });
+    const result = await pool.query(
+      'SELECT * FROM workouts WHERE id = $1',
+      [parseInt(id)]
+    );
+    const workout = result.rows[0];
     
     if (!workout) {
       return res.status(404).json({ error: 'Workout not found' });
@@ -108,18 +102,15 @@ app.put('/workouts/:id', async (req, res) => {
     const { id } = req.params;
     const { type, distance, duration, calories, notes } = req.body;
     
-    const workout = await prisma.workout.update({
-      where: {
-        id: parseInt(id)
-      },
-      data: {
-        type,
-        distance,
-        duration,
-        calories,
-        notes
-      }
-    });
+    const result = await pool.query(
+      'UPDATE workouts SET type = $1, distance = $2, duration = $3, calories = $4, notes = $5 WHERE id = $6 RETURNING *',
+      [type, distance || null, duration, calories || null, notes || null, parseInt(id)]
+    );
+    const workout = result.rows[0];
+    
+    if (!workout) {
+      return res.status(404).json({ error: 'Workout not found' });
+    }
     
     res.json({ 
       success: true, 
@@ -136,11 +127,14 @@ app.delete('/workouts/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    await prisma.workout.delete({
-      where: {
-        id: parseInt(id)
-      }
-    });
+    const result = await pool.query(
+      'DELETE FROM workouts WHERE id = $1 RETURNING *',
+      [parseInt(id)]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Workout not found' });
+    }
     
     res.json({ 
       success: true, 
@@ -156,14 +150,14 @@ app.delete('/workouts/:id', async (req, res) => {
 process.on('SIGINT', async () => {
   console.log('Shutting down Workout Service...');
   await eventPublisher.close();
-  await prisma.$disconnect();
+  await pool.end();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('Shutting down Workout Service...');
   await eventPublisher.close();
-  await prisma.$disconnect();
+  await pool.end();
   process.exit(0);
 });
 
