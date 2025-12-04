@@ -20,6 +20,8 @@ This is a distributed fitness tracking system built with Node.js microservices a
 
 ![ER Diagram - All Services](diagrams/Combined%20ER%20Diagram%20-%20All%20Services.png)
 
+*Updated with leaderboard_entries table and corrected table names*
+
 ## 📁 Project Structure
 
 ```

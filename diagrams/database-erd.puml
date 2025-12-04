@@ -39,7 +39,7 @@ entity "Users" as users {
 ' ==========================================
 ' WORKOUT SERVICE
 ' ==========================================
-entity "Workout" as workout {
+entity "Workouts" as workout {
   * id : SERIAL <<PK>>
   --
   * user_id : VARCHAR(255) <<NN>>
@@ -54,7 +54,7 @@ entity "Workout" as workout {
 ' ==========================================
 ' CHALLENGE SERVICE
 ' ==========================================
-entity "Challenge" as challenge {
+entity "Challenges" as challenge {
   * id : SERIAL <<PK>>
   --
   * name : VARCHAR(255) <<NN>>
@@ -69,7 +69,7 @@ entity "Challenge" as challenge {
   created_at : TIMESTAMP
 }
 
-entity "ChallengeParticipant" as participant {
+entity "Challenge_participants" as participant {
   * id : SERIAL <<PK>>
   --
   * challenge_id : INTEGER <<FK>>
@@ -78,7 +78,7 @@ entity "ChallengeParticipant" as participant {
   status : VARCHAR(20)
 }
 
-entity "ChallengeProgress" as progress {
+entity "Challenge_progress" as progress {
   * id : SERIAL <<PK>>
   --
   * challenge_id : INTEGER <<FK>>
@@ -92,7 +92,7 @@ entity "ChallengeProgress" as progress {
 ' ==========================================
 ' LEADERBOARD SERVICE
 ' ==========================================
-entity "LeaderboardEntry" as leaderboard_entry {
+entity "Leaderboard_entries" as leaderboard_entry {
   * user_id : VARCHAR(255) <<PK>>
   --
   * score : DOUBLE PRECISION <<NN>>
