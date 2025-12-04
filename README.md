@@ -18,7 +18,7 @@ This is a distributed fitness tracking system built with Node.js microservices a
 
 ### Database Schema - ER Diagram
 
-![ER Diagram - All Services](diagrams/er-diagram-all-services.png)
+![ER Diagram - All Services](diagrams/Combined%20ER%20Diagram%20-%20All%20Services.png)
 
 ## 📁 Project Structure
 
@@ -258,56 +258,26 @@ cloud-app/
 ### 6. Leaderboard Service (Port 8082)
 
 **Functionality:**
-- ✅ Real-time leaderboard rankings using Redis Sorted Sets
+- ✅ Real-time leaderboard rankings
 - ✅ Score updates based on workout activities
 - ✅ Daily streak tracking for users
 - ✅ Top N leaderboard queries
 - ✅ Individual user rank retrieval
 
-**Data Storage:**
-- Redis in-memory database for high-performance leaderboard operations
-- Uses Redis Sorted Sets (ZSet) for efficient ranking queries
-- Uses Redis Hashes for streak tracking
-
-**Redis Key-Value Structure:**
-
-**1. Global Leaderboard (Sorted Set)**
-- **Key:** `global:leaderboard`
-- **Type:** Sorted Set (ZSet)
-- **Member:** `userId` (String)
-- **Score:** User's total score (Double)
-- **Purpose:** Stores all user rankings sorted by score for efficient top-N queries
-
-**Example:**
-```
-Key: "global:leaderboard"
-Member: "user123" → Score: 150.5
-Member: "user456" → Score: 200.0
-```
-
-**2. User Streak Tracking (Hash)**
-- **Key Pattern:** `user:streak:{userId}` (e.g., `user:streak:user123`)
-- **Type:** Hash
-- **Fields:**
-  - `count`: Current streak count (Long as String)
-  - `lastDate`: Last recorded workout date in ISO format (String, e.g., "2024-01-15")
-- **Purpose:** Tracks daily workout streaks per user
-
-**Example:**
-```
-Key: "user:streak:user123"
-Field: "count" → Value: "5"
-Field: "lastDate" → Value: "2024-01-15"
-```
+**Database:**
+- PostgreSQL database (`leaderboard_db`)
+- Leaderboard entries table with indexes for efficient ranking queries
+- Automatic streak calculation based on daily activity
 
 **API Endpoints:**
-- `GET /api/leaderboard/top?n={number}` - Get top N users
-- `GET /api/leaderboard/rank/{userId}` - Get user's rank and score
+- `POST /leaderboard/update/{userId}` - Update user score
+- `GET /leaderboard/top/{n}` - Get top N users
+- `GET /leaderboard/rank/{userId}` - Get user's rank and score
 - `GET /health` - Health check
 
 **Configuration:**
-- Redis host and port configurable via environment variables
-- Default: `localhost:6379`
+- PostgreSQL database connection configurable via environment variables
+- Default: `localhost:5435`
 
 ### 7. Event-Driven Architecture
 
@@ -405,10 +375,10 @@ server.port=8081
 server:
   port: ${SERVER_PORT:8082}
 spring:
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5435/leaderboard_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}

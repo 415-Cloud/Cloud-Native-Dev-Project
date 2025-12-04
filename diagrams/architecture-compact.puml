@@ -1,0 +1,67 @@
+@startuml
+top to bottom direction
+
+skinparam backgroundColor #ffffff
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ArrowColor #555555
+skinparam RectangleBorderColor #333333
+skinparam RectangleFontColor #000000
+skinparam RectangleFontSize 12
+skinparam defaultTextAlignment center
+skinparam Padding 15
+skinparam packagePadding 20
+skinparam componentPadding 12
+
+actor "Frontend (React)" as React
+
+component "API Gateway" as APIGW
+
+' API Bus line
+rectangle " " as Bus #FFFFFF
+
+package "Microservices" #E8F4F8 {
+    component "Auth Service\n(Spring Boot / JWT)" as Auth
+    component "User Service\n(Spring Boot)" as User
+    component "Leaderboard Service\n(Spring Boot)" as Leaderboard
+    component "Coach Service\n(AI)" as Coach
+    
+    package "Event-Driven Services" #FFE8E8 {
+        component "Workout Service\n(Node.js)" as Workout
+        component "Challenge Service\n(Node.js)" as Challenge
+        component "Data Consistency Service\n(Node.js)" as DataConsistency
+    }
+}
+
+queue "RabbitMQ\n(Message Broker)" as MQ
+
+React <--> APIGW
+APIGW --> Bus
+Bus --> Auth
+Bus --> User
+Bus --> Leaderboard
+Bus --> Coach
+Bus --> Workout
+Bus --> Challenge
+Bus --> DataConsistency
+
+Workout <--> MQ
+Challenge <--> MQ
+MQ <--> DataConsistency
+
+database "PostgreSQL\n(per service DB)" as PG
+
+' Force PostgreSQL to bottom with hidden connection
+DataConsistency -[hidden]-> PG
+
+note bottom of PG
+Each microservice has its own dedicated database
+end note
+
+note bottom of MQ
+Services communicate asynchronously using RabbitMQ message broker. Data Consistency Service validates data integrity across services.
+end note
+
+@enduml
+

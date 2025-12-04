@@ -90,6 +90,19 @@ entity "ChallengeProgress" as progress {
 }
 
 ' ==========================================
+' LEADERBOARD SERVICE
+' ==========================================
+entity "LeaderboardEntry" as leaderboard_entry {
+  * user_id : VARCHAR(255) <<PK>>
+  --
+  * score : DOUBLE PRECISION <<NN>>
+  * streak_count : BIGINT <<NN>>
+  last_activity_date : DATE
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' ==========================================
 ' RELATIONSHIPS
 ' ==========================================
 
