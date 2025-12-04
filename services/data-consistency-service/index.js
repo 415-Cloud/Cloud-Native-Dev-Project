@@ -208,13 +208,25 @@ class DataConsistencyService {
 const consistencyService = new DataConsistencyService();
 
 async function startService() {
-  try {
-    await consistencyService.connect();
-    await consistencyService.subscribeToEvents();
-    console.log('Data Consistency Service started');
-  } catch (error) {
-    console.error('Failed to start Data Consistency Service:', error);
-    process.exit(1);
+  const maxRetries = 10;
+  const retryDelay = 3000; // 3 seconds
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await consistencyService.connect();
+      await consistencyService.subscribeToEvents();
+      console.log('Data Consistency Service started successfully');
+      break;
+    } catch (error) {
+      console.error(`Failed to start Data Consistency Service (attempt ${attempt}/${maxRetries}):`, error.message);
+      if (attempt < maxRetries) {
+        console.log(`Retrying in ${retryDelay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      } else {
+        console.error('Max retries reached. Data Consistency Service not started.');
+        process.exit(1);
+      }
+    }
   }
 }
 
