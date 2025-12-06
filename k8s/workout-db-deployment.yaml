@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: workout-db
-  namespace: default
+  namespace: found-webapp
   labels:
     app: workout-db
 spec:
@@ -76,7 +76,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: workout-db
-  namespace: default
+  namespace: found-webapp
   labels:
     app: workout-db
 spec:

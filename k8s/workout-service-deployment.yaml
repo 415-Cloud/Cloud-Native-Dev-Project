@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: workout-service
-  namespace: default
+  namespace: found-webapp
   labels:
     app: workout-service
 spec:
@@ -18,14 +18,14 @@ spec:
       # Optional: Run database migrations before starting the service
       initContainers:
       - name: migrate-db
-        image: workout-service:latest
+        image: workout-service:v1.0
         command: ['npx', 'prisma', 'migrate', 'deploy']
         envFrom:
         - configMapRef:
             name: workout-service-config
       containers:
       - name: workout-service
-        image: workout-service:latest  # Update with your registry: registry.example.com/workout-service:tag
+        image: workout-service:v1.0  # Update with your registry: registry.example.com/workout-service:tag
         ports:
         - containerPort: 3001
           name: http
@@ -56,7 +56,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: workout-service
-  namespace: default
+  namespace: found-webapp
   labels:
     app: workout-service
 spec:

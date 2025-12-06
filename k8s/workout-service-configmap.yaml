@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: workout-service-config
-  namespace: default
+  namespace: found-webapp
   labels:
     app: workout-service
     component: config

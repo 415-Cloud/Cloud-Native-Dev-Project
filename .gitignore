@@ -138,3 +138,6 @@ application-*.properties
 # Application specific
 /tmp/
 /logs/
+
+# Documentation
+START_SERVICES.md

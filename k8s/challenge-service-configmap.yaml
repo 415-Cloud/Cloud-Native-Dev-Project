@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: challenge-service-config
-  namespace: default
+  namespace: found-webapp
   labels:
     app: challenge-service
     component: config

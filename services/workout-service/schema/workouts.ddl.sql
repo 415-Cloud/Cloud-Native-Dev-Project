@@ -1,6 +1,4 @@
--- Migration: 001_initial_workouts.sql
--- Description: Create initial workouts table
--- Created: 2024-01-01
+-- DDL
 
 CREATE TABLE IF NOT EXISTS workouts (
     id SERIAL PRIMARY KEY,
