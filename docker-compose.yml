@@ -192,7 +192,7 @@ services:
         REACT_APP_USER_SERVICE_URL: http://localhost:8081/api/users
         REACT_APP_WORKOUT_SERVICE_URL: http://localhost:3001
         REACT_APP_CHALLENGE_SERVICE_URL: http://localhost:3002
-        REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083/api
+        REACT_APP_LEADERBOARD_SERVICE_URL: http://localhost:8083
         REACT_APP_AI_COACH_SERVICE_URL: http://localhost:3004/api/coach
     container_name: fitness-frontend
     ports:
@@ -209,7 +209,9 @@ services:
 
   # PostgreSQL Database for Leaderboard Service
   leaderboard-db:
-    image: postgres:15
+    build:
+      context: ./services/leaderboard-service
+      dockerfile: Dockerfile-db
     container_name: leaderboard-postgres
     environment:
       POSTGRES_DB: leaderboard_db
@@ -219,8 +221,6 @@ services:
       - "5435:5432"
     volumes:
       - leaderboard_data:/var/lib/postgresql/data
-      - ./services/leaderboard-service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./services/leaderboard-service/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     networks:
       - fitness-network
     healthcheck:

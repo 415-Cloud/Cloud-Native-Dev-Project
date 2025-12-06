@@ -1,0 +1,4 @@
+FROM postgres:15
+
+COPY src/main/resources/schema.sql /docker-entrypoint-initdb.d/01-schema.sql
+COPY src/main/resources/data.sql /docker-entrypoint-initdb.d/02-data.sql
