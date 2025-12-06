@@ -1,7 +1,9 @@
 services:
   # PostgreSQL Database for Workout Service
   workout-db:
-    image: postgres:15
+    build:
+      context: ./services/workout-service
+      dockerfile: Dockerfile-db
     environment:
       POSTGRES_DB: fitness_tracker_workouts
       POSTGRES_USER: postgres
@@ -20,7 +22,9 @@ services:
 
   # PostgreSQL Database for Challenge Service
   challenge-db:
-    image: postgres:15
+    build:
+      context: ./services/challenge-service
+      dockerfile: Dockerfile-db
     environment:
       POSTGRES_DB: fitness_tracker_challenges
       POSTGRES_USER: postgres
@@ -86,7 +90,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3001:3001"
-    command: sh -c "npx prisma migrate deploy && npm start"
+    command: npm start
     depends_on:
       workout-db:
         condition: service_healthy
@@ -106,7 +110,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3002:3002"
-    command: sh -c "npx prisma migrate deploy && npm start"
+    command: npm start
     depends_on:
       challenge-db:
         condition: service_healthy

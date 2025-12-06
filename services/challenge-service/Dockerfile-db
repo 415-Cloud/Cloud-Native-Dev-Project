@@ -1,0 +1,4 @@
+FROM postgres:15
+
+COPY schema/challenges.ddl.sql /docker-entrypoint-initdb.d/01-schema.sql
+COPY schema/challenges.seed.sql /docker-entrypoint-initdb.d/02-data.sql
