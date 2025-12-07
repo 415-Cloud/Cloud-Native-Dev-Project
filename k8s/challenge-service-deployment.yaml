@@ -15,15 +15,20 @@ spec:
       labels:
         app: challenge-service
     spec:
+      volumes:
+      - name: config
+        configMap:
+          name: challenge-service-config
       containers:
       - name: challenge-service
-        image: challenge-service:v1.0
+        image: sanchzzalex/challenge-service:v1.0
         ports:
         - containerPort: 3002
           name: http
-        envFrom:
-        - configMapRef:
-            name: challenge-service-config
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.env
+          subPath: config.env
         resources:
           requests:
             memory: "256Mi"

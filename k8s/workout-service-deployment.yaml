@@ -15,23 +15,20 @@ spec:
       labels:
         app: workout-service
     spec:
-      # Optional: Run database migrations before starting the service
-      initContainers:
-      - name: migrate-db
-        image: workout-service:v1.0
-        command: ['npx', 'prisma', 'migrate', 'deploy']
-        envFrom:
-        - configMapRef:
-            name: workout-service-config
+      volumes:
+      - name: config
+        configMap:
+          name: workout-service-config
       containers:
       - name: workout-service
-        image: workout-service:v1.0  # Update with your registry: registry.example.com/workout-service:tag
+        image: sanchzzalex/workout-service:v1.0  # Update with your registry: registry.example.com/workout-service:tag
         ports:
         - containerPort: 3001
           name: http
-        envFrom:
-        - configMapRef:
-            name: workout-service-config
+        volumeMounts:
+        - name: config
+          mountPath: /app/config.env
+          subPath: config.env
         resources:
           requests:
             memory: "256Mi"
