@@ -11,9 +11,39 @@ class EventConsumer {
 
   async connect() {
     try {
+      // Clean up any existing connection
+      if (this.channel) {
+        try {
+          await this.channel.close();
+        } catch (e) {
+          // Ignore errors when closing
+        }
+      }
+      if (this.connection) {
+        try {
+          await this.connection.close();
+        } catch (e) {
+          // Ignore errors when closing
+        }
+      }
+
       // Connect to RabbitMQ
       const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672';
       this.connection = await amqp.connect(rabbitmqUrl);
+      
+      // Handle connection errors
+      this.connection.on('error', (err) => {
+        console.error('RabbitMQ connection error:', err.message);
+        this.channel = null;
+        this.connection = null;
+      });
+
+      this.connection.on('close', () => {
+        console.log('RabbitMQ connection closed, will attempt to reconnect');
+        this.channel = null;
+        this.connection = null;
+      });
+
       this.channel = await this.connection.createChannel();
       
       // Create exchange for fitness events
@@ -21,7 +51,9 @@ class EventConsumer {
       
       console.log('Connected to RabbitMQ for event consumption');
     } catch (error) {
-      console.error('Failed to connect to RabbitMQ:', error);
+      console.error('Failed to connect to RabbitMQ:', error.message);
+      this.channel = null;
+      this.connection = null;
       throw error;
     }
   }

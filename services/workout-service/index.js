@@ -162,6 +162,26 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Workout Service running on port ${PORT}`);
+  
+  // Initialize event publisher connection with retry logic
+  const maxRetries = 10;
+  const retryDelay = 3000; // 3 seconds
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await eventPublisher.connect();
+      console.log('Successfully connected to RabbitMQ and initialized event publisher');
+      break;
+    } catch (error) {
+      console.error(`Failed to connect to RabbitMQ (attempt ${attempt}/${maxRetries}):`, error.message);
+      if (attempt < maxRetries) {
+        console.log(`Retrying in ${retryDelay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      } else {
+        console.error('Max retries reached. Event publisher not initialized. Events will be published lazily.');
+      }
+    }
+  }
 });

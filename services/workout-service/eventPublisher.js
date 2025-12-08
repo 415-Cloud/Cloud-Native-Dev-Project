@@ -9,9 +9,39 @@ class EventPublisher {
 // Producer → Exchange → Queue → Consumer
   async connect() {
     try {
+      // Clean up any existing connection
+      if (this.channel) {
+        try {
+          await this.channel.close();
+        } catch (e) {
+          // Ignore errors when closing
+        }
+      }
+      if (this.connection) {
+        try {
+          await this.connection.close();
+        } catch (e) {
+          // Ignore errors when closing
+        }
+      }
+
       // Connect to RabbitMQ
       const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@rabbitmq:5672';
       this.connection = await amqp.connect(rabbitmqUrl);
+      
+      // Handle connection errors
+      this.connection.on('error', (err) => {
+        console.error('RabbitMQ connection error:', err.message);
+        this.channel = null;
+        this.connection = null;
+      });
+
+      this.connection.on('close', () => {
+        console.log('RabbitMQ connection closed');
+        this.channel = null;
+        this.connection = null;
+      });
+
       this.channel = await this.connection.createChannel();
       
       // Create exchange for fitness events
@@ -19,15 +49,23 @@ class EventPublisher {
       
       console.log('Connected to RabbitMQ and created exchange');
     } catch (error) {
-      console.error('Failed to connect to RabbitMQ:', error);
+      console.error('Failed to connect to RabbitMQ:', error.message);
+      this.channel = null;
+      this.connection = null;
       throw error;
     }
   }
 
   async publishWorkoutLogged(workoutData) {
     try {
-      if (!this.channel) {
+      // Ensure connection exists
+      if (!this.channel || !this.connection) {
         await this.connect();
+      }
+
+      // Check if channel is still open
+      if (this.channel === null) {
+        throw new Error('Channel is null, connection may be closed');
       }
 
       // The producer creates a message and sends it to an exchange in RabbitMQ.
@@ -47,8 +85,6 @@ class EventPublisher {
 
       // this is the exchange in rabbitmq
       // Publish to workout.logged topic
-
-
       await this.channel.publish(
         this.exchangeName,
         'workout.logged',
@@ -58,15 +94,25 @@ class EventPublisher {
 
       console.log('Published WorkoutLogged event:', event);
     } catch (error) {
-      console.error('Failed to publish WorkoutLogged event:', error);
-      throw error;
+      console.error('Failed to publish WorkoutLogged event:', error.message);
+      // Reset connection state on error so it will retry next time
+      this.channel = null;
+      this.connection = null;
+      // Don't throw - allow the API to succeed even if event publishing fails
+      // This ensures the workout is saved even if RabbitMQ is temporarily unavailable
     }
   }
 
   async publishChallengeProgress(challengeId, userId, progressData) {
     try {
-      if (!this.channel) {
+      // Ensure connection exists
+      if (!this.channel || !this.connection) {
         await this.connect();
+      }
+
+      // Check if channel is still open
+      if (this.channel === null) {
+        throw new Error('Channel is null, connection may be closed');
       }
 
       const event = {
@@ -89,8 +135,11 @@ class EventPublisher {
 
       console.log('Published ChallengeProgress event:', event);
     } catch (error) {
-      console.error('Failed to publish ChallengeProgress event:', error);
-      throw error;
+      console.error('Failed to publish ChallengeProgress event:', error.message);
+      // Reset connection state on error so it will retry next time
+      this.channel = null;
+      this.connection = null;
+      // Don't throw - allow graceful degradation
     }
   }
 

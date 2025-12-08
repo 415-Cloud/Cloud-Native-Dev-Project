@@ -16,5 +16,5 @@ data:
     NODE_ENV=production
     
     # RabbitMQ
-    RABBITMQ_URL="amqp://guest:guest@rabbitmq:5672"
+    RABBITMQ_URL="amqp://guest:guest@rabbitmq.rabbitmq.svc.cluster.local:5672"
 
