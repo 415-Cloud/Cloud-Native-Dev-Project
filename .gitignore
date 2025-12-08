@@ -141,3 +141,13 @@ application-*.properties
 
 # Documentation
 START_SERVICES.md
+
+# Kubernetes secrets
+k8s/*harbor*secret*.yaml
+k8s/gke-harbor-secret.yaml
+k8s/homelab-harbor-secret.yaml
+
+# GitHub Actions documentation
+.github/SECRETS_SETUP.md
+.github/DEPLOYMENT_WITH_SECRETS.md
+.github/workflows/deploy.yaml
