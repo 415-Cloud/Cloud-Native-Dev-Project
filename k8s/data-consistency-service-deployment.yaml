@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-consistency-service
+  namespace: found-fitness-app
+  labels:
+    app: data-consistency-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-consistency-service
+  template:
+    metadata:
+      labels:
+        app: data-consistency-service
+    spec:
+      containers:
+      - name: data-consistency-service
+        image: harbor.javajon.duckdns.org/data-consistency-service:v1.0
+        env: 
+        - name: WORKOUT_DB_HOST
+          value: workout-db
+        - name: CHALLENGE_DB_HOST
+          value: challenge-db
+        - name: RABBITMQ_URL
+          value: amqp://guest:guest@rabbitmq.rabbitmq.svc.cluster.local:5672
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        # Note: This service doesn't expose HTTP endpoints, so no health probes
+        # It's a background service that processes events from RabbitMQ
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-consistency-service
+  namespace: found-fitness-app
+  labels:
+    app: data-consistency-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3003
+    targetPort: 3003
+    protocol: TCP
+    name: http
+  selector:
+    app: data-consistency-service
