@@ -21,7 +21,7 @@ spec:
           name: challenge-service-config
       containers:
       - name: challenge-service
-        image: sanchzzalex/challenge-service:v1.0
+        image: harbor.javajon.duckdns.org/challenge-service:v1.0
         ports:
         - containerPort: 3002
           name: http

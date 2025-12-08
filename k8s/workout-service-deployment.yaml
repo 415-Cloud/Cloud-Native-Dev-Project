@@ -21,7 +21,7 @@ spec:
           name: workout-service-config
       containers:
       - name: workout-service
-        image: sanchzzalex/workout-service:v1.0  # Update with your registry: registry.example.com/workout-service:tag
+        image: harbor.javajon.duckdns.org/workout-service:v1.0
         ports:
         - containerPort: 3001
           name: http
