@@ -16,6 +16,8 @@ spec:
       labels:
         app: ai-coach-service
     spec:
+      imagePullSecrets:
+      - name: homelab-harbor-pull-secret
       containers:
         - name: ai-coach-service
           image: harbor.javajon.duckdns.org/ai-coach-service:v1.0
