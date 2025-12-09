@@ -5,6 +5,7 @@ metadata:
   namespace: found-fitness-app
   labels:
     app: ai-coach-service
+    # comment
 spec:
   replicas: 1
   selector:
@@ -17,13 +18,14 @@ spec:
     spec:
       containers:
         - name: ai-coach-service
-          image: harbor.javajon.duckdns.org/ai-coach-service:latest
+          image: harbor.javajon.duckdns.org/ai-coach-service:v1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:
             - name: PORT
               value: "3000"
+              # comment
             # Reference the secret for the API key
             - name: OPENAI_API_KEY
               valueFrom:
