@@ -15,13 +15,15 @@ spec:
       labels:
         app: workout-service
     spec:
+      imagePullSecrets:
+      - name: homelab-harbor-pull-secret
       volumes:
       - name: config
         configMap:
           name: workout-service-config
       containers:
       - name: workout-service
-        image: harbor.javajon.duckdns.org/workout-service:v1.0
+        image: harbor.javajon.duckdns.org/library/workout-service:v1.0
         ports:
         - containerPort: 3001
           name: http

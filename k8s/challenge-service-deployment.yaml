@@ -15,13 +15,15 @@ spec:
       labels:
         app: challenge-service
     spec:
+      imagePullSecrets:
+      - name: homelab-harbor-pull-secret
       volumes:
       - name: config
         configMap:
           name: challenge-service-config
       containers:
       - name: challenge-service
-        image: harbor.javajon.duckdns.org/challenge-service:v1.0
+        image: harbor.javajon.duckdns.org/library/challenge-service:v1.0
         ports:
         - containerPort: 3002
           name: http

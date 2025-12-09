@@ -15,9 +15,11 @@ spec:
       labels:
         app: data-consistency-service
     spec:
+      imagePullSecrets:
+      - name: homelab-harbor-pull-secret
       containers:
       - name: data-consistency-service
-        image: harbor.javajon.duckdns.org/data-consistency-service:v1.0
+        image: harbor.javajon.duckdns.org/library/data-consistency-service:v1.0
         env: 
         - name: WORKOUT_DB_HOST
           value: workout-db
