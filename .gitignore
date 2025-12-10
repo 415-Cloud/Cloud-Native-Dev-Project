@@ -138,6 +138,7 @@ application-*.properties
 # Application specific
 /tmp/
 /logs/
+test-endpoints.sh
 
 # Documentation
 START_SERVICES.md
@@ -146,6 +147,10 @@ START_SERVICES.md
 k8s/*harbor*secret*.yaml
 k8s/gke-harbor-secret.yaml
 k8s/homelab-harbor-secret.yaml
+
+# Credential files
+gke-harbor-credentials.txt
+homelab-harbor-credentials.txt
 
 # GitHub Actions documentation
 .github/SECRETS_SETUP.md

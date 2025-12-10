@@ -20,6 +20,7 @@ spec:
       containers:
       - name: data-consistency-service
         image: harbor.javajon.duckdns.org/library/data-consistency-service:v1.0
+        imagePullPolicy: Always
         env: 
         - name: WORKOUT_DB_HOST
           value: workout-db
