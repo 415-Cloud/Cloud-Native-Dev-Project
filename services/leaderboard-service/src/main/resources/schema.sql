@@ -17,20 +17,3 @@ CREATE INDEX IF NOT EXISTS idx_leaderboard_score ON leaderboard_entries(score DE
 
 -- Index for user lookups
 CREATE INDEX IF NOT EXISTS idx_leaderboard_user_id ON leaderboard_entries(user_id);
-
--- Function to automatically update the updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Trigger to update updated_at on row update
-DROP TRIGGER IF EXISTS update_leaderboard_entries_updated_at ON leaderboard_entries;
-CREATE TRIGGER update_leaderboard_entries_updated_at
-    BEFORE UPDATE ON leaderboard_entries
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-

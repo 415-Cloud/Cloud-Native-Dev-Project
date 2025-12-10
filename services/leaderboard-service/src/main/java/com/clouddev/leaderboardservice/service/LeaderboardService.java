@@ -96,7 +96,7 @@ public class LeaderboardService {
             if (currentCount == 0) {
                 entry.setStreakCount(1L);
             }
-        } else if (lastDate.plusDays(1).isEqual(today)) {
+                } else if (lastDate.plusDays(1).isEqual(today)) {
             // Consecutive day, increment streak
             entry.setStreakCount(currentCount + 1L);
         } else {

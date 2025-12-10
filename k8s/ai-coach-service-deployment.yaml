@@ -18,16 +18,27 @@ spec:
     spec:
       imagePullSecrets:
       - name: homelab-harbor-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: ai-coach-service
-          image: harbor.javajon.duckdns.org/library/ai-coach-service:v1.0
+          image: harbor.javajon.duckdns.org/library/ai-coach-service:v1.1
           imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
           ports:
             - containerPort: 3000
           env:
             - name: PORT
               value: "3000"
-            # Reference the secret for the API key
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:

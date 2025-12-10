@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: leaderboard-service-config
+  namespace: found-fitness-app
+  labels:
+    app: leaderboard-service
+    component: config
+data:
+  # Database - connecting to shared PostgreSQL in found-db namespace
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://my-postgresql.found-db:5432/leaderboard_db"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  # Service Configuration
+  SERVER_PORT: "8080"
+  # RabbitMQ
+  RABBITMQ_HOST: "rabbitmq.rabbitmq.svc.cluster.local"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USERNAME: "guest"
+

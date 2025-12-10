@@ -14,11 +14,11 @@ const TrainingPlanScreen = () => {
 
   useEffect(() => {
     const fetchTrainingPlan = async () => {
-      const { userId } = getAuthData();
-      if (!userId) {
-        navigate('/login');
-        return;
-      }
+    const { userId } = getAuthData();
+    if (!userId) {
+      navigate('/login');
+      return;
+    }
 
       setLoading(true);
       setError(null);
@@ -86,31 +86,31 @@ const TrainingPlanScreen = () => {
   };
 
   const getDefaultPlan = () => [
-    {
-      week: 1,
-      days: [
-        { day: 'Monday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Moderate' },
-        { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Full Body', intensity: 'High' },
-        { day: 'Wednesday', activity: 'Rest Day', duration: '-', notes: 'Active recovery or rest' },
-        { day: 'Thursday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
-        { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
-        { day: 'Saturday', activity: 'Long Run', duration: '50 min', distance: '8 km', intensity: 'Moderate' },
-        { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
-      ]
-    },
-    {
-      week: 2,
-      days: [
-        { day: 'Monday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
-        { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Upper Body', intensity: 'High' },
-        { day: 'Wednesday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Easy' },
-        { day: 'Thursday', activity: 'Interval Training', duration: '40 min', distance: '6 km', intensity: 'High' },
-        { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
-        { day: 'Saturday', activity: 'Long Run', duration: '55 min', distance: '9 km', intensity: 'Moderate' },
-        { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
-      ]
-    }
-  ];
+      {
+        week: 1,
+        days: [
+          { day: 'Monday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Moderate' },
+          { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Full Body', intensity: 'High' },
+          { day: 'Wednesday', activity: 'Rest Day', duration: '-', notes: 'Active recovery or rest' },
+          { day: 'Thursday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
+          { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
+          { day: 'Saturday', activity: 'Long Run', duration: '50 min', distance: '8 km', intensity: 'Moderate' },
+          { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
+        ]
+      },
+      {
+        week: 2,
+        days: [
+          { day: 'Monday', activity: 'Running', duration: '35 min', distance: '6 km', intensity: 'Moderate' },
+          { day: 'Tuesday', activity: 'Strength Training', duration: '45 min', exercises: 'Upper Body', intensity: 'High' },
+          { day: 'Wednesday', activity: 'Running', duration: '30 min', distance: '5 km', intensity: 'Easy' },
+          { day: 'Thursday', activity: 'Interval Training', duration: '40 min', distance: '6 km', intensity: 'High' },
+          { day: 'Friday', activity: 'Yoga', duration: '30 min', notes: 'Flexibility and stretching' },
+          { day: 'Saturday', activity: 'Long Run', duration: '55 min', distance: '9 km', intensity: 'Moderate' },
+          { day: 'Sunday', activity: 'Rest Day', duration: '-', notes: 'Complete rest' }
+        ]
+      }
+    ];
 
   const currentWeek = trainingPlan.find(w => w.week === selectedWeek);
 
@@ -139,8 +139,8 @@ const TrainingPlanScreen = () => {
           </div>
           <div className="week-selector">
             <label>Week:</label>
-            <select
-              value={selectedWeek}
+            <select 
+              value={selectedWeek} 
               onChange={(e) => setSelectedWeek(Number(e.target.value))}
             >
               {trainingPlan.map(week => (
