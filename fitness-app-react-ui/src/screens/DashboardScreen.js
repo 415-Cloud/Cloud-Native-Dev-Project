@@ -24,10 +24,14 @@ const DashboardScreen = () => {
     const fetchData = async () => {
       try {
         // Fetch workouts and challenges in parallel
-        const [workouts, userChallenges] = await Promise.all([
-          workoutAPI.getAll(),
+        const [workoutsResponse, userChallengesResponse] = await Promise.all([
+          workoutAPI.getUserWorkouts(userId),
           challengeAPI.getUserChallenges()
         ]);
+
+        // Extract workouts and challenges from responses
+        const workouts = workoutsResponse.workouts || [];
+        const userChallenges = userChallengesResponse.challenges || [];
 
         // Calculate stats
         const totalDistance = workouts.reduce((sum, w) => sum + (w.distance || 0), 0);
@@ -45,8 +49,8 @@ const DashboardScreen = () => {
           id: c.id,
           name: c.name,
           progress: c.progress || 0, // Assuming backend returns progress
-          daysRemaining: Math.ceil((new Date(c.endDate) - new Date()) / (1000 * 60 * 60 * 24)),
-          participants: c.participantsCount || 0
+          daysRemaining: Math.ceil((new Date(c.end_date) - new Date()) / (1000 * 60 * 60 * 24)),
+          participants: c.participant_count || 0
         }));
 
         setActiveChallenges(formattedChallenges);
