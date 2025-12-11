@@ -23,7 +23,7 @@ spec:
           name: challenge-service-config
       containers:
       - name: challenge-service
-        image: harbor.javajon.duckdns.org/library/challenge-service:v1.0
+        image: harbor.javajon.duckdns.org/library/found-challenge-service:v1.0
         imagePullPolicy: Always
         ports:
         - containerPort: 3002
