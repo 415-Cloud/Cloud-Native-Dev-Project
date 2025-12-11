@@ -1,6 +1,6 @@
 {
   "name": "workout-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Workout Service for Fitness Challenge Tracker",
   "main": "index.js",
   "scripts": {
