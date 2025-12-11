@@ -23,7 +23,7 @@ spec:
           name: workout-service-config
       containers:
       - name: workout-service
-        image: harbor.javajon.duckdns.org/library/workout-service:v1.0
+        image: harbor.javajon.duckdns.org/library/found-workout-service:v1.0
         imagePullPolicy: Always
         ports:
         - containerPort: 3001
