@@ -113,15 +113,24 @@ jobs:
           
       - name: Update kubeconfig server URL and skip TLS verify
         run: |
-          # Get cluster name and update server URL to external endpoint
+          # Get cluster name and context name, then update cluster server URL
           # Skip TLS verification since cert is for homelab-k8s-1-cp, not the duckdns domain
           CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
+          CONTEXT_NAME=$(kubectl config current-context || kubectl config view -o jsonpath='{.contexts[0].name}')
+          
+          # Update cluster configuration
           kubectl config set-cluster $CLUSTER_NAME \
             --server=https://javajon.duckdns.org:6443 \
             --insecure-skip-tls-verify=true
           
+          # Ensure context is using the updated cluster
+          if [ -n "$CONTEXT_NAME" ]; then
+            kubectl config use-context $CONTEXT_NAME || kubectl config set-context $CONTEXT_NAME --cluster=$CLUSTER_NAME
+          fi
+          
       - name: Verify cluster connection
         run: |
+          kubectl config current-context
           kubectl cluster-info || true
           kubectl get nodes || true
 
