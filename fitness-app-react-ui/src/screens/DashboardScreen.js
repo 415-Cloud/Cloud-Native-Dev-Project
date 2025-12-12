@@ -26,41 +26,38 @@ const DashboardScreen = () => {
     setLoading(true);
     setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      try {
-        // Fetch workouts and challenges in parallel
-        const [workoutsResponse, userChallengesResponse] = await Promise.all([
-          workoutAPI.getUserWorkouts(userId),
-          challengeAPI.getUserChallenges()
-        ]);
+      // Fetch workouts and challenges in parallel
+      const [workoutsResponse, userChallengesResponse] = await Promise.all([
+        workoutAPI.getUserWorkouts(userId),
+        challengeAPI.getUserChallenges()
+      ]);
 
-        // Extract workouts and challenges from responses
-        const workouts = workoutsResponse.workouts || [];
-        const userChallenges = userChallengesResponse.challenges || [];
+      // Extract workouts and challenges from responses
+      const workouts = workoutsResponse.workouts || [];
+      const userChallenges = userChallengesResponse.challenges || [];
 
-        // Calculate stats
-        const totalDistance = workouts.reduce((sum, w) => sum + (w.distance || 0), 0);
-        const totalDuration = workouts.reduce((sum, w) => sum + (w.duration || 0), 0);
+      // Calculate stats
+      const totalDistance = workouts.reduce((sum, w) => sum + (w.distance || 0), 0);
+      const totalDuration = workouts.reduce((sum, w) => sum + (w.duration || 0), 0);
 
-        setStats({
-          totalWorkouts: workouts.length,
-          totalDistance: Math.round(totalDistance * 10) / 10,
-          totalDuration: totalDuration,
-          activeChallenges: userChallenges.length
-        });
+      setStats({
+        totalWorkouts: workouts.length,
+        totalDistance: Math.round(totalDistance * 10) / 10,
+        totalDuration: totalDuration,
+        activeChallenges: userChallenges.length
+      });
 
-        // Format challenges for display
-        const formattedChallenges = userChallenges.map(c => ({
-          id: c.id,
-          name: c.name,
-          progress: c.progress || 0, // Assuming backend returns progress
-          daysRemaining: Math.ceil((new Date(c.end_date) - new Date()) / (1000 * 60 * 60 * 24)),
-          participants: c.participant_count || 0
-        }));
+      // Format challenges for display
+      const formattedChallenges = userChallenges.map(c => ({
+        id: c.id,
+        name: c.name,
+        progress: c.progress || 0, // Assuming backend returns progress
+        daysRemaining: Math.ceil((new Date(c.end_date) - new Date()) / (1000 * 60 * 60 * 24)),
+        participants: c.participant_count || 0
+      }));
 
-        setActiveChallenges(formattedChallenges);
-      } catch (error) {
+      setActiveChallenges(formattedChallenges);
+    } catch (error) {
         console.error('Failed to fetch dashboard data', error);
         let errorMessage = 'Failed to load dashboard data. ';
         
