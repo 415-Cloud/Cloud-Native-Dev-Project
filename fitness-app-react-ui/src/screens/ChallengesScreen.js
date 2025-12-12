@@ -7,6 +7,9 @@ import './ChallengesScreen.css';
 const ChallengesScreen = () => {
   const [challenges, setChallenges] = useState([]);
   const [joinedChallenges, setJoinedChallenges] = useState(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState(null);
   const navigate = useNavigate();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -21,6 +24,8 @@ const ChallengesScreen = () => {
   });
 
   const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const [allChallenges, userChallenges] = await Promise.all([
         challengeAPI.getAll(),
@@ -34,6 +39,33 @@ const ChallengesScreen = () => {
       setJoinedChallenges(joinedSet);
     } catch (error) {
       console.error('Failed to fetch challenges', error);
+      let errorMessage = 'Failed to load challenges. ';
+      
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMessage = 'Your session has expired. Please log in again.';
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (error.response.status === 404) {
+          errorMessage = 'Challenges not found.';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          const errorData = error.response.data;
+          if (typeof errorData === 'string') {
+            errorMessage += errorData;
+          } else if (errorData?.error || errorData?.message) {
+            errorMessage += errorData.error || errorData.message;
+          }
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      } else {
+        errorMessage += 'An unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,17 +79,41 @@ const ChallengesScreen = () => {
   }, [navigate]);
 
   const handleJoinChallenge = async (challengeId) => {
+    setActionError(null);
     try {
       await challengeAPI.join(challengeId);
       setJoinedChallenges(prev => new Set([...prev, challengeId]));
       fetchData(); // Refresh to get updated participant counts
     } catch (error) {
       console.error('Failed to join challenge', error);
-      alert('Failed to join challenge. Please try again.');
+      let errorMessage = 'Failed to join challenge. ';
+      
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMessage = 'Your session has expired. Please log in again.';
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (error.response.status === 400) {
+          errorMessage = 'Unable to join this challenge. It may have ended or you may already be a participant.';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          const errorData = error.response.data;
+          if (typeof errorData === 'string') {
+            errorMessage += errorData;
+          } else if (errorData?.error || errorData?.message) {
+            errorMessage += errorData.error || errorData.message;
+          }
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      }
+      
+      setActionError(errorMessage);
     }
   };
 
   const handleLeaveChallenge = async (challengeId) => {
+    setActionError(null);
     try {
       await challengeAPI.leave(challengeId);
       setJoinedChallenges(prev => {
@@ -68,6 +124,27 @@ const ChallengesScreen = () => {
       fetchData(); // Refresh
     } catch (error) {
       console.error('Failed to leave challenge', error);
+      let errorMessage = 'Failed to leave challenge. ';
+      
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMessage = 'Your session has expired. Please log in again.';
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          const errorData = error.response.data;
+          if (typeof errorData === 'string') {
+            errorMessage += errorData;
+          } else if (errorData?.error || errorData?.message) {
+            errorMessage += errorData.error || errorData.message;
+          }
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      }
+      
+      setActionError(errorMessage);
     }
   };
 
@@ -76,6 +153,7 @@ const ChallengesScreen = () => {
     const { userId } = getAuthData();
     if (!userId) return;
 
+    setActionError(null);
     try {
       await challengeAPI.create({
         ...newChallenge,
@@ -95,9 +173,45 @@ const ChallengesScreen = () => {
       fetchData(); // Refresh list
     } catch (error) {
       console.error('Failed to create challenge', error);
-      alert('Failed to create challenge');
+      let errorMessage = 'Failed to create challenge. ';
+      
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMessage = 'Your session has expired. Please log in again.';
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (error.response.status === 400) {
+          errorMessage = 'Invalid challenge data. Please check all fields and try again.';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          const errorData = error.response.data;
+          if (typeof errorData === 'string') {
+            errorMessage += errorData;
+          } else if (errorData?.error || errorData?.message) {
+            errorMessage += errorData.error || errorData.message;
+          }
+        }
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      }
+      
+      setActionError(errorMessage);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="challenges-container">
+        <Navbar />
+        <div className="challenges-content">
+          <h1 className="challenges-title">Challenges</h1>
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>Loading challenges...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="challenges-container">
@@ -123,6 +237,60 @@ const ChallengesScreen = () => {
             {showCreateForm ? 'Cancel' : 'Create Challenge'}
           </button>
         </div>
+
+        {error && (
+          <div className="error-message" style={{
+            background: '#fee',
+            border: '1px solid #fcc',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            color: '#c33'
+          }}>
+            <strong>⚠️ Error:</strong> {error}
+            <button
+              onClick={fetchData}
+              style={{
+                marginLeft: '10px',
+                padding: '4px 12px',
+                background: '#c33',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {actionError && (
+          <div className="error-message" style={{
+            background: '#fee',
+            border: '1px solid #fcc',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            color: '#c33'
+          }}>
+            <strong>⚠️ Error:</strong> {actionError}
+            <button
+              onClick={() => setActionError(null)}
+              style={{
+                marginLeft: '10px',
+                padding: '4px 12px',
+                background: '#c33',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {showCreateForm && (
           <div className="challenge-card" style={{ marginBottom: '30px' }}>

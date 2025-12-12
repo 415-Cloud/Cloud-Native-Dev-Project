@@ -12,16 +12,22 @@ const DashboardScreen = () => {
     activeChallenges: 0
   });
   const [activeChallenges, setActiveChallenges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchData = async () => {
     const { userId } = getAuthData();
     if (!userId) {
       navigate('/login');
       return;
     }
 
-    const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setLoading(true);
+      setError(null);
       try {
         // Fetch workouts and challenges in parallel
         const [workoutsResponse, userChallengesResponse] = await Promise.all([
@@ -56,10 +62,39 @@ const DashboardScreen = () => {
         setActiveChallenges(formattedChallenges);
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
+        let errorMessage = 'Failed to load dashboard data. ';
+        
+        if (error.response) {
+          if (error.response.status === 401 || error.response.status === 403) {
+            errorMessage = 'Your session has expired. Please log in again.';
+            setTimeout(() => navigate('/login'), 2000);
+          } else if (error.response.status === 404) {
+            errorMessage = 'Some data could not be found. Please try refreshing.';
+          } else if (error.response.status >= 500) {
+            errorMessage = 'Server error. Please try again later.';
+          } else {
+            const errorData = error.response.data;
+            if (typeof errorData === 'string') {
+              errorMessage += errorData;
+            } else if (errorData?.error || errorData?.message) {
+              errorMessage += errorData.error || errorData.message;
+            }
+          }
+        } else if (error.request) {
+          errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+        } else {
+          errorMessage += 'An unexpected error occurred.';
+        }
+        
+        setError(errorMessage);
+      } finally {
+        setLoading(false);
       }
-    };
+  };
 
+  useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const formatDuration = (minutes) => {
@@ -68,11 +103,52 @@ const DashboardScreen = () => {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <Navbar />
+        <div className="dashboard-content">
+          <h1 className="dashboard-title">Dashboard</h1>
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <p>Loading dashboard data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-container">
       <Navbar />
       <div className="dashboard-content">
         <h1 className="dashboard-title">Dashboard</h1>
+
+        {error && (
+          <div className="error-message" style={{
+            background: '#fee',
+            border: '1px solid #fcc',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            color: '#c33'
+          }}>
+            <strong>⚠️ Error:</strong> {error}
+            <button
+              onClick={fetchData}
+              style={{
+                marginLeft: '10px',
+                padding: '4px 12px',
+                background: '#c33',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
         <div className="stats-grid">
           <div className="stat-card">
