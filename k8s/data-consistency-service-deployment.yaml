@@ -17,8 +17,20 @@ spec:
     spec:
       imagePullSecrets:
       - name: homelab-harbor-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: data-consistency-service
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: false
         image: harbor.javajon.duckdns.org/library/found-data-consistency-service:v1.0
         imagePullPolicy: Always
         env: 
