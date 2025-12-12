@@ -9,7 +9,6 @@ const LeaderboardScreen = () => {
   const [userRank, setUserRank] = useState(null);
   const [userScore, setUserScore] = useState(null);
   const [currentUserName, setCurrentUserName] = useState(null);
-  const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,27 +104,6 @@ const LeaderboardScreen = () => {
             </div>
           </div>
         )}
-
-        <div className="leaderboard-filters">
-          <button
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            All Time
-          </button>
-          <button
-            className={`filter-btn ${filter === 'month' ? 'active' : ''}`}
-            onClick={() => setFilter('month')}
-          >
-            This Month
-          </button>
-          <button
-            className={`filter-btn ${filter === 'week' ? 'active' : ''}`}
-            onClick={() => setFilter('week')}
-          >
-            This Week
-          </button>
-        </div>
 
         <div className="leaderboard-table">
           <div className="leaderboard-header">
