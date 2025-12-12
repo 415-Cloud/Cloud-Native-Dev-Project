@@ -121,7 +121,7 @@ const LeaderboardScreen = () => {
                 {user.rank <= 3 ? (
                   <span className="medal">{getRankIcon(user.rank)}</span>
                 ) : (
-                  <span className="rank-number">#{user.rank}</span>
+                  <span className="rank-number">{user.rank}</span>
                 )}
               </div>
               <div className="row-user">
