@@ -15,7 +15,7 @@ COPY . .
 # Build arguments for environment variables
 ARG REACT_APP_AUTH_SERVICE_URL=http://localhost:8080/api/auth
 ARG REACT_APP_USER_SERVICE_URL=http://localhost:8081/api/users
-ARG REACT_APP_WORKOUT_SERVICE_URL=http://localhost:3001/api
+ARG REACT_APP_WORKOUT_SERVICE_URL=http://localhost:3001
 ARG REACT_APP_CHALLENGE_SERVICE_URL=http://localhost:3002/api
 ARG REACT_APP_LEADERBOARD_SERVICE_URL=http://localhost:8083/api
 
