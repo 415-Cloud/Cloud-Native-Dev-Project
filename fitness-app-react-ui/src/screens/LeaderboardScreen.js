@@ -7,6 +7,7 @@ import './LeaderboardScreen.css';
 const LeaderboardScreen = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [userRank, setUserRank] = useState(null);
+  const [userScore, setUserScore] = useState(null);
   const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
 
@@ -35,6 +36,7 @@ const LeaderboardScreen = () => {
 
         if (userRankData) {
           setUserRank(userRankData.rank);
+          setUserScore(userRankData.score);
         }
       } catch (error) {
         console.error('Failed to fetch leaderboard', error);
@@ -65,7 +67,7 @@ const LeaderboardScreen = () => {
               <span className="rank-number">{getRankIcon(userRank)}</span>
               <div className="rank-details">
                 <h3>Rank #{userRank}</h3>
-                <p>980 points</p>
+                <p>{userScore !== null ? `${Math.round(userScore).toLocaleString()} points` : 'Loading...'}</p>
               </div>
             </div>
           </div>
