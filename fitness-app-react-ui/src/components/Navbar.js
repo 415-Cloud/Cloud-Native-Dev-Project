@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { clearAuthData, getAuthData } from '../services/api';
 import './Navbar.css';
@@ -6,7 +6,6 @@ import './Navbar.css';
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleLogout = () => {
     clearAuthData();
@@ -53,12 +52,6 @@ const Navbar = () => {
           Training Plan
         </button>
         <button 
-          className="nav-link notifications-btn"
-          onClick={() => setShowNotifications(!showNotifications)}
-        >
-          🔔 Notifications
-        </button>
-        <button 
           className="nav-link profile-btn"
           onClick={() => navigate('/profile')}
         >
@@ -68,29 +61,6 @@ const Navbar = () => {
           Logout
         </button>
       </div>
-
-      {showNotifications && (
-        <div className="notifications-dropdown">
-          <div className="notifications-header">
-            <h3>Notifications</h3>
-            <button onClick={() => setShowNotifications(false)}>✕</button>
-          </div>
-          <div className="notifications-list">
-            <div className="notification-item">
-              <p><strong>New Challenge Available</strong></p>
-              <p className="notification-time">2 hours ago</p>
-            </div>
-            <div className="notification-item">
-              <p><strong>Workout Reminder</strong></p>
-              <p className="notification-time">5 hours ago</p>
-            </div>
-            <div className="notification-item">
-              <p><strong>You moved up in the leaderboard!</strong></p>
-              <p className="notification-time">1 day ago</p>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 };
