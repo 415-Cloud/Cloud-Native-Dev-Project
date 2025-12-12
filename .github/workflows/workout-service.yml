@@ -110,6 +110,12 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+          
+      - name: Update kubeconfig server URL
+        run: |
+          # Get cluster name and update server URL to external endpoint
+          CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
+          kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443
 
       - name: Deploy to Kubernetes
         run: |
