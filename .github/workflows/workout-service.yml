@@ -111,11 +111,14 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
           
-      - name: Update kubeconfig server URL
+      - name: Update kubeconfig server URL and skip TLS verify
         run: |
           # Get cluster name and update server URL to external endpoint
+          # Skip TLS verification since cert is for homelab-k8s-1-cp, not the duckdns domain
           CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
-          kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443
+          kubectl config set-cluster $CLUSTER_NAME \
+            --server=https://javajon.duckdns.org:6443 \
+            --insecure-skip-tls-verify=true
 
       - name: Deploy to Kubernetes
         run: |
