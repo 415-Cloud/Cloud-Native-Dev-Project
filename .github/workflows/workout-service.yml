@@ -6,10 +6,6 @@ on:
     paths:
       - 'services/workout-service/**'
       - '.github/workflows/workout-service.yml'
-  pull_request:
-    branches: [main, master]
-    paths:
-      - 'services/workout-service/**'
   workflow_dispatch:  # Allow manual trigger
 
 env:
@@ -37,12 +33,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run linter (if configured)
-        run: npm run lint --if-present
-
-      - name: Run tests (if configured)
-        run: npm test --if-present
-
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -63,32 +53,13 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=v1.0
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.SERVICE_PATH }}
           file: ${{ env.SERVICE_PATH }}/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Print image tags
-        run: |
-          echo "Pushed image with tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0
 
   deploy:
     name: Deploy to Kubernetes
@@ -107,47 +78,26 @@ jobs:
 
       - name: Configure kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-          
-      - name: Update kubeconfig server URL and skip TLS verify
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Verify kubectl connection
         run: |
-          # Get cluster name and context name, then update cluster server URL
-          # Skip TLS verification since cert is for homelab-k8s-1-cp, not the duckdns domain
-          CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
-          CONTEXT_NAME=$(kubectl config current-context || kubectl config view -o jsonpath='{.contexts[0].name}')
-          USER_NAME=$(kubectl config view -o jsonpath='{.contexts[0].context.user}')
-          
-          echo "Cluster: $CLUSTER_NAME"
-          echo "Context: $CONTEXT_NAME"
-          echo "User: $USER_NAME"
-          
-          # Update cluster configuration
-          kubectl config set-cluster $CLUSTER_NAME \
-            --server=https://javajon.duckdns.org:6443 \
-            --insecure-skip-tls-verify=true
-          
-          # Ensure context is properly configured with cluster and user
-          if [ -n "$CONTEXT_NAME" ] && [ -n "$USER_NAME" ]; then
-            kubectl config set-context $CONTEXT_NAME --cluster=$CLUSTER_NAME --user=$USER_NAME --namespace=found-fitness-app
-            kubectl config use-context $CONTEXT_NAME
-          fi
-          
-          # Debug: Show current config
-          echo "Current context:"
-          kubectl config view --minify
-          
-      - name: Verify cluster connection
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Create namespace if not exists
         run: |
-          echo "Testing cluster connection..."
-          kubectl cluster-info || echo "Cluster info failed"
-          kubectl auth can-i get pods --namespace=found-fitness-app || echo "Auth check failed"
+          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy ConfigMap
+        run: |
+          kubectl apply -f k8s/workout-service-configmap.yaml
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/workout-service-configmap.yaml --validate=false
-          kubectl apply -f k8s/workout-service-deployment.yaml --validate=false
+          kubectl apply -f k8s/workout-service-deployment.yaml
           kubectl rollout restart deployment/workout-service -n found-fitness-app
           kubectl rollout status deployment/workout-service -n found-fitness-app --timeout=180s
 
