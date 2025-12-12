@@ -25,12 +25,17 @@ export async function generateAdvice(userData) {
     ${JSON.stringify(userData, null, 2)}
     `;
 
-    const completion = await getClient().chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            { role: "user", content: prompt}
-        ]
-    });
+    try {
+        const completion = await getClient().chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "user", content: prompt}
+            ]
+        });
 
-    return completion.choices[0].message.content;
+        return completion.choices[0].message.content;
+    } catch (error) {
+        console.error("OpenAI API Error:", error);
+        throw new Error(`Failed to generate advice: ${error.message}`);
+    }
 }
