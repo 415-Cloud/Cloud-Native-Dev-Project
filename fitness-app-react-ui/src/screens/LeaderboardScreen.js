@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthData, leaderboardAPI } from '../services/api';
+import { getAuthData, leaderboardAPI, userAPI } from '../services/api';
 import Navbar from '../components/Navbar';
 import './LeaderboardScreen.css';
 
@@ -8,6 +8,7 @@ const LeaderboardScreen = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [userRank, setUserRank] = useState(null);
   const [userScore, setUserScore] = useState(null);
+  const [currentUserName, setCurrentUserName] = useState(null);
   const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
 
@@ -25,14 +26,46 @@ const LeaderboardScreen = () => {
           leaderboardAPI.getUserRank()
         ]);
 
-        setLeaderboard(globalLeaderboard.map((entry, index) => ({
-          id: entry.userId,
-          name: entry.username || 'Unknown User',
-          score: entry.score,
-          rank: index + 1,
-          avatar: '👤',
-          isCurrentUser: entry.userId === userId
-        })));
+        // Try to fetch current user's profile to get their name
+        let currentUserDisplayName = null;
+        try {
+          const userProfile = await userAPI.getProfile(userId);
+          if (userProfile && userProfile.name) {
+            currentUserDisplayName = userProfile.name;
+            setCurrentUserName(userProfile.name);
+          }
+        } catch (profileError) {
+          // If profile fetch fails, we'll just use userId
+          console.log('Could not fetch user profile for name');
+        }
+
+        // Format user display names
+        // Since LeaderboardEntry doesn't include username, we use userId
+        // For the current user, we'll replace it with their name if available
+        setLeaderboard(globalLeaderboard.map((entry, index) => {
+          const isCurrentUser = entry.userId === userId;
+          let displayName = entry.userId; // Default to userId
+          
+          // If this is the current user and we have their name, use it
+          if (isCurrentUser && currentUserDisplayName) {
+            displayName = currentUserDisplayName;
+          } else {
+            // Format userId nicely (e.g., "user-001" -> "User 001")
+            const userIdMatch = entry.userId.match(/user-(\d+)/);
+            if (userIdMatch) {
+              displayName = `User ${userIdMatch[1]}`;
+            }
+          }
+
+          return {
+            id: entry.userId,
+            name: displayName,
+            score: entry.score,
+            rank: index + 1,
+            avatar: '👤',
+            isCurrentUser: isCurrentUser
+          };
+        }));
 
         if (userRankData) {
           setUserRank(userRankData.rank);
