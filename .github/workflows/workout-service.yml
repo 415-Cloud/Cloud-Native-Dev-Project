@@ -117,22 +117,32 @@ jobs:
           # Skip TLS verification since cert is for homelab-k8s-1-cp, not the duckdns domain
           CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
           CONTEXT_NAME=$(kubectl config current-context || kubectl config view -o jsonpath='{.contexts[0].name}')
+          USER_NAME=$(kubectl config view -o jsonpath='{.contexts[0].context.user}')
+          
+          echo "Cluster: $CLUSTER_NAME"
+          echo "Context: $CONTEXT_NAME"
+          echo "User: $USER_NAME"
           
           # Update cluster configuration
           kubectl config set-cluster $CLUSTER_NAME \
             --server=https://javajon.duckdns.org:6443 \
             --insecure-skip-tls-verify=true
           
-          # Ensure context is using the updated cluster
-          if [ -n "$CONTEXT_NAME" ]; then
-            kubectl config use-context $CONTEXT_NAME || kubectl config set-context $CONTEXT_NAME --cluster=$CLUSTER_NAME
+          # Ensure context is properly configured with cluster and user
+          if [ -n "$CONTEXT_NAME" ] && [ -n "$USER_NAME" ]; then
+            kubectl config set-context $CONTEXT_NAME --cluster=$CLUSTER_NAME --user=$USER_NAME --namespace=found-fitness-app
+            kubectl config use-context $CONTEXT_NAME
           fi
+          
+          # Debug: Show current config
+          echo "Current context:"
+          kubectl config view --minify
           
       - name: Verify cluster connection
         run: |
-          kubectl config current-context
-          kubectl cluster-info || true
-          kubectl get nodes || true
+          echo "Testing cluster connection..."
+          kubectl cluster-info || echo "Cluster info failed"
+          kubectl auth can-i get pods --namespace=found-fitness-app || echo "Auth check failed"
 
       - name: Deploy to Kubernetes
         run: |
