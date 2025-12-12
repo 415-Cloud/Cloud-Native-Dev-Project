@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: found-fitness-app
+  labels:
+    app: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      imagePullSecrets:
+        - name: homelab-harbor-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: auth-service
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+          image: harbor.javajon.duckdns.org/library/auth-service:v1.0 # Ensure you build and push this image
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              # Connects to the DB in the 'found-db' namespace
+              value: "jdbc:postgresql://my-postgresql.found-db:5432/auth_db"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "password" # Ideally, use a Secret for this
+            - name: USER_SERVICE_URL
+              # Internal K8s DNS for service-to-service communication
+              value: "http://user-service:8081/api/users/create"
+            - name: JWT_SECRET
+              value: "your_super_long_and_secure_base64_encoded_secret_key_here_at_least_256_bits_for_HS256"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: found-fitness-app
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

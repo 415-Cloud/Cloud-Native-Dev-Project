@@ -1,0 +1,98 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fitness-ingress
+  namespace: found-fitness-app
+  annotations:
+    # Use nginx as the ingress controller
+    spec.ingressClassName: nginx
+    # Optional: Increase body size for file uploads if needed
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    # Optional: Remove trailing slashes to prevent 404s
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: found-fitness-app.duckdns.org  
+    http:
+      paths:
+      # 1. Frontend (Root Path) - Matches everything not caught by specific rules
+      - path: /?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+              
+      # 2. Auth Service
+      - path: /api/auth/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 8080
+
+      # 3. User Service
+      - path: /api/users/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 8081
+
+      # 4. AI Coach Service
+      - path: /api/coach/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-coach-service
+            port:
+              number: 3004 
+
+      # 5. Workout Service (Handles /workouts and /users/{id}/workouts)
+      - path: /workouts/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: workout-service
+            port:
+              number: 3001
+      # Note: Workout service also needs /users for the path /users/:id/workouts
+      - path: /users/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: workout-service
+            port:
+              number: 3001
+
+      # 6. Challenge Service
+      - path: /challenges/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: challenge-service
+            port:
+              number: 3002
+
+      # 7. Leaderboard Service
+      - path: /leaderboard/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: leaderboard-service
+            port:
+              number: 8083
+
+      # 8. Data Consistency Service
+      # Note: Your code indicates this is a background service without an active HTTP server.
+      # If you add a health check endpoint later, this rule will make it accessible.
+      - path: /consistency/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: data-consistency-service
+            port:
+              number: 3003
