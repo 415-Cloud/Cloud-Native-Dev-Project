@@ -9,7 +9,7 @@ metadata:
 data:
   config.env: |
     # Database
-    DATABASE_URL="postgresql://postgres:password@my-postgresql.found-db:5432/fitness_tracker_workouts"
+    DATABASE_URL="postgresql://postgres:ZPRiwCyhTO@my-postgresql.found-db:5432/fitness_tracker_workouts"
     
     # Service Configuration
     PORT=3001
