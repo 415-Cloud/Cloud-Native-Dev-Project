@@ -142,6 +142,7 @@ test-endpoints.sh
 
 # Documentation
 START_SERVICES.md
+TESTING_EVENT_DRIVEN_SERVICES.md
 
 # Kubernetes secrets
 k8s/*harbor*secret*.yaml
