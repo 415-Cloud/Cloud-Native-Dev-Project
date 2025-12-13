@@ -27,6 +27,20 @@ spec:
         - name: frontend
           securityContext:
             allowPrivilegeEscalation: false
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-conf
+          emptyDir: {}
+        - name: nginx-config-volume
+          configMap:
+             name: frontend-nginx-config
+      containers:
+        - name: frontend
+          securityContext:
+            allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
@@ -34,8 +48,16 @@ spec:
           # 1. MAKE SURE THIS MATCHES THE IMAGE YOU BUILT & PUSHED
           image: harbor.javajon.duckdns.org/library/found-frontend:v1.0
           imagePullPolicy: Always
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources:
             requests:
               memory: "64Mi"
@@ -46,14 +68,14 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
-            initialDelaySeconds: 30
+              port: 8080
+            initialDelaySeconds: 60
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /
-              port: 80
-            initialDelaySeconds: 5
+              port: 8080
+            initialDelaySeconds: 30
             periodSeconds: 10
 ---
 apiVersion: v1
@@ -69,4 +91,4 @@ spec:
     app: frontend
   ports:
     - port: 80      # The port Ingress routes TO
-      targetPort: 80 # The port the NGINX container listens ON
+      targetPort: 8080 # The port the NGINX container listens ON
