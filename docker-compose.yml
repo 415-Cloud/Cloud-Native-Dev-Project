@@ -240,17 +240,11 @@ services:
     depends_on:
       leaderboard-db:
         condition: service_healthy
-      rabbitmq:
-        condition: service_started
     environment:
       SERVER_PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:postgresql://leaderboard-db:5432/leaderboard_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: guest
-      RABBITMQ_PASSWORD: guest
     networks:
       - fitness-network
     healthcheck:
