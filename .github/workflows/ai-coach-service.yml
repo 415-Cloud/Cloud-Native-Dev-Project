@@ -120,7 +120,7 @@ jobs:
         run: |
           kubectl create secret generic openai-api-secret \
             --from-literal=OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false
 
       - name: Deploy to Kubernetes
         run: |

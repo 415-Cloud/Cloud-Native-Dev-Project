@@ -99,7 +99,7 @@ jobs:
           kubectl create secret generic user-service-secret \
             --from-literal=SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --from-literal=JWT_SECRET="your_super_long_and_secure_base64_encoded_secret_key_here_at_least_256_bits_for_HS256" \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false
             
           kubectl apply -f k8s/user-service-configmap.yaml
 

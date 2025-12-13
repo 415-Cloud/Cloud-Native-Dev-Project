@@ -32,7 +32,7 @@ jobs:
           # cache: 'npm' removed to avoid path issues
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       # Uncomment if you have tests
       # - name: Run tests
