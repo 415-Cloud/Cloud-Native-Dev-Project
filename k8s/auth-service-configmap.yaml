@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: found-fitness-app
+  labels:
+    app: auth-service
+    component: config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://my-postgresql.found-db:5432/auth_db"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  USER_SERVICE_URL: "http://user-service:8081/api/users/create"

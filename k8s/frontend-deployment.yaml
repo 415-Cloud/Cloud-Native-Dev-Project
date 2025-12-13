@@ -32,7 +32,7 @@ spec:
                 - ALL
             readOnlyRootFilesystem: false
           # 1. MAKE SURE THIS MATCHES THE IMAGE YOU BUILT & PUSHED
-          image: harbor.javajon.duckdns.org/library/found-fitness-frontend:v1.0
+          image: harbor.javajon.duckdns.org/library/found-frontend:v1.0
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -48,6 +48,12 @@ spec:
               path: /
               port: 80
             initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
             periodSeconds: 10
 ---
 apiVersion: v1
