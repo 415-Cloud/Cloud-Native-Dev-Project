@@ -31,7 +31,7 @@ spec:
               drop:
                 - ALL
             readOnlyRootFilesystem: false
-          image: harbor.javajon.duckdns.org/library/auth-service:v1.0 # Ensure you build and push this image
+          image: harbor.javajon.duckdns.org/library/found-auth-service:v1.0 # Ensure you build and push this image
           ports:
             - containerPort: 8080
           env:
