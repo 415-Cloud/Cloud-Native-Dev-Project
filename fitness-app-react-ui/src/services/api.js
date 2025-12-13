@@ -135,7 +135,7 @@ export const aiCoachAPI = {
    * @returns {Promise} - { advice: string } AI-generated coaching advice
    */
   getAdvice: async (userData) => {
-    const response = await apiClient.post(AI_COACH_SERVICE_URL, userData);
+    const response = await apiClient.post(`${AI_COACH_SERVICE_URL}/advice`, userData);
     return response.data;
   },
 
@@ -150,7 +150,7 @@ export const aiCoachAPI = {
       requestType: 'training_plan',
       prompt: `Generate a detailed weekly training plan for someone with fitness level: ${userData.fitnessLevel || 'intermediate'}, goals: ${userData.goals || 'general fitness'}. Include specific exercises, durations, and rest days.`
     };
-    const response = await apiClient.post(AI_COACH_SERVICE_URL, planRequest);
+    const response = await apiClient.post(`${AI_COACH_SERVICE_URL}/advice`, planRequest);
     return response.data;
   },
 };
