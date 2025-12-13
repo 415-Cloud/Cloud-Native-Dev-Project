@@ -70,8 +70,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -98,7 +98,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:password@workout-db:5432/fitness_tracker_workouts
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
 
     networks:
       - fitness-network
@@ -118,7 +118,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://postgres:password@challenge-db:5432/fitness_tracker_challenges
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
 
     networks:
       - fitness-network
@@ -131,7 +131,7 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
 
     networks:
       - fitness-network
