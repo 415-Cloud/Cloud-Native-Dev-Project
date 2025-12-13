@@ -116,6 +116,12 @@ jobs:
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+      - name: Create OpenAI API Secret
+        run: |
+          kubectl create secret generic openai-api-secret \
+            --from-literal=OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/ai-coach-service-deployment.yaml
