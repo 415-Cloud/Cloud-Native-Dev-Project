@@ -64,3 +64,13 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
 
+env:
+  - name: NODE_ENV
+    value: production
+  - name: OPENAI_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: openai-api-secret
+        key: OPENAI_API_KEY
+  
+
