@@ -4,12 +4,11 @@ metadata:
   name: fitness-ingress
   namespace: found-fitness-app
   annotations:
-    # Use nginx as the ingress controller
-    spec.ingressClassName: nginx
     # Optional: Increase body size for file uploads if needed
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
     # rewrite-target removed to preserve paths for backend services
 spec:
+  ingressClassName: nginx
   rules:
   - host: found-fitness-app.java.jon.duckdns.org  
     http:
