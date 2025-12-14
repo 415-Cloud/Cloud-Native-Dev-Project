@@ -9,7 +9,7 @@ class DataConsistencyService {
       port: 5432,
       database: 'fitness_tracker_workouts',
       user: 'postgres',
-      password: 'password'
+      password: process.env.POSTGRES_PASSWORD || 'password'
     });
     
     this.challengePool = new Pool({
@@ -17,7 +17,7 @@ class DataConsistencyService {
       port: 5432,
       database: 'fitness_tracker_challenges',
       user: 'postgres',
-      password: 'password'
+      password: process.env.POSTGRES_PASSWORD || 'password'
     });
     
     this.connection = null;

@@ -35,9 +35,11 @@ spec:
         imagePullPolicy: Always
         env: 
         - name: WORKOUT_DB_HOST
-          value: workout-db
+          value: my-postgresql.found-db
         - name: CHALLENGE_DB_HOST
-          value: challenge-db
+          value: my-postgresql.found-db
+        - name: POSTGRES_PASSWORD
+          value: ZPRiwCyhTO
         - name: RABBITMQ_URL
           value: amqp://admin:admin@rabbitmq.rabbitmq.svc.cluster.local:5672
         resources:
