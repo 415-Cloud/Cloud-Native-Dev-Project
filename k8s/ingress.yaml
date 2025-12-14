@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: found-fitness-app.java.jon.duckdns.org  
+  - host: found-fitness-app.javajon.duckdns.org  
     http:
       paths:
       # 1. Frontend (Root Path) - Matches everything not caught by specific rules
