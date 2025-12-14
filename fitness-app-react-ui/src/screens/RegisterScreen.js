@@ -43,9 +43,9 @@ const RegisterScreen = () => {
                     setError(errorData);
                 } else if (errorData && typeof errorData === 'object') {
                     // Extract error message from error object
-                    setError(errorData.error || errorData.message || 'Registration failed. Please try again.');
+                    setError(errorData.error || errorData.message || 'User creation failed. Please try again.');
                 } else {
-                    setError('Registration failed. Please try again.');
+                    setError('User creation failed. Please try again.');
                 }
             } else {
                 setError('Network error. Please check if the server is running.');
@@ -59,7 +59,7 @@ const RegisterScreen = () => {
     return (
         <div className="register-container">
             <div className="register-card">
-                <h2>Create Account</h2>
+                <h2>Create User</h2>
                 <form onSubmit={handleRegister}>
                     <div className="form-group">
                         <input
@@ -104,11 +104,11 @@ const RegisterScreen = () => {
                     </div>
                     {error && <div className="error-message">{error}</div>}
                     <button type="submit" disabled={loading} className="submit-button">
-                        {loading ? 'Registering...' : 'Register'}
+                        {loading ? 'Creating User...' : 'Create User'}
                     </button>
                 </form>
                 <p className="link-text">
-                    Already have an account? <Link to="/login">Login</Link>
+                    Already have a user? <Link to="/login">Login</Link>
                 </p>
             </div>
         </div>

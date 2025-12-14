@@ -54,19 +54,19 @@ const LoginScreen = () => {
                 <h2>Welcome Back</h2>
                 <form onSubmit={handleLogin}>
                     <div className="form-group">
-                        <input 
-                            type="email" 
-                            placeholder="Email" 
-                            value={email} 
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             disabled={loading}
                         />
                     </div>
                     <div className="form-group">
-                        <input 
-                            type="password" 
-                            placeholder="Password" 
-                            value={password} 
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                         />
@@ -77,7 +77,7 @@ const LoginScreen = () => {
                     </button>
                 </form>
                 <p className="link-text">
-                    Don't have an account? <Link to="/register">Register</Link>
+                    Don't have a user? <Link to="/register">Create User</Link>
                 </p>
             </div>
         </div>
