@@ -11,7 +11,7 @@ metadata:
     # rewrite-target removed to preserve paths for backend services
 spec:
   rules:
-  - host: found-fitness-app.duckdns.org  
+  - host: found-fitness-app.java.jon.duckdns.org  
     http:
       paths:
       # 1. Frontend (Root Path) - Matches everything not caught by specific rules
