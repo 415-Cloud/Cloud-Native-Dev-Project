@@ -26,7 +26,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: ai-coach-service
-          image: harbor.javajon.duckdns.org/library/ai-coach-service:v1.1
+          image: harbor.javajon.duckdns.org/library/found-ai-coach-service:v1.1
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
