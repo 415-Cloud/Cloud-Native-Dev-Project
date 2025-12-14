@@ -1,6 +1,10 @@
 import OpenAI from "openai";
 import dotenv from "dotenv";
 
+if (process.env.NODE_env !== "production") {
+    dotenv.config();
+}
+
 dotenv.config();
 
 const apiKey = process.env.OPEN_AI_KEY || process.env.OPENAI_API_KEY;

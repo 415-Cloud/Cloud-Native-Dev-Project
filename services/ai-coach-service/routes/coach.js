@@ -5,7 +5,7 @@ const router = Router();
 
 router.post("/advice", async (req, res) => {
     try {
-        const advice = await generateAdvice(req.body);
+        const advice = await generateAdvice(req.body );
         res.json({ advice });
     } catch (err) {
         console.error("AI Coach Error:", err);
