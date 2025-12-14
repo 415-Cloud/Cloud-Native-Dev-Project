@@ -1,23 +1,50 @@
 #!/bin/bash
 
-docker build --platform linux/amd64 -t harbor.javajon.duckdns.org/library/found-workout-service:v1.0 ./services/workout-service
+# Define registry and platform
+REGISTRY="harbor.javajon.duckdns.org/library"
+PLATFORM="linux/amd64"
 
-docker build --platform linux/amd64 -t harbor.javajon.duckdns.org/library/found-challenge-service:v1.0 ./services/challenge-service
+echo "==============================================="
+echo "Building and Pushing All Services to $REGISTRY"
+echo "==============================================="
 
-docker build --platform linux/amd64 -t harbor.javajon.duckdns.org/library/found-data-consistency-service:v1.0 ./services/data-consistency-service
+# Helper function to build and push
+build_and_push() {
+    SERVICE_NAME=$1
+    DIR_PATH=$2
+    IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.0"
+    
+    echo "Processing $SERVICE_NAME..."
+    docker build --platform $PLATFORM -t $IMAGE $DIR_PATH
+    docker push $IMAGE
+    echo "-----------------------------------------------"
+}
 
-docker push harbor.javajon.duckdns.org/library/found-workout-service:v1.0
+# Backend Services
+build_and_push "auth-service" "./services/auth-service"
+build_and_push "user-service" "./services/user-service"
+build_and_push "workout-service" "./services/workout-service"
+build_and_push "challenge-service" "./services/challenge-service"
+build_and_push "data-consistency-service" "./services/data-consistency-service"
+build_and_push "leaderboard-service" "./services/leaderboard-service"
+build_and_push "ai-coach-service" "./services/ai-coach-service"
 
-docker push harbor.javajon.duckdns.org/library/found-challenge-service:v1.0
+# Frontend
+build_and_push "frontend" "./fitness-app-react-ui"
 
-docker push harbor.javajon.duckdns.org/library/found-data-consistency-service:v1.0
+echo "==============================================="
+echo "Restarting Deployments in Kubernetes"
+echo "==============================================="
 
+kubectl rollout restart deployment/auth-service -n found-fitness-app
+kubectl rollout restart deployment/user-service -n found-fitness-app
+kubectl rollout restart deployment/workout-service -n found-fitness-app
+kubectl rollout restart deployment/challenge-service -n found-fitness-app
+kubectl rollout restart deployment/data-consistency-service -n found-fitness-app
+kubectl rollout restart deployment/leaderboard-service -n found-fitness-app
+kubectl rollout restart deployment/ai-coach-service -n found-fitness-app
+kubectl rollout restart deployment/frontend -n found-fitness-app
 
-# New images if you can push for us.
-docker build --platform linux/amd64 -t harbor.javajon.duckdns.org/library/found-auth-service:v1.0 ./services/auth-service 
-docker push harbor.javajon.duckdns.org/library/found-auth-service:v1.0 
-
-docker build --platform linux/amd64 -t harbor.javajon.duckdns.org/library/found-user-service:v1.0 ./services/user-service 
-docker push harbor.javajon.duckdns.org/library/found-user-service:v1.0
-
-
+echo "==============================================="
+echo "Deployment Update Complete!"
+echo "==============================================="
