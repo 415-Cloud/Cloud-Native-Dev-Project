@@ -1,6 +1,6 @@
 # Cloud-Native Fitness Challenge Tracker
 
-A comprehensive fitness tracking application that helps users monitor their workouts, participate in fitness challenges, and compete with others on leaderboards. Users can log various types of activities like running, cycling, and strength training, then join challenges with specific goals like running a certain distance or completing a number of workouts. The app automatically tracks progress toward challenge goals and displays rankings on a global leaderboard.
+A fitness tracking application that helps users monitor their workouts, participate in fitness challenges, and compete with others on leaderboards. Users can log various types of activities like running, cycling, and strength training, then join challenges with specific goals like running a certain distance or completing a number of workouts. The app automatically tracks progress toward challenge goals and displays rankings on a global leaderboard.
 
 - **Workout Logging:** Record workouts with details like activity type, distance, duration, and notes
 - **Fitness Challenges:** Join community challenges with specific targets and automatically track your progress
@@ -350,6 +350,17 @@ Workout Service → publishes "workout.logged" → RabbitMQ
 7. **Completion detected** → If goal achieved, marks challenge complete
 
 ## Challenges
+
+### Patrick
+
+### Alex 
+
+
+### Shane
+
+### Team
+
+- We had issues logging in to Harbor, so we were not able to successfully build and push the images to Harbor and this resulted in backing us up on the amount of work that we intended to complete.
 
 
 ## Acknowledgment using AI
