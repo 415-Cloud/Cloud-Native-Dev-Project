@@ -13,11 +13,14 @@ RUN npm install
 COPY . .
 
 # Build arguments for environment variables
+# Note: Workout, Challenge, and Leaderboard use empty strings because the API calls
+# already include the full path (e.g., /workouts, /challenges). The ingress routes
+# these paths directly without /api prefix.
 ARG REACT_APP_AUTH_SERVICE_URL=/api/auth
 ARG REACT_APP_USER_SERVICE_URL=/api/users
-ARG REACT_APP_WORKOUT_SERVICE_URL=/api/workouts
-ARG REACT_APP_CHALLENGE_SERVICE_URL=/api/challenges
-ARG REACT_APP_LEADERBOARD_SERVICE_URL=/api/leaderboard
+ARG REACT_APP_WORKOUT_SERVICE_URL=
+ARG REACT_APP_CHALLENGE_SERVICE_URL=
+ARG REACT_APP_LEADERBOARD_SERVICE_URL=
 ARG REACT_APP_AI_COACH_SERVICE_URL=/api/coach
 
 # Set environment variables for build
