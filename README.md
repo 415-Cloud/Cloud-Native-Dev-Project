@@ -354,16 +354,21 @@ Workout Service → publishes "workout.logged" → RabbitMQ
 ### Patrick
 
 ### Alex 
-
-
+- I had issues with the data-consistency-service where it would ranomly stop working due to a possible bug. I ran k delete -f k8s/data-consistency-service-deployment.yaml and reapplied the manifest to get it to start working by running kubectl apply -f k8s/data-consistency-service-deployment.yaml
+- I created stateful sets for the workout service and challenge service databases, and I eliminated them using k delete -f k8s/workout-db-deployment.yaml && k delete -f k8s/challenge-db-deployment.yaml because we downloaded a PostgreSQL engine using a Helm chart where we connected our databases to the same engine, so having stateful sets was not required.
+- I did the same for the local RabbitMQ isntance that I had running and ensured that I was only connected to the RabbitMQ running on the homelab cluster.
 ### Shane
 
 ### Team
 
-- We had issues logging in to Harbor, so we were not able to successfully build and push the images to Harbor and this resulted in backing us up on the amount of work that we intended to complete.
+- We had issues logging in to Harbor, so we were not able to successfully build and push the images to Harbor and this resulted in backing us up on the amount of work that we intended to complete. 
+- When we were working on the ingress, the frontend being routed correctly to the backend was required, for us to complete the ingress and make it work as intended. We had issues solving this so we improved error handling on the UI to help us make this process easier and to resolve any issues where the routing with the frontend was not routed with ingress correctly. 
+- When UI was acccessible, authentication service, challenge-service, and workout-service were not running and not connected correctly, so we corrected the routing, and the error handling helped us in this process.
+- We had the incorrect host name for ingress use so we updated it to make sure it was: http://found-fitness-app.javajon.duckdns.org
+
 
 
 ## Acknowledgment using AI
 
-Throughout this project, we used AI coding assistants to help us debug issues, review code, and work through complex implementations like setting up our event-driven architecture and getting everything configured properly in Kubernetes. These automation tools sped up the process and allow us use it as a tool to learn and assist, allowing us to problem-solve to create this complex fitness application. 
+Throughout this project, we used AI coding assistants to help us debug issues, review code, and work through complex implementations like setting up our event-driven architecture and getting everything configured properly in Kubernetes. These automation tools sped up the process and we were able to use this tool to learn and assist, allowing us to problem-solve and gain a better understanding on how to create this complex fitness application. 
 
