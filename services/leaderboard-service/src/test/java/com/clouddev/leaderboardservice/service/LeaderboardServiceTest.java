@@ -30,6 +30,7 @@ import com.clouddev.leaderboardservice.repository.LeaderboardRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LeaderboardService Tests")
+@SuppressWarnings("unused")
 class LeaderboardServiceTest {
 
     @Mock

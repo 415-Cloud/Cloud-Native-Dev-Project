@@ -30,6 +30,7 @@ import com.fitnesstracker.authservice.repository.CredentialRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService Tests")
+@SuppressWarnings("unused")
 class AuthServiceTest {
 
     @Mock

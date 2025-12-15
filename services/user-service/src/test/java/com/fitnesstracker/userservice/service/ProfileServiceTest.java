@@ -27,6 +27,7 @@ import com.fitnesstracker.userservice.repository.UserProfileRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProfileService Tests")
+@SuppressWarnings("unused")
 class ProfileServiceTest {
 
     @Mock
