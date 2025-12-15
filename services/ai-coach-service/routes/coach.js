@@ -1,3 +1,8 @@
+/**
+ * AI Coach Service Routes, handles the API endpoints for the AI Coach Service.
+ * This file was generated with the assistance of chatGPT and cursor.
+ */
+
 import { Router } from "express";
 import { generateAdvice } from "../services/llm.js";
 
