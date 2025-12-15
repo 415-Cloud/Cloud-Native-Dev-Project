@@ -300,7 +300,9 @@ export const challengeAPI = {
   getUserChallenges: async () => {
     const { userId } = getAuthData();
     if (!userId) return { challenges: [] };
-    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/users/${userId}/challenges`);
+    // Since CHALLENGE_SERVICE_URL is empty, this becomes /challenges/users/:userId/challenges
+    // The challenge service handles this path to avoid conflict with workout-service /users route
+    const response = await apiClient.get(`${CHALLENGE_SERVICE_URL}/challenges/users/${userId}/challenges`);
     return response.data;
   },
 };

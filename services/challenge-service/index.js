@@ -193,7 +193,28 @@ app.delete('/challenges/:id/leave', async (req, res) => {
 });
 
 // Get user's challenges
+// Support both /users/:userId/challenges and /challenges/users/:userId/challenges
+// for ingress routing compatibility
 app.get('/users/:userId/challenges', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(
+      `SELECT c.*, p.joined_at, p.status as participation_status
+       FROM challenges c 
+       JOIN challenge_participants p ON c.id = p.challenge_id 
+       WHERE p.user_id = $1 
+       ORDER BY p.joined_at DESC`,
+      [userId]
+    );
+    res.json({ challenges: result.rows });
+  } catch (error) {
+    console.error('Error getting user challenges:', error);
+    res.status(500).json({ error: 'Failed to get user challenges' });
+  }
+});
+
+// Alternative path for ingress routing: /challenges/users/:userId/challenges
+app.get('/challenges/users/:userId/challenges', async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await pool.query(
