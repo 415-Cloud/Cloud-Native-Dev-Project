@@ -1,16 +1,10 @@
 # Cloud-Native Fitness Challenge Tracker
 
-A microservices-based fitness tracking application that allows users to log workouts and participate in fitness challenges. This project demonstrates cloud-native architecture patterns including event-driven communication, service decomposition, and data consistency handling.
+A comprehensive fitness tracking application that helps users monitor their workouts, participate in fitness challenges, and compete with others on leaderboards. Users can log various types of activities like running, cycling, and strength training, then join challenges with specific goals like running a certain distance or completing a number of workouts. The app automatically tracks progress toward challenge goals and displays rankings on a global leaderboard.
 
-**Fun Fact:** The system processes workout events in real-time using RabbitMQ, ensuring that challenge progress updates happen automatically without manual intervention.
-
-## 🏗️ Project Overview
-
-This is a distributed fitness tracking system built with Node.js microservices architecture. The system enables users to:
-- Log and track various types of workouts (running, cycling, walking, etc.)
-- Participate in fitness challenges with specific targets
-- Automatically track progress toward challenge goals
-- Ensure data consistency across services through event-driven patterns
+- **Workout Logging:** Record workouts with details like activity type, distance, duration, and notes
+- **Fitness Challenges:** Join community challenges with specific targets and automatically track your progress
+- **Leaderboards:** Compete with other users and see your ranking based on total activity and streaks
 
 ### System Architecture
 
@@ -356,6 +350,7 @@ Workout Service → publishes "workout.logged" → RabbitMQ
 7. **Completion detected** → If goal achieved, marks challenge complete
 
 ## Challenges
+
 
 ## Acknowledgment using AI
 
