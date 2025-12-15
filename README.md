@@ -345,18 +345,6 @@ Workout Service → publishes "workout.logged" → RabbitMQ
                               Verifies challenge consistency
 ```
 
-
-
-### Access Points
-- **Workout Service:** http://localhost:3001
-- **Challenge Service:** http://localhost:3002
-- **Data Consistency Service:** http://localhost:3003
-- **Auth Service:** http://localhost:8080
-- **User Service:** http://localhost:8081
-- **Leaderboard Service:** http://localhost:8082
-- **Frontend (React):** http://localhost:3000
-- **RabbitMQ Management UI:** http://localhost:15672 (guest/guest)
-
 ## Event-Driven Workflow
 
 1. **User logs workout** → Workout Service stores in database
@@ -367,4 +355,9 @@ Workout Service → publishes "workout.logged" → RabbitMQ
 6. **Consistency Service validates** → Ensures data integrity
 7. **Completion detected** → If goal achieved, marks challenge complete
 
+## Challenges
+
+## Acknowledgment using AI
+
+Throughout this project, we used AI coding assistants to help us debug issues, review code, and work through complex implementations like setting up our event-driven architecture and getting everything configured properly in Kubernetes. These automation tools sped up the process and allow us use it as a tool to learn and assist, allowing us to problem-solve to create this complex fitness application. 
 
