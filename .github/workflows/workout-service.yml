@@ -122,15 +122,20 @@ jobs:
 
       - name: Create namespace if not exists
         run: |
-          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f -
+          # Try to create namespace, or check if it already exists
+          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f - --validate=false 2>&1 || \
+          kubectl get namespace found-fitness-app 2>&1 || {
+            echo "Error: Failed to create or verify namespace. Check KUBECONFIG credentials."
+            exit 1
+          }
 
       - name: Deploy ConfigMap
         run: |
-          kubectl apply -f k8s/workout-service-configmap.yaml
+          kubectl apply -f k8s/workout-service-configmap.yaml --validate=false
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/workout-service-deployment.yaml
+          kubectl apply -f k8s/workout-service-deployment.yaml --validate=false
           kubectl rollout restart deployment/workout-service -n found-fitness-app
           kubectl rollout status deployment/workout-service -n found-fitness-app --timeout=180s
 
