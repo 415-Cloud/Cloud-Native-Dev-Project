@@ -1,6 +1,7 @@
 // Data Consistency Service - Main entry point
 const { Pool } = require('pg');
 const amqp = require('amqplib');
+const http = require('http');
 
 class DataConsistencyService {
   constructor() {
@@ -23,6 +24,9 @@ class DataConsistencyService {
     
     this.connection = null;
     this.channel = null;
+    
+    // Leaderboard service URL (K8s service discovery)
+    this.leaderboardServiceUrl = process.env.LEADERBOARD_SERVICE_URL || 'http://leaderboard-service:8083';
   }
 
   async connect() {
@@ -149,6 +153,9 @@ class DataConsistencyService {
       // Check if challenge progress needs to be recalculated
       await this.recalculateChallengeProgress(workoutData.userId);
       
+      // Update leaderboard with points based on workout
+      await this.updateLeaderboard(workoutData.userId, workoutData.duration, workoutData.calories);
+      
       console.log('Workout data consistency verified');
     } catch (error) {
       console.error('Error ensuring workout consistency:', error);
@@ -217,6 +224,61 @@ class DataConsistencyService {
       }
     } catch (error) {
       console.error('Error recalculating challenge progress:', error);
+    }
+  }
+
+  async updateLeaderboard(userId, duration, calories) {
+    try {
+      // Calculate points: 1 point per minute of workout + 0.1 points per calorie
+      const durationPoints = duration ? parseFloat(duration) : 0;
+      const caloriePoints = calories ? parseFloat(calories) * 0.1 : 0;
+      const totalPoints = durationPoints + caloriePoints;
+      
+      if (totalPoints <= 0) {
+        console.log('No points to add to leaderboard');
+        return;
+      }
+
+      const url = new URL(`${this.leaderboardServiceUrl}/leaderboard/update/${userId}`);
+      const postData = JSON.stringify({ scoreDelta: totalPoints });
+      
+      const options = {
+        hostname: url.hostname,
+        port: url.port || 8083,
+        path: url.pathname,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      return new Promise((resolve, reject) => {
+        const req = http.request(options, (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              console.log(`✅ Leaderboard updated for user ${userId}: +${totalPoints.toFixed(1)} points`);
+              resolve(data);
+            } else {
+              console.error(`Failed to update leaderboard: ${res.statusCode} - ${data}`);
+              resolve(null); // Don't reject, allow graceful degradation
+            }
+          });
+        });
+
+        req.on('error', (error) => {
+          console.error('Error calling leaderboard service:', error.message);
+          resolve(null); // Don't reject, allow graceful degradation
+        });
+
+        req.write(postData);
+        req.end();
+      });
+    } catch (error) {
+      console.error('Error updating leaderboard:', error);
+      // Don't throw - allow the rest of the consistency check to continue
     }
   }
 
