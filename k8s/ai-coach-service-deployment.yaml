@@ -28,7 +28,7 @@ spec:
 
       containers:
         - name: ai-coach-service
-          image: harbor.javajon.duckdns.org/library/found-ai-coach-service:v1.0
+          image: harbor.javajon.duckdns.org/library/found-ai-coach-service:v1.1
           imagePullPolicy: Always
 
           securityContext:

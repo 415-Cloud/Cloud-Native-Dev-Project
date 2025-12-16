@@ -31,7 +31,7 @@ export async function generateAdvice(userData) {
     
     The output must strictly follow this structure:
     {
-        "advice": "A brief summary of advice and tips (2-3 sentences)",
+        "advice": "A brief summary of advice and tips (2-3 sentences). DO NOT include the weekly schedule here.",
         "trainingPlan": [
             {
                 "week": 1,
@@ -43,30 +43,23 @@ export async function generateAdvice(userData) {
                         "distance": "5 km", 
                         "intensity": "Moderate",
                         "notes": "Keep a steady pace"
-                    },
-                    {
-                        "day": "Tuesday",
-                        "activity": "Strength Training",
-                        "duration": "45 min",
-                        "exercises": "Full Body",
-                        "intensity": "High"
                     }
-                    // ... continue for Wednesday through Sunday
+                    // ... continue for all days
                 ]
-            },
-            {
-                "week": 2,
-                // ... full week 2 schedule
             }
         ]
     }
 
+    IMPORTANT: 
+    - The "advice" field must ONLY contain general advice. 
+    - The detailed daily schedule MUST be in the "trainingPlan" array.
+    
     Field Rules:
     - "day": Must be full day name (Monday, Tuesday, etc.)
     - "activity": Main activity name (Running, Strength Training, Yoga, HIIT, Rest Day, etc.)
     - "duration": String with unit (e.g., "30 min", "45 min", "-"). Use "-" for Rest Days.
-    - "distance": String with unit (e.g., "5 km"). Optional, include only if relevant (e.g. for Running/Cycling).
-    - "exercises": String describing focus (e.g., "Upper Body", "Legs"). Optional, include only for Strength attributes.
+    - "distance": String with unit (e.g., "5 km"). Optional, include only if relevant.
+    - "exercises": String describing focus (e.g., "Upper Body"). Optional, include only for Strength.
     - "intensity": One of "Easy", "Moderate", "High". Optional for Rest Days.
     - "notes": Short string for extra hints. Optional.
     `;
@@ -82,7 +75,14 @@ export async function generateAdvice(userData) {
         });
 
         const content = completion.choices[0].message.content;
-        return JSON.parse(content);
+        console.log("Raw AI Response:", content); // Debug log
+
+        // Clean up markdown code blocks if they exist (just in case)
+        const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        const parsed = JSON.parse(cleanContent);
+        console.log("Parsed Plan:", JSON.stringify(parsed, null, 2)); // Debug log
+        return parsed;
     } catch (error) {
         console.error("OpenAI API Error:", error);
         throw new Error(`Failed to generate advice: ${error.message}`);

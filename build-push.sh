@@ -14,6 +14,11 @@ build_and_push() {
     DIR_PATH=$2
     IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.0"
     
+    # Build v1.1 for ai-coach-service to force update
+    if [ "$SERVICE_NAME" == "ai-coach-service" ]; then
+        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.1"
+    fi
+    
     echo "Processing $SERVICE_NAME..."
     docker build --platform $PLATFORM -t $IMAGE $DIR_PATH
     docker push $IMAGE
