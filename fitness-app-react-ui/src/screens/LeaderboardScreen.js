@@ -46,13 +46,13 @@ const LeaderboardScreen = () => {
       // For the current user, we'll replace it with their name if available
       setLeaderboard(globalLeaderboard.map((entry, index) => {
         const isCurrentUser = entry.userId === userId;
-        let displayName = entry.userId; // Default to userId
-        
-        // If this is the current user and we have their name, use it
+        let displayName = entry.username || entry.userId; // Default to username from backend, else userId
+
+        // If this is the current user and we have their name, use it (override backend if needed)
         if (isCurrentUser && currentUserDisplayName) {
           displayName = currentUserDisplayName;
-        } else {
-          // Format userId nicely (e.g., "user-001" -> "User 001")
+        } else if (!entry.username) {
+          // Only if no username from backend, try to format userId
           const userIdMatch = entry.userId.match(/user-(\d+)/);
           if (userIdMatch) {
             displayName = `User ${userIdMatch[1]}`;
@@ -76,7 +76,7 @@ const LeaderboardScreen = () => {
     } catch (error) {
       console.error('Failed to fetch leaderboard', error);
       let errorMessage = 'Failed to load leaderboard. ';
-      
+
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
           errorMessage = 'Your session has expired. Please log in again.';
@@ -98,7 +98,7 @@ const LeaderboardScreen = () => {
       } else {
         errorMessage += 'An unexpected error occurred.';
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);

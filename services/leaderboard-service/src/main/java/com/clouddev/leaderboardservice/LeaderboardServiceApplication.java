@@ -12,6 +12,11 @@ public class LeaderboardServiceApplication {
     }
 
     @org.springframework.context.annotation.Bean
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
+    }
+
+    @org.springframework.context.annotation.Bean
     public org.springframework.web.servlet.config.annotation.WebMvcConfigurer corsConfigurer() {
         return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {
             @Override

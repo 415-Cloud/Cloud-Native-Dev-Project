@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, String> {
+    java.util.List<UserProfile> findByUserIdIn(java.util.List<String> userIds);
 }

@@ -79,4 +79,15 @@ public class ProfileService {
         dto.setUpdatedAt(profile.getUpdatedAt());
         return dto;
     }
+
+    public java.util.Map<String, String> getUsernames(java.util.List<String> userIds) {
+        java.util.List<UserProfile> profiles = profileRepository.findByUserIdIn(userIds);
+        java.util.Map<String, String> nameMap = new java.util.HashMap<>();
+        for (UserProfile profile : profiles) {
+            if (profile.getName() != null) {
+                nameMap.put(profile.getUserId(), profile.getName());
+            }
+        }
+        return nameMap;
+    }
 }

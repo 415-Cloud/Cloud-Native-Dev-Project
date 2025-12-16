@@ -31,8 +31,8 @@ public class WebSecurityConfig {
                 // Make the session stateless because we are using JWTs
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Allow internal profile creation call from Auth Service
-                        .requestMatchers("/api/users/create").permitAll()
+                        // 1. Allow internal profile creation/lookup calls
+                        .requestMatchers("/api/users/create", "/api/users/names").permitAll()
                         // 2. Require authentication for all profile GET/PUT/DELETE
                         .anyRequest().authenticated())
                 // Add the JWT filter before the standard Spring Security authentication filter

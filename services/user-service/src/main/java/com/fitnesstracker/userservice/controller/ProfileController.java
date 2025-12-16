@@ -79,4 +79,10 @@ public class ProfileController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }
+
+    // Internal endpoint for fetching names (called by Leaderboard Service)
+    @PostMapping("/names")
+    public ResponseEntity<java.util.Map<String, String>> getUserNames(@RequestBody java.util.List<String> userIds) {
+        return ResponseEntity.ok(profileService.getUsernames(userIds));
+    }
 }
