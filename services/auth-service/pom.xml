@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<scope>test</scope>
+			<version>${byte-buddy.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bytebuddy</groupId>
