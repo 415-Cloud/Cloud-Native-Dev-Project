@@ -8,55 +8,53 @@ const TrainingPlanScreen = () => {
   const [trainingPlan, setTrainingPlan] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [aiAdvice, setAiAdvice] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  /* useEffect removed - now manual trigger */
   useEffect(() => {
-    const fetchTrainingPlan = async () => {
-      const { userId } = getAuthData();
-      if (!userId) {
-        navigate('/login');
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Fetch user profile to get fitness level and goals
-        const userProfile = await userAPI.getProfile(userId);
-
-        // Get AI-generated training advice and plan
-        const coachResponse = await aiCoachAPI.generateTrainingPlan({
-          fitnessLevel: userProfile.fitnessLevel || 'intermediate',
-          goals: userProfile.goals || 'general fitness',
-          name: userProfile.name
-        });
-
-        // Use the returned advice and training plan
-        setAiAdvice(coachResponse.advice);
-
-        if (coachResponse.trainingPlan && Array.isArray(coachResponse.trainingPlan)) {
-          setTrainingPlan(coachResponse.trainingPlan);
-        } else {
-          // Fallback if AI doesn't return a valid plan array, though parsing should catch most issues
-          console.warn("AI didn't return a valid training plan structure, falling back to static generation.");
-          const plan = generateStructuredPlan(userProfile.fitnessLevel);
-          setTrainingPlan(plan);
-        }
-      } catch (err) {
-        console.error('Error fetching training plan:', err);
-        setError('Failed to generate training plan. Using default plan.');
-        // Fallback to default plan
-        setTrainingPlan(getDefaultPlan());
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrainingPlan();
+    const { userId } = getAuthData();
+    if (!userId) {
+      navigate('/login');
+    }
   }, [navigate]);
+
+  const handleGeneratePlan = async () => {
+    const { userId } = getAuthData();
+    if (!userId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Fetch user profile to get fitness level and goals
+      const userProfile = await userAPI.getProfile(userId);
+
+      // Get AI-generated training advice and plan
+      const coachResponse = await aiCoachAPI.generateTrainingPlan({
+        fitnessLevel: userProfile.fitnessLevel || 'intermediate',
+        goals: userProfile.goals || 'general fitness',
+        name: userProfile.name
+      });
+
+      // Use the returned advice and training plan
+      setAiAdvice(coachResponse.advice);
+
+      if (coachResponse.trainingPlan && Array.isArray(coachResponse.trainingPlan)) {
+        setTrainingPlan(coachResponse.trainingPlan);
+      } else {
+        console.warn("AI didn't return a valid training plan structure, falling back to static generation.");
+        const plan = generateStructuredPlan(userProfile.fitnessLevel);
+        setTrainingPlan(plan);
+      }
+    } catch (err) {
+      console.error('Error fetching training plan:', err);
+      setError('Failed to generate training plan. Using default plan.');
+      setTrainingPlan(getDefaultPlan());
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const generateStructuredPlan = (fitnessLevel) => {
     const intensity = fitnessLevel === 'beginner' ? 'Easy' : fitnessLevel === 'advanced' ? 'High' : 'Moderate';
@@ -142,20 +140,40 @@ const TrainingPlanScreen = () => {
             <h1 className="training-plan-title">Training Plan</h1>
             <p className="training-plan-subtitle">AI-generated weekly training recommendations</p>
           </div>
-          <div className="week-selector">
-            <label>Week:</label>
-            <select
-              value={selectedWeek}
-              onChange={(e) => setSelectedWeek(Number(e.target.value))}
+          <div className="header-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <button
+              className="generate-btn"
+              onClick={handleGeneratePlan}
+              disabled={loading}
+              style={{ opacity: loading ? 0.7 : 1 }}
             >
-              {trainingPlan.map(week => (
-                <option key={week.week} value={week.week}>
-                  Week {week.week}
-                </option>
-              ))}
-            </select>
+              {loading ? 'Generating...' : 'Generate New Training Plan'}
+            </button>
+
+            {trainingPlan.length > 0 && (
+              <div className="week-selector">
+                <label>Week:</label>
+                <select
+                  value={selectedWeek}
+                  onChange={(e) => setSelectedWeek(Number(e.target.value))}
+                >
+                  {trainingPlan.map(week => (
+                    <option key={week.week} value={week.week}>
+                      Week {week.week}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Removed empty-state block since button is now in header */}
+        {trainingPlan.length === 0 && !loading && !error && (
+          <div className="empty-state">
+            <p>No training plan active. Click the button above to generate one!</p>
+          </div>
+        )}
 
         {error && (
           <div className="error-message">

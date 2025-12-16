@@ -19,9 +19,9 @@ build_and_push() {
         IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.4"
     fi
 
-    # Build v1.2 for frontend to force update
+    # Build v1.4 for frontend to force update
     if [ "$SERVICE_NAME" == "frontend" ]; then
-        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.2"
+        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.4"
     fi
 
     # Build v1.1 for user-service
