@@ -28,8 +28,8 @@ spec:
 
       containers:
         - name: ai-coach-service
-          image: harbor.javajon.duckdns.org/library/found-ai-coach-service:v1.2
-          imagePullPolicy: IfNotPresent
+          image: harbor.javajon.duckdns.org/library/found-ai-coach-service:v1.0
+          imagePullPolicy: Always
 
           securityContext:
             allowPrivilegeEscalation: false
