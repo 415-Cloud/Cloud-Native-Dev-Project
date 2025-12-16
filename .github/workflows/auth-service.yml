@@ -91,15 +91,25 @@ jobs:
           CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
           kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443 --insecure-skip-tls-verify=true
 
+      - name: Create namespace if not exists
+        run: |
+          # Try to create namespace, or check if it already exists
+          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f - --validate=false 2>&1 || \
+          kubectl get namespace found-fitness-app 2>&1 || {
+            echo "Error: Failed to create or verify namespace. Check KUBECONFIG credentials."
+            exit 1
+          }
+
       - name: Create Secrets and ConfigMaps
         run: |
-          # Create auth-service-secret with DB_PASSWORD from GitHub Secrets
+          # Create auth-service-secret with DB_PASSWORD from GitHub Secrets (explicitly in found-fitness-app namespace)
           kubectl create secret generic auth-service-secret \
+            --namespace=found-fitness-app \
             --from-literal=SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --from-literal=JWT_SECRET="your_super_long_and_secure_base64_encoded_secret_key_here_at_least_256_bits_for_HS256" \
             --dry-run=client -o yaml | kubectl apply -f - --validate=false
             
-          kubectl apply -f k8s/auth-service-configmap.yaml
+          kubectl apply -f k8s/auth-service-configmap.yaml --validate=false
 
       - name: Deploy to Kubernetes
         run: |
