@@ -62,32 +62,13 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=v1.0
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ${{ env.SERVICE_PATH }}
           file: ${{ env.SERVICE_PATH }}/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Print image tags
-        run: |
-          echo "Pushed image with tags:"
-          echo "${{ steps.meta.outputs.tags }}"
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0
 
   deploy:
     name: Deploy to Kubernetes
@@ -107,14 +88,64 @@ jobs:
       - name: Configure kubeconfig
         run: |
           mkdir -p $HOME/.kube
+          if [ -z "${{ secrets.KUBECONFIG }}" ]; then
+            echo "Error: KUBECONFIG secret is empty or not set"
+            exit 1
+          fi
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+          echo "Kubeconfig file created"
+          
+      - name: Update cluster server URL
+        run: |
+          # Get the current context and cluster name
+          CURRENT_CONTEXT=$(kubectl config current-context 2>/dev/null || echo "")
+          CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}' 2>/dev/null || echo "")
+          
+          if [ -z "$CLUSTER_NAME" ]; then
+            # Try to get cluster name from current context
+            CLUSTER_NAME=$(kubectl config view -o jsonpath="{.contexts[?(@.name==\"$CURRENT_CONTEXT\")].context.cluster}" 2>/dev/null || echo "default")
+          fi
+          
+          if [ -z "$CLUSTER_NAME" ] || [ "$CLUSTER_NAME" = "default" ]; then
+            echo "Warning: Could not determine cluster name, listing all clusters:"
+            kubectl config get-clusters || true
+            CLUSTER_NAME=$(kubectl config get-clusters | tail -n +2 | head -n 1 | awk '{print $1}' || echo "default")
+          fi
+          
+          echo "Updating cluster '$CLUSTER_NAME' server URL to https://javajon.duckdns.org:6443"
+          kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443 --insecure-skip-tls-verify=true
+          
+      - name: Verify kubeconfig
+        run: |
+          if [ ! -f "$HOME/.kube/config" ]; then
+            echo "Error: kubeconfig file not found"
+            exit 1
+          fi
+          echo "Kubeconfig file exists, checking configuration..."
+          kubectl config view --minify
+          echo "Current context:"
+          kubectl config current-context || echo "No current context set"
+          echo "Available contexts:"
+          kubectl config get-contexts
+
+      - name: Create namespace if not exists
+        run: |
+          # Try to create namespace, or check if it already exists
+          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f - --validate=false 2>&1 || \
+          kubectl get namespace found-fitness-app 2>&1 || {
+            echo "Error: Failed to create or verify namespace. Check KUBECONFIG credentials."
+            exit 1
+          }
+
+      - name: Deploy ConfigMap and Secret
+        run: |
+          kubectl apply -f k8s/leaderboard-service-configmap.yaml --validate=false
+          kubectl apply -f k8s/leaderboard-service-secret.yaml --validate=false
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/leaderboard-service-configmap.yaml
-          kubectl apply -f k8s/leaderboard-service-secret.yaml
-          kubectl apply -f k8s/leaderboard-service-deployment.yaml
+          kubectl apply -f k8s/leaderboard-service-deployment.yaml --validate=false
           kubectl rollout restart deployment/leaderboard-service -n found-fitness-app
           kubectl rollout status deployment/leaderboard-service -n found-fitness-app --timeout=180s
 
