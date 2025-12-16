@@ -30,7 +30,7 @@ import com.clouddev.leaderboardservice.repository.LeaderboardRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LeaderboardService Tests")
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "null" })
 class LeaderboardServiceTest {
 
     @Mock
@@ -56,10 +56,10 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "new-user";
             double delta = 100.0;
-            
+
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.empty());
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, delta);
@@ -67,7 +67,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             LeaderboardEntryEntity savedEntry = captor.getValue();
             assertEquals(userId, savedEntry.getUserId());
             assertEquals(delta, savedEntry.getScore());
@@ -82,11 +82,11 @@ class LeaderboardServiceTest {
             String userId = "existing-user";
             double initialScore = 100.0;
             double delta = 50.0;
-            
+
             LeaderboardEntryEntity existingEntry = new LeaderboardEntryEntity(userId, initialScore, 1L, today);
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(existingEntry));
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, delta);
@@ -94,7 +94,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             LeaderboardEntryEntity savedEntry = captor.getValue();
             assertEquals(initialScore + delta, savedEntry.getScore());
         }
@@ -106,11 +106,11 @@ class LeaderboardServiceTest {
             String userId = "user";
             double initialScore = 100.0;
             double delta = -30.0;
-            
+
             LeaderboardEntryEntity existingEntry = new LeaderboardEntryEntity(userId, initialScore, 1L, today);
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(existingEntry));
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, delta);
@@ -118,7 +118,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             assertEquals(70.0, captor.getValue().getScore());
         }
 
@@ -128,11 +128,11 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "user";
             LocalDate yesterday = today.minusDays(1);
-            
+
             LeaderboardEntryEntity existingEntry = new LeaderboardEntryEntity(userId, 100.0, 5L, yesterday);
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(existingEntry));
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, 10.0);
@@ -140,7 +140,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             assertEquals(6L, captor.getValue().getStreakCount());
         }
 
@@ -150,11 +150,11 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "user";
             LocalDate threeDaysAgo = today.minusDays(3);
-            
+
             LeaderboardEntryEntity existingEntry = new LeaderboardEntryEntity(userId, 100.0, 10L, threeDaysAgo);
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(existingEntry));
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, 10.0);
@@ -162,7 +162,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             assertEquals(1L, captor.getValue().getStreakCount());
         }
 
@@ -171,11 +171,11 @@ class LeaderboardServiceTest {
         void shouldMaintainStreakForSameDayActivity() {
             // Arrange
             String userId = "user";
-            
+
             LeaderboardEntryEntity existingEntry = new LeaderboardEntryEntity(userId, 100.0, 5L, today);
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(existingEntry));
             when(leaderboardRepository.save(any(LeaderboardEntryEntity.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
             leaderboardService.updateScore(userId, 10.0);
@@ -183,7 +183,7 @@ class LeaderboardServiceTest {
             // Assert
             ArgumentCaptor<LeaderboardEntryEntity> captor = ArgumentCaptor.forClass(LeaderboardEntryEntity.class);
             verify(leaderboardRepository).save(captor.capture());
-            
+
             assertEquals(5L, captor.getValue().getStreakCount());
         }
     }
@@ -197,11 +197,10 @@ class LeaderboardServiceTest {
         void shouldReturnTopNUsers() {
             // Arrange
             List<LeaderboardEntryEntity> entities = Arrays.asList(
-                new LeaderboardEntryEntity("user1", 1000.0, 10L, today),
-                new LeaderboardEntryEntity("user2", 800.0, 5L, today),
-                new LeaderboardEntryEntity("user3", 600.0, 3L, today)
-            );
-            
+                    new LeaderboardEntryEntity("user1", 1000.0, 10L, today),
+                    new LeaderboardEntryEntity("user2", 800.0, 5L, today),
+                    new LeaderboardEntryEntity("user3", 600.0, 3L, today));
+
             when(leaderboardRepository.findTopN(3)).thenReturn(entities);
 
             // Act
@@ -212,10 +211,10 @@ class LeaderboardServiceTest {
             assertEquals("user1", result.get(0).getUserId());
             assertEquals(1L, result.get(0).getRank());
             assertEquals(1000.0, result.get(0).getScore());
-            
+
             assertEquals("user2", result.get(1).getUserId());
             assertEquals(2L, result.get(1).getRank());
-            
+
             assertEquals("user3", result.get(2).getUserId());
             assertEquals(3L, result.get(2).getRank());
         }
@@ -270,7 +269,7 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "user1";
             LeaderboardEntryEntity entity = new LeaderboardEntryEntity(userId, 500.0, 5L, today);
-            
+
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(entity));
             when(leaderboardRepository.getUserRank(userId)).thenReturn(3L);
 
@@ -304,7 +303,7 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "user1";
             LeaderboardEntryEntity entity = new LeaderboardEntryEntity(userId, 500.0, 5L, today);
-            
+
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(entity));
             when(leaderboardRepository.getUserRank(userId)).thenReturn(null);
 
@@ -327,7 +326,7 @@ class LeaderboardServiceTest {
             // Arrange
             String userId = "user1";
             LeaderboardEntryEntity entity = new LeaderboardEntryEntity(userId, 500.0, 7L, today);
-            
+
             when(leaderboardRepository.findByUserId(userId)).thenReturn(Optional.of(entity));
 
             // Act

@@ -27,7 +27,7 @@ import com.fitnesstracker.userservice.repository.UserProfileRepository;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProfileService Tests")
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "null" })
 class ProfileServiceTest {
 
     @Mock
@@ -77,9 +77,8 @@ class ProfileServiceTest {
             profile.setEmail("test@example.com");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> profileService.createProfile(profile)
-            );
+                    IllegalArgumentException.class,
+                    () -> profileService.createProfile(profile));
             assertEquals("User ID and email are required for profile creation.", exception.getMessage());
         }
 
@@ -91,9 +90,8 @@ class ProfileServiceTest {
             profile.setEmail(null);
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> profileService.createProfile(profile)
-            );
+                    IllegalArgumentException.class,
+                    () -> profileService.createProfile(profile));
             assertEquals("User ID and email are required for profile creation.", exception.getMessage());
         }
     }
@@ -178,9 +176,8 @@ class ProfileServiceTest {
             when(profileRepository.findById("nonexistent")).thenReturn(Optional.empty());
 
             RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> profileService.updateProfile("nonexistent", request)
-            );
+                    RuntimeException.class,
+                    () -> profileService.updateProfile("nonexistent", request));
             assertEquals("User profile not found.", exception.getMessage());
         }
 

@@ -51,6 +51,8 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(authService, "userServiceUrl", "http://user-service:8081/api/users/create");
+        // Ensure authService is not null for following tests context
+        assertNotNull(authService);
     }
 
     @Nested
@@ -85,9 +87,8 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Email is required.", exception.getMessage());
         }
 
@@ -99,9 +100,8 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Email is required.", exception.getMessage());
         }
 
@@ -113,9 +113,8 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Invalid email format.", exception.getMessage());
         }
 
@@ -127,12 +126,11 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             when(credentialRepository.findByEmail("existing@example.com"))
-                .thenReturn(Optional.of(new Credential()));
+                    .thenReturn(Optional.of(new Credential()));
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Email is already in use.", exception.getMessage());
         }
 
@@ -146,9 +144,8 @@ class AuthServiceTest {
             when(credentialRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Password is required.", exception.getMessage());
         }
 
@@ -162,9 +159,8 @@ class AuthServiceTest {
             when(credentialRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Password must be at least 6 characters long.", exception.getMessage());
         }
 
@@ -194,9 +190,8 @@ class AuthServiceTest {
             when(credentialRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.register(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.register(request));
             assertEquals("Password is required.", exception.getMessage());
         }
     }
@@ -236,9 +231,8 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.login(request));
             assertEquals("Email is required.", exception.getMessage());
         }
 
@@ -250,9 +244,8 @@ class AuthServiceTest {
             request.setPassword("password123");
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.login(request));
             assertEquals("Email is required.", exception.getMessage());
         }
 
@@ -266,9 +259,8 @@ class AuthServiceTest {
             when(credentialRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.login(request));
             assertEquals("Invalid email or password.", exception.getMessage());
         }
 
@@ -288,9 +280,8 @@ class AuthServiceTest {
             when(passwordEncoder.matches("wrongpassword", "encodedPassword")).thenReturn(false);
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.login(request));
             assertEquals("Invalid email or password.", exception.getMessage());
         }
 
@@ -309,9 +300,8 @@ class AuthServiceTest {
             when(credentialRepository.findByEmail("test@example.com")).thenReturn(Optional.of(credential));
 
             IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> authService.login(request)
-            );
+                    IllegalArgumentException.class,
+                    () -> authService.login(request));
             assertEquals("Invalid email or password.", exception.getMessage());
         }
 

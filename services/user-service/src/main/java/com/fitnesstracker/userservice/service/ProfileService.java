@@ -20,7 +20,7 @@ public class ProfileService {
     /**
      * Internal API for the Auth Service to create a new profile record.
      */
-    public UserProfile createProfile(UserProfile newProfile) {
+    public UserProfile createProfile(@org.springframework.lang.NonNull UserProfile newProfile) {
         // Simple data validation for required fields
         if (newProfile.getUserId() == null || newProfile.getEmail() == null) {
             throw new IllegalArgumentException("User ID and email are required for profile creation.");
@@ -31,7 +31,7 @@ public class ProfileService {
     /**
      * Public API to fetch a profile by ID.
      */
-    public Optional<UserProfileDTO> getProfile(String userId) {
+    public Optional<UserProfileDTO> getProfile(@org.springframework.lang.NonNull String userId) {
         return profileRepository.findById(userId)
                 .map(this::convertToDto);
     }
@@ -39,7 +39,8 @@ public class ProfileService {
     /**
      * Public API to update a profile's goals and preferences.
      */
-    public UserProfileDTO updateProfile(String userId, ProfileUpdateRequest request) {
+    public UserProfileDTO updateProfile(@org.springframework.lang.NonNull String userId,
+            @org.springframework.lang.NonNull ProfileUpdateRequest request) {
         UserProfile profile = profileRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User profile not found."));
 
@@ -65,7 +66,7 @@ public class ProfileService {
     }
 
     // Helper method to map the JPA entity to a DTO for API responses
-    private UserProfileDTO convertToDto(UserProfile profile) {
+    private UserProfileDTO convertToDto(@org.springframework.lang.NonNull UserProfile profile) {
         UserProfileDTO dto = new UserProfileDTO();
         dto.setUserId(profile.getUserId());
         dto.setEmail(profile.getEmail());

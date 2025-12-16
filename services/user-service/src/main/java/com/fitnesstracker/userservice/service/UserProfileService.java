@@ -16,7 +16,7 @@ public class UserProfileService {
         this.userProfileRepository = userProfileRepository;
     }
 
-    public UserProfile createUserProfile(CreateUserProfileRequest request) {
+    public UserProfile createUserProfile(@org.springframework.lang.NonNull CreateUserProfileRequest request) {
         UserProfile userProfile = new UserProfile();
         userProfile.setUserId(request.getUserId());
         userProfile.setEmail(request.getEmail());
@@ -24,7 +24,7 @@ public class UserProfileService {
         return userProfileRepository.save(userProfile);
     }
 
-    public Optional<UserProfile> getUserProfileById(String userId) {
+    public Optional<UserProfile> getUserProfileById(@org.springframework.lang.NonNull String userId) {
         return userProfileRepository.findById(userId);
     }
 }
