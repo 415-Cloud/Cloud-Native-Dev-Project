@@ -1,3 +1,4 @@
+// Data Consistency Service - Main entry point
 const { Pool } = require('pg');
 const amqp = require('amqplib');
 
