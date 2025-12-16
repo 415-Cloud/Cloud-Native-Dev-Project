@@ -3,6 +3,7 @@ package com.clouddev.leaderboardservice;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+// Leaderboard Service - Main entry point
 @SpringBootApplication
 public class LeaderboardServiceApplication {
 
