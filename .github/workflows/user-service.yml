@@ -82,29 +82,57 @@ jobs:
 
       - name: Configure kubeconfig
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
+          mkdir -p $HOME/.kube
+          if [ -z "${{ secrets.KUBECONFIG }}" ]; then
+            echo "Error: KUBECONFIG secret is empty or not set"
+            exit 1
+          fi
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          echo "Kubeconfig file created"
           
-      - name: Update cluster server URL
+      - name: Verify kubeconfig
         run: |
-          CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}')
-          kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443 --insecure-skip-tls-verify=true
+          if [ ! -f "$HOME/.kube/config" ]; then
+            echo "Error: kubeconfig file not found"
+            exit 1
+          fi
+          echo "Kubeconfig file exists, checking configuration..."
+          kubectl config view --minify
+          echo "Current context:"
+          kubectl config current-context || echo "No current context set"
+          echo "Available contexts:"
+          kubectl config get-contexts
+
+      - name: Create namespace if not exists
+        run: |
+          # Try to create namespace, or check if it already exists
+          kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f - --validate=false 2>&1 || \
+          kubectl get namespace found-fitness-app 2>&1 || {
+            echo "Error: Failed to create or verify namespace. Check KUBECONFIG credentials."
+            exit 1
+          }
 
       - name: Create Secrets and ConfigMaps
         run: |
-          # Create user-service-secret with DB_PASSWORD from GitHub Secrets
+          # Create user-service-secret with DB_PASSWORD from GitHub Secrets (explicitly in found-fitness-app namespace)
           # Note: We use a fixed JWT_SECRET here for simplicity, matching your existing secret
           # In production, this should also be a GitHub Secret
           kubectl create secret generic user-service-secret \
+            --namespace=found-fitness-app \
             --from-literal=SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --from-literal=JWT_SECRET="your_super_long_and_secure_base64_encoded_secret_key_here_at_least_256_bits_for_HS256" \
             --dry-run=client -o yaml | kubectl apply -f - --validate=false
             
-          kubectl apply -f k8s/user-service-configmap.yaml
+          kubectl apply -f k8s/user-service-configmap.yaml --validate=false
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/user-service-deployment.yaml
+          kubectl apply -f k8s/user-service-deployment.yaml --validate=false
           kubectl rollout restart deployment/user-service -n found-fitness-app
           kubectl rollout status deployment/user-service -n found-fitness-app --timeout=180s
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n found-fitness-app -l app=user-service
+          kubectl get svc -n found-fitness-app -l app=user-service
