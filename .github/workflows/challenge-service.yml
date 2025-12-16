@@ -1,17 +1,17 @@
-name: Workout Service CI/CD
+name: Challenge Service CI/CD
 
 on:
   push:
     branches: [main, master]
     paths:
-      - 'services/workout-service/**'
-      - '.github/workflows/workout-service.yml'
+      - 'services/challenge-service/**'
+      - '.github/workflows/challenge-service.yml'
   workflow_dispatch:  # Allow manual trigger
 
 env:
   REGISTRY: harbor.javajon.duckdns.org
-  IMAGE_NAME: library/found-workout-service
-  SERVICE_PATH: services/workout-service
+  IMAGE_NAME: library/found-challenge-service
+  SERVICE_PATH: services/challenge-service
 
 jobs:
   test:
@@ -131,15 +131,15 @@ jobs:
 
       - name: Deploy ConfigMap
         run: |
-          kubectl apply -f k8s/workout-service-configmap.yaml --validate=false
+          kubectl apply -f k8s/challenge-service-configmap.yaml --validate=false
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/workout-service-deployment.yaml --validate=false
-          kubectl rollout restart deployment/workout-service -n found-fitness-app
-          kubectl rollout status deployment/workout-service -n found-fitness-app --timeout=180s
+          kubectl apply -f k8s/challenge-service-deployment.yaml --validate=false
+          kubectl rollout restart deployment/challenge-service -n found-fitness-app
+          kubectl rollout status deployment/challenge-service -n found-fitness-app --timeout=180s
 
       - name: Verify deployment
         run: |
-          kubectl get pods -n found-fitness-app -l app=workout-service
-          kubectl get svc -n found-fitness-app -l app=workout-service
+          kubectl get pods -n found-fitness-app -l app=challenge-service
+          kubectl get svc -n found-fitness-app -l app=challenge-service

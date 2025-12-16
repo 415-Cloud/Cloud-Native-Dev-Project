@@ -1,17 +1,17 @@
-name: Workout Service CI/CD
+name: Data Consistency Service CI/CD
 
 on:
   push:
     branches: [main, master]
     paths:
-      - 'services/workout-service/**'
-      - '.github/workflows/workout-service.yml'
+      - 'services/data-consistency-service/**'
+      - '.github/workflows/data-consistency-service.yml'
   workflow_dispatch:  # Allow manual trigger
 
 env:
   REGISTRY: harbor.javajon.duckdns.org
-  IMAGE_NAME: library/found-workout-service
-  SERVICE_PATH: services/workout-service
+  IMAGE_NAME: library/found-data-consistency-service
+  SERVICE_PATH: services/data-consistency-service
 
 jobs:
   test:
@@ -129,17 +129,13 @@ jobs:
             exit 1
           }
 
-      - name: Deploy ConfigMap
-        run: |
-          kubectl apply -f k8s/workout-service-configmap.yaml --validate=false
-
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s/workout-service-deployment.yaml --validate=false
-          kubectl rollout restart deployment/workout-service -n found-fitness-app
-          kubectl rollout status deployment/workout-service -n found-fitness-app --timeout=180s
+          kubectl apply -f k8s/data-consistency-service-deployment.yaml --validate=false
+          kubectl rollout restart deployment/data-consistency-service -n found-fitness-app
+          kubectl rollout status deployment/data-consistency-service -n found-fitness-app --timeout=180s
 
       - name: Verify deployment
         run: |
-          kubectl get pods -n found-fitness-app -l app=workout-service
-          kubectl get svc -n found-fitness-app -l app=workout-service
+          kubectl get pods -n found-fitness-app -l app=data-consistency-service
+          kubectl get svc -n found-fitness-app -l app=data-consistency-service

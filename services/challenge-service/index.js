@@ -1,3 +1,4 @@
+// Challenge Service - Main entry point
 require('dotenv').config({ path: './config.env' });
 const express = require('express');
 const cors = require('cors');

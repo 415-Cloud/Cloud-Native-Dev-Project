@@ -1,3 +1,5 @@
+// Workout Service - Main entry point
+// Updated to test CI/CD workflow
 require('dotenv').config({ path: './config.env' });
 const express = require('express');
 const cors = require('cors');
