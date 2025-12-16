@@ -10,8 +10,8 @@ const router = Router();
 
 router.post("/advice", async (req, res) => {
     try {
-        const advice = await generateAdvice(req.body );
-        res.json({ advice });
+        const result = await generateAdvice(req.body);
+        res.json(result);
     } catch (err) {
         console.error("AI Coach Error:", err);
         res.status(500).json({ error: "Failed to generate AI coaching advice" });
