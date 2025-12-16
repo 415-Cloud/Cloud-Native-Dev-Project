@@ -23,9 +23,12 @@ function getClient() {
 }
 
 export async function generateAdvice(userData) {
+    // Sanitize input: remove frontend-generated prompts that might confuse the model
+    const { prompt: ignoredPrompt, requestType, ...cleanData } = userData;
+
     const prompt = `
     You are an AI fitness coach. Create a personalized 2-week workout plan based on the following user data:
-    ${JSON.stringify(userData, null, 2)}
+    ${JSON.stringify(cleanData, null, 2)}
 
     Return the response in strictly valid JSON format. Do not include markdown formatting (like \`\`\`json).
     
