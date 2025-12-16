@@ -120,13 +120,6 @@ jobs:
           echo "Available contexts:"
           kubectl config get-contexts
 
-      - name: Verify kubectl connection
-        run: |
-          echo "Testing kubectl connection to cluster..."
-          kubectl cluster-info
-          echo "Listing nodes:"
-          kubectl get nodes
-
       - name: Create namespace if not exists
         run: |
           kubectl create namespace found-fitness-app --dry-run=client -o yaml | kubectl apply -f -
