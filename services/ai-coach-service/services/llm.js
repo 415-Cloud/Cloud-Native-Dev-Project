@@ -27,7 +27,9 @@ export async function generateAdvice(userData) {
     You are an AI fitness coach. Create a personalized 2-week workout plan based on the following user data:
     ${JSON.stringify(userData, null, 2)}
 
-    Return the response in strictly valid JSON format with the following structure:
+    Return the response in strictly valid JSON format. Do not include markdown formatting (like \`\`\`json).
+    
+    The output must strictly follow this structure:
     {
         "advice": "A brief summary of advice and tips (2-3 sentences)",
         "trainingPlan": [
@@ -36,20 +38,37 @@ export async function generateAdvice(userData) {
                 "days": [
                     {
                         "day": "Monday",
-                        "activity": "Running/Strength/Yoga/Rest",
-                        "duration": "e.g., 30 min",
-                        "distance": "e.g., 5 km (optional)",
-                        "exercises": "e.g., Full Body (optional)",
-                        "intensity": "High/Moderate/Easy",
-                        "notes": "Any specific instructions"
+                        "activity": "Running",
+                        "duration": "30 min", 
+                        "distance": "5 km", 
+                        "intensity": "Moderate",
+                        "notes": "Keep a steady pace"
+                    },
+                    {
+                        "day": "Tuesday",
+                        "activity": "Strength Training",
+                        "duration": "45 min",
+                        "exercises": "Full Body",
+                        "intensity": "High"
                     }
-                    // ... include all 7 days
+                    // ... continue for Wednesday through Sunday
                 ]
+            },
+            {
+                "week": 2,
+                // ... full week 2 schedule
             }
-            // ... include week 2
         ]
     }
-    Ensure the JSON is valid and does not include any markdown formatting or code blocks.
+
+    Field Rules:
+    - "day": Must be full day name (Monday, Tuesday, etc.)
+    - "activity": Main activity name (Running, Strength Training, Yoga, HIIT, Rest Day, etc.)
+    - "duration": String with unit (e.g., "30 min", "45 min", "-"). Use "-" for Rest Days.
+    - "distance": String with unit (e.g., "5 km"). Optional, include only if relevant (e.g. for Running/Cycling).
+    - "exercises": String describing focus (e.g., "Upper Body", "Legs"). Optional, include only for Strength attributes.
+    - "intensity": One of "Easy", "Moderate", "High". Optional for Rest Days.
+    - "notes": Short string for extra hints. Optional.
     `;
 
     try {
