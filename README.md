@@ -54,32 +54,6 @@ Many fitness tracking applications lack social engagement features and automatic
 - CI/CD pipeline with GitHub Actions
 - Modern React frontend with responsive UI
 
-### Team Member Introductions and Roles
-
-**Team Members:**
-
-1. **Patrick** - [Role to be specified]
-   - [Contributions to be specified]
-
-2. **Alex** - Infrastructure & DevOps
-   - Managed database consolidation (PostgreSQL Helm chart)
-   - Configured RabbitMQ cluster connectivity
-   - Troubleshot data-consistency-service deployment issues
-   - Optimized Kubernetes deployments
-
-3. **Shane** - AI/ML & Security
-   - Implemented AI Coach Service with OpenAI integration
-   - Managed Kubernetes Secrets for sensitive configuration
-   - Resolved service connectivity issues (Ollama endpoint configuration)
-   - Database consolidation and shared PostgreSQL setup
-
-**Team Collaboration:**
-- Worked together on Harbor registry integration
-- Collaborated on ingress configuration and routing
-- Improved error handling across services
-- Created system architecture diagrams
-
----
 
 ## Project Overview
 
