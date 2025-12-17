@@ -31,15 +31,7 @@ Many fitness tracking applications lack social engagement features and automatic
 
 5. **User Profiles** - Customize your profile with fitness level, goals, and preferences through an onboarding survey
 
-## Project Overview
-
-A fitness tracking application that helps users monitor their workouts, participate in fitness challenges, and compete with others on leaderboards. Users can log various types of activities like running, cycling, and strength training, then join challenges with specific goals like running a certain distance or completing a number of workouts. The app automatically tracks progress toward challenge goals and displays rankings on a global leaderboard.
-
-- **Workout Logging:** Record workouts with details like activity type, distance, duration, and notes
-- **Fitness Challenges:** Join community challenges with specific targets and automatically track your progress
-- **Leaderboards:** Compete with other users and see your ranking based on total activity and streaks
-
-### System Architecture
+## System Architecture
 
 ![System Architecture](diagrams/architecture.png)
 
