@@ -96,26 +96,6 @@ jobs:
           chmod 600 $HOME/.kube/config
           echo "Kubeconfig file created"
           
-      - name: Update cluster server URL
-        run: |
-          # Get the current context and cluster name
-          CURRENT_CONTEXT=$(kubectl config current-context 2>/dev/null || echo "")
-          CLUSTER_NAME=$(kubectl config view -o jsonpath='{.clusters[0].name}' 2>/dev/null || echo "")
-          
-          if [ -z "$CLUSTER_NAME" ]; then
-            # Try to get cluster name from current context
-            CLUSTER_NAME=$(kubectl config view -o jsonpath="{.contexts[?(@.name==\"$CURRENT_CONTEXT\")].context.cluster}" 2>/dev/null || echo "default")
-          fi
-          
-          if [ -z "$CLUSTER_NAME" ] || [ "$CLUSTER_NAME" = "default" ]; then
-            echo "Warning: Could not determine cluster name, listing all clusters:"
-            kubectl config get-clusters || true
-            CLUSTER_NAME=$(kubectl config get-clusters | tail -n +2 | head -n 1 | awk '{print $1}' || echo "default")
-          fi
-          
-          echo "Updating cluster '$CLUSTER_NAME' server URL to https://javajon.duckdns.org:6443"
-          kubectl config set-cluster $CLUSTER_NAME --server=https://javajon.duckdns.org:6443 --insecure-skip-tls-verify=true
-          
       - name: Verify kubeconfig
         run: |
           if [ ! -f "$HOME/.kube/config" ]; then
