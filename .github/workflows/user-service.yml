@@ -1,5 +1,6 @@
 name: User Service CI/CD
 
+# Workflow for user service deployment
 on:
   push:
     branches: [main, master]
