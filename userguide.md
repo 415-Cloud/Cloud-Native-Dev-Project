@@ -137,7 +137,7 @@ See how you stack up against other users!
 
 1.  Click **"Profile"** in the navigation bar.
 2.  View your personal details and current fitness stats.
-3.  **Edit Profile:** Update your weight, fitness goals, or other metrics to keep your AI recommendations accurate.
+3.  **Edit Profile:** Update your fitness level, goals, or measuring system preference to keep your personalized experience up to date.
 
 ---
 
