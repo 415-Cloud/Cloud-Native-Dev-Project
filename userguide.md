@@ -28,9 +28,9 @@ If you are a new user, you need to create an account:
 
 
 1.  Navigate to the application home page.
-2.  Click **"Get Started"** or **"Register"**.
+2.  Click **"Get Started"**.
 3.  Enter a unique **Username**, your **Email**, and a **Password**.
-4.  Click **"Register"**.
+4.  Click **"Create User"**.
 5.  Upon successful registration, you will be redirected to the login page.
 
 ### Login
