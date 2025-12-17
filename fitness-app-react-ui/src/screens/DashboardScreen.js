@@ -37,8 +37,29 @@ const DashboardScreen = () => {
       const userChallenges = userChallengesResponse.challenges || [];
 
       // Calculate stats
-      const totalDistance = workouts.reduce((sum, w) => sum + (w.distance || 0), 0);
-      const totalDuration = workouts.reduce((sum, w) => sum + (w.duration || 0), 0);
+      const totalDistance = workouts.reduce((sum, w) => {
+        // Handle distance if it's a string like "5.2 km" or just a number
+        let dist = 0;
+        if (typeof w.distance === 'number') {
+          dist = w.distance;
+        } else if (typeof w.distance === 'string') {
+          const match = w.distance.match(/[\d.]+/);
+          if (match) dist = parseFloat(match[0]);
+        }
+        return sum + dist;
+      }, 0);
+
+      const totalDuration = workouts.reduce((sum, w) => {
+        // Handle duration if it's a string "30 min" or number
+        let dur = 0;
+        if (typeof w.duration === 'number') {
+          dur = w.duration;
+        } else if (typeof w.duration === 'string') {
+          const match = w.duration.match(/[\d.]+/);
+          if (match) dur = parseFloat(match[0]);
+        }
+        return sum + dur;
+      }, 0);
 
       setStats({
         totalWorkouts: workouts.length,
@@ -58,35 +79,35 @@ const DashboardScreen = () => {
 
       setActiveChallenges(formattedChallenges);
     } catch (error) {
-        console.error('Failed to fetch dashboard data', error);
-        let errorMessage = 'Failed to load dashboard data. ';
-        
-        if (error.response) {
-          if (error.response.status === 401 || error.response.status === 403) {
-            errorMessage = 'Your session has expired. Please log in again.';
-            setTimeout(() => navigate('/login'), 2000);
-          } else if (error.response.status === 404) {
-            errorMessage = 'Some data could not be found. Please try refreshing.';
-          } else if (error.response.status >= 500) {
-            errorMessage = 'Server error. Please try again later.';
-          } else {
-            const errorData = error.response.data;
-            if (typeof errorData === 'string') {
-              errorMessage += errorData;
-            } else if (errorData?.error || errorData?.message) {
-              errorMessage += errorData.error || errorData.message;
-            }
-          }
-        } else if (error.request) {
-          errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      console.error('Failed to fetch dashboard data', error);
+      let errorMessage = 'Failed to load dashboard data. ';
+
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          errorMessage = 'Your session has expired. Please log in again.';
+          setTimeout(() => navigate('/login'), 2000);
+        } else if (error.response.status === 404) {
+          errorMessage = 'Some data could not be found. Please try refreshing.';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
         } else {
-          errorMessage += 'An unexpected error occurred.';
+          const errorData = error.response.data;
+          if (typeof errorData === 'string') {
+            errorMessage += errorData;
+          } else if (errorData?.error || errorData?.message) {
+            errorMessage += errorData.error || errorData.message;
+          }
         }
-        
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
+      } else if (error.request) {
+        errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      } else {
+        errorMessage += 'An unexpected error occurred.';
       }
+
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -207,7 +228,7 @@ const DashboardScreen = () => {
                 </div>
                 <button
                   className="challenge-btn"
-                  onClick={() => navigate(`/challenges`)}
+                  onClick={() => navigate(`/challenges/${challenge.id}`)}
                 >
                   View Details
                 </button>

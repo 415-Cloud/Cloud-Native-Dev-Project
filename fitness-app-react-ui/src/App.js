@@ -10,6 +10,7 @@ import WorkoutLogScreen from './screens/WorkoutLogScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import TrainingPlanScreen from './screens/TrainingPlanScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import ChallengeDetailsScreen from './screens/ChallengeDetailsScreen';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/survey" element={<SurveyScreen />} />
         <Route path="/dashboard" element={<DashboardScreen />} />
         <Route path="/challenges" element={<ChallengesScreen />} />
+        <Route path="/challenges/:id" element={<ChallengeDetailsScreen />} />
         <Route path="/workout-log" element={<WorkoutLogScreen />} />
         <Route path="/leaderboard" element={<LeaderboardScreen />} />
         <Route path="/training-plan" element={<TrainingPlanScreen />} />

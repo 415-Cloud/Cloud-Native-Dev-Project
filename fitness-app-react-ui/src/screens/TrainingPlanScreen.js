@@ -12,10 +12,24 @@ const TrainingPlanScreen = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   /* useEffect removed - now manual trigger */
+  /* Load from localStorage on mount */
   useEffect(() => {
     const { userId } = getAuthData();
     if (!userId) {
       navigate('/login');
+      return;
+    }
+
+    // Try to load saved plan
+    try {
+      const savedPlanData = localStorage.getItem(`trainingPlan_${userId}`);
+      if (savedPlanData) {
+        const parsedData = JSON.parse(savedPlanData);
+        setAiAdvice(parsedData.advice || '');
+        setTrainingPlan(parsedData.plan || []);
+      }
+    } catch (e) {
+      console.error("Failed to load training plan from local storage", e);
     }
   }, [navigate]);
 
@@ -38,15 +52,26 @@ const TrainingPlanScreen = () => {
       });
 
       // Use the returned advice and training plan
-      setAiAdvice(coachResponse.advice);
+      const newAdvice = coachResponse.advice;
+      setAiAdvice(newAdvice);
 
+      let newPlan = [];
       if (coachResponse.trainingPlan && Array.isArray(coachResponse.trainingPlan)) {
-        setTrainingPlan(coachResponse.trainingPlan);
+        newPlan = coachResponse.trainingPlan;
       } else {
         console.warn("AI didn't return a valid training plan structure, falling back to static generation.");
-        const plan = generateStructuredPlan(userProfile.fitnessLevel);
-        setTrainingPlan(plan);
+        newPlan = generateStructuredPlan(userProfile.fitnessLevel);
       }
+
+      setTrainingPlan(newPlan);
+
+      // Save to localStorage
+      localStorage.setItem(`trainingPlan_${userId}`, JSON.stringify({
+        advice: newAdvice,
+        plan: newPlan,
+        timestamp: new Date().toISOString()
+      }));
+
     } catch (err) {
       console.error('Error fetching training plan:', err);
       setError('Failed to generate training plan. Using default plan.');

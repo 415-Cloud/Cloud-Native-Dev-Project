@@ -1,0 +1,149 @@
+.challenge-details-container {
+    min-height: 100vh;
+    background-color: var(--background-color);
+}
+
+.challenge-details-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.back-btn:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.challenge-header h1 {
+    font-size: 32px;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.status-badge.active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.challenge-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-box {
+    background: var(--surface-color);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-box .label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.stat-box .value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.participants-section {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    margin-bottom: 40px;
+}
+
+.participants-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+.participants-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.participant-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: var(--background-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.participant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.p-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.p-progress {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.description-section {
+    background: var(--surface-color);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.description-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
