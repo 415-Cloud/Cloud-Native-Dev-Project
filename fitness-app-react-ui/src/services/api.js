@@ -294,6 +294,16 @@ export const challengeAPI = {
   },
 
   /**
+   * Delete a challenge
+   * @param {string} id - Challenge ID
+   * @returns {Promise} - Success status
+   */
+  delete: async (id) => {
+    const response = await apiClient.delete(`${CHALLENGE_SERVICE_URL}/challenges/${id}`);
+    return response.data;
+  },
+
+  /**
    * Get challenges the user has joined
    * @returns {Promise} - List of user's challenges
    */

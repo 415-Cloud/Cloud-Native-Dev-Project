@@ -42,7 +42,7 @@ spec:
                 - ALL
             readOnlyRootFilesystem: false
           # 1. MAKE SURE THIS MATCHES THE IMAGE YOU BUILT & PUSHED
-          image: harbor.javajon.duckdns.org/library/found-frontend:v1.5
+          image: harbor.javajon.duckdns.org/library/found-frontend:v1.6
           imagePullPolicy: Always
           volumeMounts:
             - name: nginx-cache

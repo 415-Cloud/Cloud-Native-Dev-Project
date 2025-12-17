@@ -40,7 +40,7 @@ const ChallengesScreen = () => {
     } catch (error) {
       console.error('Failed to fetch challenges', error);
       let errorMessage = 'Failed to load challenges. ';
-      
+
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
           errorMessage = 'Your session has expired. Please log in again.';
@@ -62,7 +62,7 @@ const ChallengesScreen = () => {
       } else {
         errorMessage += 'An unexpected error occurred.';
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ const ChallengesScreen = () => {
     } catch (error) {
       console.error('Failed to join challenge', error);
       let errorMessage = 'Failed to join challenge. ';
-      
+
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
           errorMessage = 'Your session has expired. Please log in again.';
@@ -107,7 +107,7 @@ const ChallengesScreen = () => {
       } else if (error.request) {
         errorMessage = 'Unable to connect to the server. Please check your internet connection.';
       }
-      
+
       setActionError(errorMessage);
     }
   };
@@ -125,7 +125,7 @@ const ChallengesScreen = () => {
     } catch (error) {
       console.error('Failed to leave challenge', error);
       let errorMessage = 'Failed to leave challenge. ';
-      
+
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
           errorMessage = 'Your session has expired. Please log in again.';
@@ -143,7 +143,7 @@ const ChallengesScreen = () => {
       } else if (error.request) {
         errorMessage = 'Unable to connect to the server. Please check your internet connection.';
       }
-      
+
       setActionError(errorMessage);
     }
   };
@@ -174,7 +174,7 @@ const ChallengesScreen = () => {
     } catch (error) {
       console.error('Failed to create challenge', error);
       let errorMessage = 'Failed to create challenge. ';
-      
+
       if (error.response) {
         if (error.response.status === 401 || error.response.status === 403) {
           errorMessage = 'Your session has expired. Please log in again.';
@@ -194,8 +194,23 @@ const ChallengesScreen = () => {
       } else if (error.request) {
         errorMessage = 'Unable to connect to the server. Please check your internet connection.';
       }
-      
+
       setActionError(errorMessage);
+    }
+  };
+
+  const handleDeleteChallenge = async (challengeId) => {
+    if (!window.confirm("Are you sure you want to delete this challenge? This cannot be undone.")) {
+      return;
+    }
+
+    setActionError(null);
+    try {
+      await challengeAPI.delete(challengeId);
+      fetchData(); // Refresh list to remove deleted challenge
+    } catch (error) {
+      console.error('Failed to delete challenge', error);
+      setActionError('Failed to delete challenge. Please try again.');
     }
   };
 
@@ -368,6 +383,9 @@ const ChallengesScreen = () => {
         <div className="challenges-grid">
           {challenges.map((challenge) => {
             const isJoined = joinedChallenges.has(challenge.id);
+            const { userId } = getAuthData();
+            const isCreator = challenge.created_by == userId || challenge.createdBy == userId; // Handle both cases just to be safe
+
             return (
               <div key={challenge.id} className="challenge-card">
                 <div className="challenge-header">
@@ -382,21 +400,42 @@ const ChallengesScreen = () => {
                   <span>{challenge.participant_count || 0} participants</span>
                   <span>{new Date(challenge.end_date).toLocaleDateString()}</span>
                 </div>
-                {isJoined ? (
+
+                <div className="challenge-actions" style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                   <button
-                    className="challenge-btn leave-btn"
-                    onClick={() => handleLeaveChallenge(challenge.id)}
+                    className="challenge-btn"
+                    style={{ backgroundColor: '#2563eb', color: 'white' }}
+                    onClick={() => navigate(`/challenges/${challenge.id}`)}
                   >
-                    Leave Challenge
+                    View Details
                   </button>
-                ) : (
-                  <button
-                    className="challenge-btn join-btn"
-                    onClick={() => handleJoinChallenge(challenge.id)}
-                  >
-                    Join Challenge
-                  </button>
-                )}
+
+                  {isJoined ? (
+                    <button
+                      className="challenge-btn leave-btn"
+                      onClick={() => handleLeaveChallenge(challenge.id)}
+                    >
+                      Leave
+                    </button>
+                  ) : (
+                    <button
+                      className="challenge-btn join-btn"
+                      onClick={() => handleJoinChallenge(challenge.id)}
+                    >
+                      Join
+                    </button>
+                  )}
+
+                  {isCreator && (
+                    <button
+                      className="challenge-btn"
+                      style={{ backgroundColor: '#dc2626', color: 'white' }}
+                      onClick={() => handleDeleteChallenge(challenge.id)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

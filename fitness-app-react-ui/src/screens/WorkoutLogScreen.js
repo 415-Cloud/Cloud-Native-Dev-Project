@@ -9,6 +9,8 @@ const WorkoutLogScreen = () => {
     activityType: '',
     distance: '',
     duration: '',
+    calories: '',
+    date: new Date().toISOString().split('T')[0],
     notes: ''
   });
   const [error, setError] = useState('');
@@ -54,8 +56,8 @@ const WorkoutLogScreen = () => {
       return;
     }
 
-    if (!formData.activityType || !formData.duration) {
-      setError('Please fill in activity type and duration');
+    if (!formData.activityType || !formData.duration || !formData.date) {
+      setError('Please fill in required fields');
       setLoading(false);
       return;
     }
@@ -68,8 +70,8 @@ const WorkoutLogScreen = () => {
         duration: parseInt(formData.duration),
         distance: parseFloat(formData.distance) || 0,
         notes: formData.notes,
-        calories: 0, // Backend might calculate or we can add field
-        date: new Date().toISOString()
+        calories: parseInt(formData.calories) || 0,
+        date: new Date(formData.date).toISOString()
       });
 
       setSuccess(true);
@@ -77,6 +79,8 @@ const WorkoutLogScreen = () => {
         activityType: '',
         distance: '',
         duration: '',
+        calories: '',
+        date: new Date().toISOString().split('T')[0],
         notes: ''
       });
 
@@ -136,6 +140,36 @@ const WorkoutLogScreen = () => {
 
             <div className="form-row">
               <div className="form-group">
+                <label htmlFor="date">Date *</label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="duration">Duration (minutes) *</label>
+                <input
+                  type="number"
+                  id="duration"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  placeholder="0"
+                  step="1"
+                  min="0"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
                 <label htmlFor="distance">Distance (miles)</label>
                 <input
                   type="number"
@@ -151,17 +185,16 @@ const WorkoutLogScreen = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="duration">Duration (minutes) *</label>
+                <label htmlFor="calories">Calories Burned</label>
                 <input
                   type="number"
-                  id="duration"
-                  name="duration"
-                  value={formData.duration}
+                  id="calories"
+                  name="calories"
+                  value={formData.calories}
                   onChange={handleChange}
                   placeholder="0"
                   step="1"
                   min="0"
-                  required
                   disabled={loading}
                 />
               </div>

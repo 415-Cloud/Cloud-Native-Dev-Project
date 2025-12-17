@@ -19,9 +19,9 @@ build_and_push() {
         IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.4"
     fi
 
-    # Build v1.5 for frontend to force update
+    # Build v1.6 for frontend to force update
     if [ "$SERVICE_NAME" == "frontend" ]; then
-        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.5"
+        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.6"
     fi
 
     # Build v1.1 for user-service
@@ -29,10 +29,17 @@ build_and_push() {
         IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.1"
     fi
 
-    # Build v1.1 for leaderboard-service
-    if [ "$SERVICE_NAME" == "leaderboard-service" ]; then
-        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.1"
+    # Build v1.6 for challenge-service
+    if [ "$SERVICE_NAME" == "challenge-service" ]; then
+        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.6"
     fi
+
+    # Build v1.6 for leaderboard-service
+    if [ "$SERVICE_NAME" == "leaderboard-service" ]; then
+        IMAGE="$REGISTRY/found-$SERVICE_NAME:v1.6"
+    fi
+
+
 
     echo "Processing $SERVICE_NAME..."
     docker build --platform $PLATFORM -t $IMAGE $DIR_PATH

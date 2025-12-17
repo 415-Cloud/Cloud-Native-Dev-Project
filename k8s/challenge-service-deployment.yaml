@@ -35,7 +35,7 @@ spec:
             drop:
               - ALL
           readOnlyRootFilesystem: false
-        image: harbor.javajon.duckdns.org/library/found-challenge-service:v1.0
+        image: harbor.javajon.duckdns.org/library/found-challenge-service:v1.6
         imagePullPolicy: Always
         ports:
         - containerPort: 3002

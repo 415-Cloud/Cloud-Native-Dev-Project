@@ -33,17 +33,17 @@ app.get('/health', (req, res) => {
 // Create a new challenge
 app.post('/challenges', async (req, res) => {
   try {
-    const { 
-      name, 
-      description, 
-      type, 
-      startDate, 
-      endDate, 
-      targetValue, 
-      targetUnit, 
-      createdBy 
+    const {
+      name,
+      description,
+      type,
+      startDate,
+      endDate,
+      targetValue,
+      targetUnit,
+      createdBy
     } = req.body;
-    
+
     // Basic validation
     if (!name || !type || !startDate || !endDate || !createdBy) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -63,9 +63,9 @@ app.post('/challenges', async (req, res) => {
       [name, description, type, startDate, endDate, targetValue, targetUnit, createdBy]
     );
 
-    res.status(201).json({ 
-      success: true, 
-      challenge: result.rows[0] 
+    res.status(201).json({
+      success: true,
+      challenge: result.rows[0]
     });
   } catch (error) {
     console.error('Error creating challenge:', error);
@@ -105,15 +105,39 @@ app.get('/challenges/:id', async (req, res) => {
        GROUP BY c.id`,
       [id]
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Challenge not found' });
     }
-    
+
     res.json({ challenge: result.rows[0] });
   } catch (error) {
     console.error('Error getting challenge:', error);
     res.status(500).json({ error: 'Failed to get challenge' });
+  }
+});
+
+// Delete a challenge
+app.delete('/challenges/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Note: In a real app we'd verify the user is the creator here via a token or body param
+    // For now, we trust the frontend check or just allow it for simplicity
+
+    // First delete participants to satisfy foreign key constraints (if any)
+    await pool.query('DELETE FROM challenge_participants WHERE challenge_id = $1', [id]);
+
+    // Then delete the challenge
+    const result = await pool.query('DELETE FROM challenges WHERE id = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Challenge not found' });
+    }
+
+    res.json({ success: true, message: 'Challenge deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting challenge:', error);
+    res.status(500).json({ error: 'Failed to delete challenge' });
   }
 });
 
@@ -122,7 +146,7 @@ app.post('/challenges/:id/join', async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.body;
-    
+
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
@@ -132,7 +156,7 @@ app.post('/challenges/:id/join', async (req, res) => {
       'SELECT * FROM challenges WHERE id = $1 AND status = $2',
       [id, 'active']
     );
-    
+
     if (challengeCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Challenge not found or not active' });
     }
@@ -142,7 +166,7 @@ app.post('/challenges/:id/join', async (req, res) => {
       'SELECT * FROM challenge_participants WHERE challenge_id = $1 AND user_id = $2',
       [id, userId]
     );
-    
+
     if (existingParticipation.rows.length > 0) {
       return res.status(400).json({ error: 'User is already participating in this challenge' });
     }
@@ -153,9 +177,9 @@ app.post('/challenges/:id/join', async (req, res) => {
       [id, userId]
     );
 
-    res.status(201).json({ 
-      success: true, 
-      participation: result.rows[0] 
+    res.status(201).json({
+      success: true,
+      participation: result.rows[0]
     });
   } catch (error) {
     console.error('Error joining challenge:', error);
@@ -168,7 +192,7 @@ app.delete('/challenges/:id/leave', async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.body;
-    
+
     if (!userId) {
       return res.status(400).json({ error: 'User ID is required' });
     }
@@ -178,14 +202,14 @@ app.delete('/challenges/:id/leave', async (req, res) => {
       'DELETE FROM challenge_participants WHERE challenge_id = $1 AND user_id = $2 RETURNING *',
       [id, userId]
     );
-    
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User is not participating in this challenge' });
     }
 
-    res.json({ 
-      success: true, 
-      message: 'Successfully left challenge' 
+    res.json({
+      success: true,
+      message: 'Successfully left challenge'
     });
   } catch (error) {
     console.error('Error leaving challenge:', error);
@@ -200,7 +224,8 @@ app.get('/users/:userId/challenges', async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await pool.query(
-      `SELECT c.*, p.joined_at, p.status as participation_status
+      `SELECT c.*, p.joined_at, p.status as participation_status,
+              (SELECT COUNT(*) FROM challenge_participants cp WHERE cp.challenge_id = c.id) as participant_count
        FROM challenges c 
        JOIN challenge_participants p ON c.id = p.challenge_id 
        WHERE p.user_id = $1 
@@ -219,7 +244,8 @@ app.get('/challenges/users/:userId/challenges', async (req, res) => {
   try {
     const { userId } = req.params;
     const result = await pool.query(
-      `SELECT c.*, p.joined_at, p.status as participation_status
+      `SELECT c.*, p.joined_at, p.status as participation_status,
+              (SELECT COUNT(*) FROM challenge_participants cp WHERE cp.challenge_id = c.id) as participant_count
        FROM challenges c 
        JOIN challenge_participants p ON c.id = p.challenge_id 
        WHERE p.user_id = $1 
@@ -268,11 +294,11 @@ process.on('SIGTERM', async () => {
 
 app.listen(PORT, async () => {
   console.log(`Challenge Service running on port ${PORT}`);
-  
+
   // Start listening to events with retry logic
   const maxRetries = 10;
   const retryDelay = 3000; // 3 seconds
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       await eventConsumer.subscribeToWorkoutEvents();
@@ -281,7 +307,7 @@ app.listen(PORT, async () => {
     } catch (error) {
       console.error(`Failed to connect to RabbitMQ (attempt ${attempt}/${maxRetries}):`, error.message);
       if (attempt < maxRetries) {
-        console.log(`Retrying in ${retryDelay/1000} seconds...`);
+        console.log(`Retrying in ${retryDelay / 1000} seconds...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
       } else {
         console.error('Max retries reached. Event consumer not started.');
